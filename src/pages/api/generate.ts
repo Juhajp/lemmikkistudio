@@ -112,4 +112,24 @@ export const POST: APIRoute = async ({ request }) => {
         
         const fallbackData = await fallbackResponse.json();
         const fbPrediction = fallbackData.predictions?.[0];
-        const fbImage = fbPrediction?.bytes
+        const fbImage = fbPrediction?.bytesBase64Encoded || fbPrediction?.bytes || fbPrediction;
+        
+        return new Response(JSON.stringify({ image: fbImage, message: "Luotu tekstipohjaisesti (Kuva-input ei tuettu tässä rajapinnassa)" }), { status: 200 });
+    }
+
+    const imagenData = await imagenResponse.json();
+    const prediction = imagenData.predictions?.[0];
+    const generatedBase64 = prediction?.bytesBase64Encoded || prediction?.bytes || prediction;
+
+    if (!generatedBase64) throw new Error("No image data returned.");
+
+    return new Response(JSON.stringify({ 
+      image: generatedBase64, 
+      message: "Luotu Imagen 4:llä" 
+    }), { status: 200 });
+
+  } catch (error: any) {
+    console.error('Process Error:', error);
+    return new Response(JSON.stringify({ error: error.message || 'Error' }), { status: 500 });
+  }
+};
