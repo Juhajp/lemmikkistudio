@@ -1,16 +1,17 @@
 import type { APIRoute } from 'astro';
-import Replicate from 'replicate';
+import { fal } from '@fal-ai/serverless-client';
 
 export const POST: APIRoute = async ({ request }) => {
-  // MUISTA: Päivitä uusi turvallinen avain .env-tiedostoon ja Verceliin!
-  const REPLICATE_API_TOKEN = import.meta.env.REPLICATE_API_TOKEN || process.env.REPLICATE_API_TOKEN;
+  // Varmista että olet lisännyt FAL_KEY:n .env tiedostoon ja Verceliin
+  const FAL_KEY = import.meta.env.FAL_KEY || process.env.FAL_KEY;
 
-  if (!REPLICATE_API_TOKEN) {
-    return new Response(JSON.stringify({ error: 'Server Config Error: Replicate API Token missing' }), { status: 500 });
+  if (!FAL_KEY) {
+    return new Response(JSON.stringify({ error: 'Server Config Error: FAL_KEY missing' }), { status: 500 });
   }
 
-  const replicate = new Replicate({
-    auth: REPLICATE_API_TOKEN,
+  // Fal vaatii configuroinnin näin server-side käytössä
+  fal.config({
+    credentials: FAL_KEY,
   });
 
   try {
@@ -21,65 +22,52 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ error: 'No image data' }), { status: 400 });
     }
 
-    console.log("Fetching latest Flux PuLID version (zsxkib)...");
+    console.log("Starting generation with Fal.ai (Flux PuLID)...");
 
-    // 1. Haetaan oikea malli: zsxkib/flux-pulid
-    // Tämä on Replicaten suosituin julkinen versio tästä mallista.
-    const model = await replicate.models.get("zsxkib", "flux-pulid");
-    const latestVersion = model.latest_version?.id;
-
-    if (!latestVersion) {
-      throw new Error("Flux PuLID -mallin versiota ei löytynyt.");
-    }
-
-    console.log(`Starting generation with version: ${latestVersion}`);
-
-    // 2. Ajetaan malli
-    const output = await replicate.run(
-      `zsxkib/flux-pulid:${latestVersion}`,
-      {
-        input: {
-          main_face_image: base64Image,
-          prompt: "A professional studio portrait of a person wearing a smart casual dark grey blazer. Background is solid dark neutral grey #141414. Soft cinematic studio lighting, rim light, sharp focus on eyes, 85mm lens, photorealistic, 8k, highly detailed skin texture, masterpiece.",
-          
-          // HUOM: Tämän mallin parametrit voivat olla hieman erilaiset
-          // 'identity_weight' sijaan käytetään usein 'mix_weight' tai vastaavaa,
-          // mutta 'main_face_image' on vakio. Flux hoitaa loput.
-          width: 896,
-          height: 1152,
-          guidance_scale: 3.5,
-          num_inference_steps: 20,
-          true_cfg: 1.0, 
-          start_step: 0,
-          timestep_to_start_cfg: 1,
-          max_sequence_length: 128
+    // Fal.ai:n Flux PuLID -malli
+    const result: any = await fal.subscribe("fal-ai/flux/pulid", {
+      input: {
+        // Fal ottaa data-urin (base64) suoraan image_url kenttään
+        image_url: base64Image,
+        prompt: "A professional studio portrait of a person wearing a smart casual dark grey blazer. Background is solid dark neutral grey #141414. Soft cinematic studio lighting, rim light, sharp focus on eyes, 85mm lens, photorealistic, 8k, highly detailed skin texture, masterpiece.",
+        identity_weight: 1.0,
+        guidance_scale: 3.5,
+        num_inference_steps: 20,
+        width: 896,
+        height: 1152,
+      },
+      logs: true,
+      onQueueUpdate: (update) => {
+        if (update.status === 'IN_PROGRESS') {
+           console.log("Fal.ai processing...");
         }
-      }
-    );
+      },
+    });
 
-    console.log("Replicate Output:", output);
+    console.log("Fal.ai Result:", result);
 
-    let imageUrl = "";
-    if (Array.isArray(output)) {
-      imageUrl = String(output[0]);
-    } else {
-      imageUrl = String(output);
+    // Fal palauttaa suoraan JSONin, jossa 'images' on lista objekteja { url: "..." }
+    const imageUrl = result.images?.[0]?.url;
+
+    if (!imageUrl) {
+        throw new Error("Fal.ai ei palauttanut kuvan URLia.");
     }
 
+    // Haetaan kuva URL:sta ja muutetaan Base64:ksi (jotta frontend toimii kuten ennenkin)
     const imageResponse = await fetch(imageUrl);
     const imageBuffer = await imageResponse.arrayBuffer();
     const base64Result = Buffer.from(imageBuffer).toString('base64');
 
     return new Response(JSON.stringify({ 
       image: base64Result, 
-      message: "Luotu Flux PuLID -mallilla" 
+      message: "Luotu Fal.ai Flux PuLID -mallilla" 
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (error: any) {
-    console.error('Replicate Error:', error);
+    console.error('Fal.ai Error:', error);
     return new Response(JSON.stringify({ error: error.message || 'Generation failed' }), { status: 500 });
   }
 };
