@@ -58,7 +58,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     const prompt =
       (body.prompt as string | undefined) ??
-      "Keep the person's facial features and identity the same. Create a professional studio headshot. Change clothing to a smart casual dark grey blazer. Replace background with solid dark neutral grey (#141414). Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.";
+      "Keep the person's facial features and identity the same. Create a professional studio headshot. Change clothing to a smart casual dark grey blazer. Replace background with solid dark neutral grey (#141414). Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic professionalphoto.";
 
     const result: any = await fal.subscribe("fal-ai/gpt-image-1.5/edit", {
       input: {
