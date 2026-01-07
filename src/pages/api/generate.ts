@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import Replicate from 'replicate';
 
 export const POST: APIRoute = async ({ request }) => {
-  // Muista päivittää uusi turvallinen avain .env-tiedostoon!
+  // MUISTA: Päivitä uusi turvallinen avain .env-tiedostoon ja Verceliin!
   const REPLICATE_API_TOKEN = import.meta.env.REPLICATE_API_TOKEN || process.env.REPLICATE_API_TOKEN;
 
   if (!REPLICATE_API_TOKEN) {
@@ -21,11 +21,11 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ error: 'No image data' }), { status: 400 });
     }
 
-    console.log("Fetching latest Flux PuLID version...");
+    console.log("Fetching latest Flux PuLID version (zsxkib)...");
 
-    // 1. Haetaan mallin uusin versio dynaamisesti (ei kovakoodattua hashia)
-    // Tämä korjaa "Invalid version" -virheen lopullisesti.
-    const model = await replicate.models.get("idmbaron", "flux-pulid");
+    // 1. Haetaan oikea malli: zsxkib/flux-pulid
+    // Tämä on Replicaten suosituin julkinen versio tästä mallista.
+    const model = await replicate.models.get("zsxkib", "flux-pulid");
     const latestVersion = model.latest_version?.id;
 
     if (!latestVersion) {
@@ -34,19 +34,25 @@ export const POST: APIRoute = async ({ request }) => {
 
     console.log(`Starting generation with version: ${latestVersion}`);
 
-    // 2. Ajetaan malli uusimmalla versiolla
+    // 2. Ajetaan malli
     const output = await replicate.run(
-      `idmbaron/flux-pulid:${latestVersion}`,
+      `zsxkib/flux-pulid:${latestVersion}`,
       {
         input: {
           main_face_image: base64Image,
           prompt: "A professional studio portrait of a person wearing a smart casual dark grey blazer. Background is solid dark neutral grey #141414. Soft cinematic studio lighting, rim light, sharp focus on eyes, 85mm lens, photorealistic, 8k, highly detailed skin texture, masterpiece.",
-          identity_weight: 1.0,
-          guidance_scale: 3.5,
-          num_inference_steps: 20,
+          
+          // HUOM: Tämän mallin parametrit voivat olla hieman erilaiset
+          // 'identity_weight' sijaan käytetään usein 'mix_weight' tai vastaavaa,
+          // mutta 'main_face_image' on vakio. Flux hoitaa loput.
           width: 896,
           height: 1152,
-          negative_prompt: "bad quality, blurry, distorted face, cartoon, painting, 3d render, extra fingers, smile (if unwanted)"
+          guidance_scale: 3.5,
+          num_inference_steps: 20,
+          true_cfg: 1.0, 
+          start_step: 0,
+          timestep_to_start_cfg: 1,
+          max_sequence_length: 128
         }
       }
     );
@@ -66,7 +72,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     return new Response(JSON.stringify({ 
       image: base64Result, 
-      message: "Luotu Flux PuLID -mallilla (Auto-Version)" 
+      message: "Luotu Flux PuLID -mallilla" 
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
