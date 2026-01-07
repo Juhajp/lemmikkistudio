@@ -1,13 +1,17 @@
 import type { APIRoute } from 'astro';
+import Replicate from 'replicate';
 
 export const POST: APIRoute = async ({ request }) => {
-  const API_KEY = import.meta.env.GOOGLE_API_KEY || process.env.GOOGLE_API_KEY;
+  // Hakee avaimen ympäristömuuttujista
+  const REPLICATE_API_TOKEN = import.meta.env.REPLICATE_API_TOKEN || process.env.REPLICATE_API_TOKEN;
 
-  if (!API_KEY) {
-    return new Response(JSON.stringify({ error: 'Server Config Error: API Key missing' }), { status: 500 });
+  if (!REPLICATE_API_TOKEN) {
+    return new Response(JSON.stringify({ error: 'Server Config Error: Replicate API Token missing' }), { status: 500 });
   }
 
-  const MODEL_NAME = "models/gemini-2.0-flash-exp-image-generation";
+  const replicate = new Replicate({
+    auth: REPLICATE_API_TOKEN,
+  });
 
   try {
     const body = await request.json();
@@ -17,84 +21,49 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ error: 'No image data' }), { status: 400 });
     }
 
-    const base64Data = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
+    console.log("Starting generation with Flux PuLID (Replicate)...");
 
-    console.log(`Sending STRICT request to ${MODEL_NAME}...`);
-
-    const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_NAME}:generateContent?key=${API_KEY}`;
-    
-    const payload = {
-      contents: [{
-        parts: [
-          { text: `
-            SYSTEM INSTRUCTION: You are an image processing engine, NOT a chatbot.
-            
-            Task: Transform the input image into a professional studio portrait.
-            
-            RULES:
-            1. Keep the person's face/identity EXACTLY as is.
-            2. Change outfit to a dark grey blazer.
-            3. Change background to solid #141414.
-            4. OUTPUT REQUIREMENT: Return ONLY the image data. DO NOT output any text, do not say "Here is the image". Just the image.
-            ` 
-          },
-          { inline_data: { mime_type: "image/jpeg", data: base64Data } }
-        ]
-      }],
-      safetySettings: [
-        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-      ],
-      generationConfig: {
-        // Yritetään pakottaa yksi vastaus
-        candidateCount: 1
+    // Flux PuLID säilyttää kasvojen identiteetin erittäin tarkasti
+    const output = await replicate.run(
+      "yan-ops/flux-pulid:8baa7ef2255075b46f4d91cd238c21d31181b3e6a864463f967960bb01125252",
+      {
+        input: {
+          main_face_image: base64Image,
+          prompt: "A professional studio portrait of a person wearing a smart casual dark grey blazer. Background is solid dark neutral grey #141414. Soft cinematic studio lighting, rim light, sharp focus on eyes, 85mm lens, photorealistic, 8k, highly detailed skin texture, masterpiece.",
+          identity_weight: 1.0,
+          guidance_scale: 3.5,
+          num_inference_steps: 20,
+          width: 896,
+          height: 1152,
+          negative_prompt: "bad quality, blurry, distorted face, cartoon, painting, 3d render, extra fingers, smile (if unwanted)"
+        }
       }
-    };
+    );
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+    console.log("Replicate Output:", output);
+
+    // Replicate palauttaa yleensä URLin. Haetaan kuva sieltä ja muutetaan base64:ksi.
+    let imageUrl = "";
+    if (Array.isArray(output)) {
+      imageUrl = String(output[0]);
+    } else {
+      imageUrl = String(output);
+    }
+
+    const imageResponse = await fetch(imageUrl);
+    const imageBuffer = await imageResponse.arrayBuffer();
+    const base64Result = Buffer.from(imageBuffer).toString('base64');
+
+    return new Response(JSON.stringify({ 
+      image: base64Result, 
+      message: "Luotu Flux PuLID -mallilla" 
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
     });
 
-    if (!response.ok) {
-      const err = await response.json();
-      console.error("API Error:", err);
-      throw new Error(`API Error: ${err.error?.message || response.statusText}`);
-    }
-
-    const data = await response.json();
-    
-    // --- DEBUG: TULOSTETAAN KOKO VASTAUS LOKIIN ---
-    // Jos tämä epäonnistuu, mene Vercelin Logs-välilehdelle. 
-    // Näet siellä kohdan "FULL GOOGLE RESPONSE", josta näemme mitä ihmettä malli oikein lähetti.
-    console.log("FULL GOOGLE RESPONSE:", JSON.stringify(data, null, 2));
-
-    const candidate = data.candidates?.[0];
-    const parts = candidate?.content?.parts || [];
-
-    // Etsitään kuva
-    const imagePart = parts.find((p: any) => p.inline_data && p.inline_data.data);
-    const textPart = parts.find((p: any) => p.text);
-
-    if (imagePart) {
-        return new Response(JSON.stringify({ 
-          image: imagePart.inline_data.data, 
-          message: "Kuva luotu onnistuneesti." 
-        }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
-        });
-    } else {
-        // Jos kuvaa ei ole, heitetään virhe, mutta kerrotaan myös mitä malli sanoi.
-        const msg = textPart ? textPart.text : "Tyhjä vastaus";
-        throw new Error(`Malli ei tuottanut kuvaa. Se vastasi: "${msg}" (Katso Vercel Logs nähdäksesi raakadatan)`);
-    }
-
   } catch (error: any) {
-    console.error('Process Error:', error);
-    return new Response(JSON.stringify({ error: error.message || 'Error' }), { status: 500 });
+    console.error('Replicate Error:', error);
+    return new Response(JSON.stringify({ error: error.message || 'Generation failed' }), { status: 500 });
   }
 };
