@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { fal } from '@fal-ai/serverless-client';
+// KORJAUS: Tuodaan koko kirjasto nimiavaruutena 'fal', koska kyseessä on CommonJS-moduuli
+import * as fal from '@fal-ai/serverless-client';
 
 export const POST: APIRoute = async ({ request }) => {
   // Varmista että olet lisännyt FAL_KEY:n .env tiedostoon ja Verceliin
@@ -25,6 +26,7 @@ export const POST: APIRoute = async ({ request }) => {
     console.log("Starting generation with Fal.ai (Flux PuLID)...");
 
     // Fal.ai:n Flux PuLID -malli
+    // Käytetään 'any' tyyppiä resultille välttämään TypeScript-ongelmat tässä nopeassa korjauksessa
     const result: any = await fal.subscribe("fal-ai/flux/pulid", {
       input: {
         // Fal ottaa data-urin (base64) suoraan image_url kenttään
@@ -44,7 +46,7 @@ export const POST: APIRoute = async ({ request }) => {
       },
     });
 
-    console.log("Fal.ai Result:", result);
+    console.log("Fal.ai Result:", JSON.stringify(result, null, 2));
 
     // Fal palauttaa suoraan JSONin, jossa 'images' on lista objekteja { url: "..." }
     const imageUrl = result.images?.[0]?.url;
