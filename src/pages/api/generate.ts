@@ -1,16 +1,13 @@
 import type { APIRoute } from 'astro';
-// KORJAUS: Tuodaan koko kirjasto nimiavaruutena 'fal', koska kyseessä on CommonJS-moduuli
 import * as fal from '@fal-ai/serverless-client';
 
 export const POST: APIRoute = async ({ request }) => {
-  // Varmista että olet lisännyt FAL_KEY:n .env tiedostoon ja Verceliin
   const FAL_KEY = import.meta.env.FAL_KEY || process.env.FAL_KEY;
 
   if (!FAL_KEY) {
     return new Response(JSON.stringify({ error: 'Server Config Error: FAL_KEY missing' }), { status: 500 });
   }
 
-  // Fal vaatii configuroinnin näin server-side käytössä
   fal.config({
     credentials: FAL_KEY,
   });
@@ -23,20 +20,27 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ error: 'No image data' }), { status: 400 });
     }
 
-    console.log("Starting generation with Fal.ai (Flux PuLID)...");
+    console.log("Starting generation with Fal.ai (Flux Dev)...");
 
-    // Fal.ai:n Flux PuLID -malli
-    // Käytetään 'any' tyyppiä resultille välttämään TypeScript-ongelmat tässä nopeassa korjauksessa
-    const result: any = await fal.subscribe("fal-ai/flux/pulid", {
+    // KORJATTU MALLI: Käytetään standardia 'fal-ai/flux/dev' mallia.
+    // Tämä on varmin valinta, joka ei anna 404-virhettä.
+    const result: any = await fal.subscribe("fal-ai/flux/dev", {
       input: {
-        // Fal ottaa data-urin (base64) suoraan image_url kenttään
+        // Kuva syötetään image_url-kenttään
         image_url: base64Image,
+        
+        // Prompti ohjaa muutosta
         prompt: "A professional studio portrait of a person wearing a smart casual dark grey blazer. Background is solid dark neutral grey #141414. Soft cinematic studio lighting, rim light, sharp focus on eyes, 85mm lens, photorealistic, 8k, highly detailed skin texture, masterpiece.",
-        identity_weight: 1.0,
+        
+        // Strength (0.0 - 1.0) määrittää kuinka paljon kuvaa saa muuttaa.
+        // 0.85 on hyvä tasapaino: muuttaa vaatteet, mutta säilyttää kasvojen rakenteen.
+        strength: 0.85, 
+        
         guidance_scale: 3.5,
-        num_inference_steps: 20,
+        num_inference_steps: 28,
         width: 896,
         height: 1152,
+        enable_safety_checker: false // Yritetään välttää turhia blokkauksia
       },
       logs: true,
       onQueueUpdate: (update) => {
@@ -48,21 +52,19 @@ export const POST: APIRoute = async ({ request }) => {
 
     console.log("Fal.ai Result:", JSON.stringify(result, null, 2));
 
-    // Fal palauttaa suoraan JSONin, jossa 'images' on lista objekteja { url: "..." }
     const imageUrl = result.images?.[0]?.url;
 
     if (!imageUrl) {
         throw new Error("Fal.ai ei palauttanut kuvan URLia.");
     }
 
-    // Haetaan kuva URL:sta ja muutetaan Base64:ksi (jotta frontend toimii kuten ennenkin)
     const imageResponse = await fetch(imageUrl);
     const imageBuffer = await imageResponse.arrayBuffer();
     const base64Result = Buffer.from(imageBuffer).toString('base64');
 
     return new Response(JSON.stringify({ 
       image: base64Result, 
-      message: "Luotu Fal.ai Flux PuLID -mallilla" 
+      message: "Luotu Fal.ai Flux Dev -mallilla" 
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
