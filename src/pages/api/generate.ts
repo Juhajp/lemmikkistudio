@@ -7,8 +7,8 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify({ error: 'Server Config Error: API Key missing' }), { status: 500 });
   }
 
-  // Pysytään tässä mallissa, kuten pyysit
-  const MODEL_NAME = "models/gemini-3-pro-image-preview";
+  // TÄMÄ ON SE MALLI. Nimi viittaa suoraan kuvan generointiin Gemini-rungon sisällä.
+  const MODEL_NAME = "models/gemini-2.0-flash-exp-image-generation";
 
   try {
     const body = await request.json();
@@ -20,36 +20,41 @@ export const POST: APIRoute = async ({ request }) => {
 
     const base64Data = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
 
-    console.log(`Sending request to ${MODEL_NAME} with SAFETY OVERRIDES...`);
+    console.log(`Sending Image-to-Image request to ${MODEL_NAME}...`);
 
+    // Gemini-mallit käyttävät generateContent-endpointtia
     const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_NAME}:generateContent?key=${API_KEY}`;
     
     const payload = {
       contents: [{
         parts: [
+          // 1. Ohjeistus (Prompt)
           { text: `
-            Task: Transform the input image into a professional studio headshot.
+            Edit the input image to look like a professional studio portrait.
             
-            CRITICAL INSTRUCTION: You MUST PRESERVE the facial identity of the person in the image. 
-            Do not change their features, age, or expression. Only change the environment and clothing.
-            
-            Style:
-            - Outfit: Dark grey smart casual blazer.
-            - Background: Solid dark neutral grey #141414.
-            - Lighting: Soft cinematic studio lighting.
-            - Output: High-resolution image.
+            IMPORTANT:
+            - Keep the person's face and identity EXACTLY as they are. This is an editing task, not a generation task.
+            - Change the clothes to a dark grey smart casual blazer.
+            - Change the background to a solid dark neutral grey #141414.
+            - Improve lighting to soft cinematic studio lighting.
+            - Output the result as an image.
             ` 
           },
+          // 2. Input-kuva (Base64)
           { inline_data: { mime_type: "image/jpeg", data: base64Data } }
         ]
       }],
-      // TÄMÄ ON UUSI OSIO: Poistetaan turvaestot, jotka estävät ihmisten generoinnin
+      // Varmistetaan, ettei turvasuodatin estä kuvan luomista
       safetySettings: [
         { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
         { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
         { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
         { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-      ]
+      ],
+      // Pyydetään mallia tuottamaan yksi kandidaatti
+      generationConfig: {
+        candidateCount: 1
+      }
     };
 
     const response = await fetch(url, {
@@ -60,41 +65,39 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (!response.ok) {
       const err = await response.json();
-      console.error("API Error:", err);
-      throw new Error(`API Error: ${err.error?.message || response.statusText}`);
+      console.error("Gemini Image Gen Error:", err);
+      throw new Error(`Model Error: ${err.error?.message || JSON.stringify(err)}`);
     }
 
     const data = await response.json();
     
-    // --- DEBUGGAUS: Katsotaan mitä sieltä oikeasti tulee ---
-    // Jos vastaus on tyhjä, tulostetaan syy (finishReason) Vercelin lokiin.
-    if (!data.candidates || data.candidates.length === 0) {
-        console.log("FULL RESPONSE (EMPTY):", JSON.stringify(data, null, 2));
-        throw new Error("Malli ei palauttanut mitään (todennäköisesti turvasuodatin esti kuvan).");
+    // Tarkistetaan vastaus
+    const candidate = data.candidates?.[0];
+    const part = candidate?.content?.parts?.[0];
+
+    // Debug: Jos tulee stop reason, logataan se
+    if (candidate?.finishReason && candidate.finishReason !== "STOP") {
+       console.warn("Finish Reason:", candidate.finishReason);
     }
 
-    const candidate = data.candidates[0];
-    const part = candidate.content?.parts?.[0];
-
-    // Tarkistetaan miksi generointi lopetettiin
-    if (candidate.finishReason && candidate.finishReason !== "STOP") {
-        console.warn("Generointi keskeytyi syystä:", candidate.finishReason);
-    }
-    
     if (part?.inline_data?.data) {
+        // ONNISTUI: Saimme kuvan!
         return new Response(JSON.stringify({ 
           image: part.inline_data.data, 
-          message: `Luotu onnistuneesti mallilla: ${MODEL_NAME}` 
+          message: `Luotu suoraan mallilla: ${MODEL_NAME}` 
         }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' }
         });
     } else if (part?.text) {
+        // Epäonnistui: Malli vastasi tekstillä
         console.log("Malli vastasi tekstillä:", part.text);
-        throw new Error(`Malli vastasi tekstillä (ei kuvalla): "${part.text}"`);
+        
+        // Jos malli sanoo "I cannot...", se on merkki siitä, että se kieltäytyy tehtävästä.
+        // Mutta palautetaan se viestinä, jotta näet mitä se sanoo.
+        throw new Error(`Malli kieltäytyi kuvasta ja vastasi: "${part.text}"`);
     } else {
-        console.log("TUNTEMATON DATA:", JSON.stringify(candidate, null, 2));
-        throw new Error(`Malli vastasi, mutta data oli tunnistamatonta. FinishReason: ${candidate.finishReason}`);
+        throw new Error("Malli vastasi, mutta ei antanut kuvaa eikä tekstiä.");
     }
 
   } catch (error: any) {
