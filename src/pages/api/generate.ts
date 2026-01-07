@@ -3,9 +3,10 @@
 import type { APIRoute } from "astro";
 import * as fal from "@fal-ai/serverless-client";
 
-// --- APUFUNKTIOT ---
 function toDataUri(image: string, mimeType = "image/jpeg") {
+  // hyväksy jo valmiit data-URI:t
   if (/^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(image)) return image;
+  // muuten oletetaan että tulee pelkkä base64
   return "data:" + mimeType + ";base64," + image;
 }
 
@@ -28,7 +29,12 @@ async function urlToBase64(url: string) {
   // @ts-ignore
   return btoa(binary);
 }
-// -------------------
+
+function clampNumber(value: any, min: number, max: number, fallback: number) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(min, Math.min(max, n));
+}
 
 export const POST: APIRoute = async ({ request }) => {
   const FAL_KEY = process.env.FAL_KEY;
@@ -55,47 +61,80 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
+    // (valinnainen) suojaraja: base64 payloadit voi muuten räjäyttää serverlessin
+    if (typeof base64OrDataUri === "string" && base64OrDataUri.length > 12_000_000) {
+      return new Response(JSON.stringify({ error: "Image payload too large" }), {
+        status: 413,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const inputImage = toDataUri(base64OrDataUri, mimeType);
 
-    // Prompti: Ohjaa Fluxia luomaan haluttu tyyli
+    // Default prompt: erittäin eksplisiittinen “pidä kasvot/identiteetti, vaihda tausta+vaate”
     const prompt =
       (body.prompt as string | undefined) ??
-      "Professional studio portrait of this person. Wearing a smart casual dark grey blazer. Solid dark neutral grey background #141414. Soft cinematic studio lighting, rim light. Looking at camera. High quality, photorealistic, 8k, sharp focus, natural skin texture.";
+      [
+        "Edit the provided photo into a professional studio headshot.",
+        "IMPORTANT: keep the same person, same identity, same facial features, same face shape, same age, same expression.",
+        "Do NOT change the person's face.",
+        "Change clothing to a smart casual dark grey blazer (no logos).",
+        "Replace the background with a solid dark neutral grey studio backdrop (#141414).",
+        "Soft clean studio lighting with a subtle rim light, realistic photo.",
+        "Natural skin texture, subtle retouch, ultra clean (no noise/grain).",
+      ].join(" ");
 
-    // --- KUSTANNUSTEHOKAS FLUX DEV ---
-    // Hinta: n. 0,025 € / kuva
-    const result: any = await fal.subscribe("fal-ai/flux/dev", {
+    // Kontext käyttää aspect_ratioa (ei image_size) :contentReference[oaicite:1]{index=1}
+    const aspect_ratio =
+      (body.aspect_ratio as
+        | "21:9"
+        | "16:9"
+        | "4:3"
+        | "3:2"
+        | "1:1"
+        | "2:3"
+        | "3:4"
+        | "9:16"
+        | "9:21"
+        | undefined) ?? "3:4";
+
+    // Kontextin parametrit (schema): guidance_scale, seed, num_images, output_format, sync_mode, enhance_prompt, safety_tolerance :contentReference[oaicite:2]{index=2}
+    const guidance_scale = clampNumber(body.guidance_scale, 1, 10, 3.5);
+    const seed = body.seed !== undefined ? clampNumber(body.seed, 0, 2_147_483_647, 0) : undefined;
+
+    const output_format = ((body.output_format as "png" | "jpeg" | undefined) ?? "png"); // png vähentää jpeg-artefakteja
+    const enhance_prompt = Boolean(body.enhance_prompt ?? false);
+
+    const safety_tolerance = String(body.safety_tolerance ?? "2") as "1" | "2" | "3" | "4" | "5" | "6";
+
+    const result: any = await fal.subscribe("fal-ai/flux-pro/kontext", {
       input: {
         prompt,
-        // HUOM: Flux Dev käyttää 'image_url' (yksikkö), ei taulukkoa
-        image_url: inputImage,
-        
-        // --- STRENGTH-SÄÄTÖ ---
-        // 0.75 - 0.85 on optimi vaatteiden vaihtoon.
-        // < 0.70: Kasvot muuttuvat liikaa.
-        // > 0.90: Vaatteet eivät vaihdu tarpeeksi.
-        strength: 0.80,
-
-        // Flux-parametrit
-        guidance_scale: 3.5,
-        num_inference_steps: 28,
-        enable_safety_checker: false,
-        output_format: "jpeg",
-        sync_mode: true,
+        image_url: inputImage, // ✅ Kontext: image_url (ei image_urls) :contentReference[oaicite:3]{index=3}
+        aspect_ratio,
+        guidance_scale,
+        ...(seed !== undefined ? { seed } : {}),
+        num_images: 1,
+        output_format,
+        sync_mode: true, // palauttaa usein data-URI:nä :contentReference[oaicite:4]{index=4}
+        enhance_prompt,
+        safety_tolerance,
       },
       logs: true,
       onQueueUpdate: (update) => {
         if (update.status === "IN_PROGRESS") {
-          console.log("Flux processing...");
+          (update.logs ?? []).map((l: any) => l.message).forEach(console.log);
         }
       },
     });
 
-    const outUrlOrDataUri: string | undefined = result?.images?.[0]?.url;
+    // serverless-clientissä voi tulla result.images tai result.data.images -> otetaan molemmat
+    const images = result?.images ?? result?.data?.images;
+    const outUrlOrDataUri: string | undefined = images?.[0]?.url;
 
     if (!outUrlOrDataUri) {
       console.error("Full result:", JSON.stringify(result, null, 2));
-      throw new Error("Fal.ai ei palauttanut kuvan URL:ia.");
+      throw new Error("Fal.ai ei palauttanut kuvan URL:ia / data-URI:a.");
     }
 
     const outputBase64 = outUrlOrDataUri.startsWith("data:")
@@ -105,7 +144,8 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(
       JSON.stringify({
         image: outputBase64,
-        message: "Luotu Fal.ai Flux Dev -mallilla (Low Cost)",
+        message: "Luotu Fal.ai FLUX Kontext (pro) -mallilla",
+        meta: { aspect_ratio, guidance_scale, output_format, enhance_prompt, seed },
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
