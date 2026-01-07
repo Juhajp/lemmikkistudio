@@ -10,11 +10,6 @@ function toDataUri(image: string, mimeType = "image/jpeg") {
   return "data:" + mimeType + ";base64," + image;
 }
 
-function dataUriToBase64(dataUri: string) {
-  const i = dataUri.indexOf(",");
-  return i >= 0 ? dataUri.slice(i + 1) : dataUri;
-}
-
 async function urlToBase64(url: string) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch generated image: ${res.status} ${res.statusText}`);
@@ -61,64 +56,90 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // (valinnainen) suojaraja: base64 payloadit voi muuten räjäyttää serverlessin
-    if (typeof base64OrDataUri === "string" && base64OrDataUri.length > 12_000_000) {
+    // (valinnainen) suoja: liian iso base64 voi räjäyttää serverlessin
+    if (base64OrDataUri.length > 12_000_000) {
       return new Response(JSON.stringify({ error: "Image payload too large" }), {
         status: 413,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    const inputImage = toDataUri(base64OrDataUri, mimeType);
+    // InstantID ottaa face_image_url:in (URL tai base64 data-URI) :contentReference[oaicite:1]{index=1}
+    const faceImage = toDataUri(base64OrDataUri, mimeType);
 
-    // Default prompt: erittäin eksplisiittinen “pidä kasvot/identiteetti, vaihda tausta+vaate”
+    // Prompti: tee studio-headshot + puku + tausta
     const prompt =
       (body.prompt as string | undefined) ??
       [
-        "Edit the provided photo into a professional studio headshot.",
-        "IMPORTANT: keep the same person, same identity, same facial features, same face shape, same age, same expression.",
-        "Do NOT change the person's face.",
-        "Change clothing to a smart casual dark grey blazer (no logos).",
-        "Replace the background with a solid dark neutral grey studio backdrop (#141414).",
-        "Soft clean studio lighting with a subtle rim light, realistic photo.",
-        "Natural skin texture, subtle retouch, ultra clean (no noise/grain).",
+        "Professional studio headshot photo of the same person.",
+        "Smart casual dark grey blazer, clean corporate look.",
+        "Solid dark neutral grey background (#141414).",
+        "Soft studio lighting with subtle rim light.",
+        "Realistic skin texture, subtle retouch, sharp focus.",
+        "No noise, no grain.",
       ].join(" ");
 
-    // Kontext käyttää aspect_ratioa (ei image_size) :contentReference[oaicite:1]{index=1}
-    const aspect_ratio =
-      (body.aspect_ratio as
-        | "21:9"
-        | "16:9"
-        | "4:3"
-        | "3:2"
-        | "1:1"
-        | "2:3"
-        | "3:4"
-        | "9:16"
-        | "9:21"
-        | undefined) ?? "3:4";
+    // InstantID: style oletuksena "Headshot" :contentReference[oaicite:2]{index=2}
+    const style =
+      (body.style as
+        | "Headshot"
+        | "Spring Festival"
+        | "Watercolor"
+        | "Film Noir"
+        | "Neon"
+        | "Jungle"
+        | "Mars"
+        | "Vibrant Color"
+        | "Snow"
+        | "Line art"
+        | undefined) ?? "Headshot";
 
-    // Kontextin parametrit (schema): guidance_scale, seed, num_images, output_format, sync_mode, enhance_prompt, safety_tolerance :contentReference[oaicite:2]{index=2}
-    const guidance_scale = clampNumber(body.guidance_scale, 1, 10, 3.5);
-    const seed = body.seed !== undefined ? clampNumber(body.seed, 0, 2_147_483_647, 0) : undefined;
+    // Negatiivinen prompti (auttaa “kohinaa” + artefakteja vastaan)
+    const negative_prompt =
+      (body.negative_prompt as string | undefined) ??
+      "lowres, blurry, noise, grain, jpeg artifacts, watermark, text, logo, worst quality, low quality";
 
-    const output_format = ((body.output_format as "png" | "jpeg" | undefined) ?? "png"); // png vähentää jpeg-artefakteja
-    const enhance_prompt = Boolean(body.enhance_prompt ?? false);
+    // Hyvät lähtöarvot identiteetin säilyttämiseen
+    const num_inference_steps = clampNumber(body.num_inference_steps, 10, 60, 30);
+    const guidance_scale = clampNumber(body.guidance_scale, 0.1, 20, 5);
+    const ip_adapter_scale = clampNumber(body.ip_adapter_scale, 0, 2, 0.7);
+    const identity_controlnet_conditioning_scale = clampNumber(
+      body.identity_controlnet_conditioning_scale,
+      0,
+      2,
+      0.9 // hieman yli defaultin (0.7) -> yleensä parempi identiteetille
+    );
 
-    const safety_tolerance = String(body.safety_tolerance ?? "2") as "1" | "2" | "3" | "4" | "5" | "6";
+    const controlnet_selection =
+      (body.controlnet_selection as "pose" | "canny" | "depth" | undefined) ?? "canny";
+    const controlnet_conditioning_scale = clampNumber(body.controlnet_conditioning_scale, 0, 2, 0.4);
 
-    const result: any = await fal.subscribe("fal-ai/flux-pro/kontext", {
+    const enhance_face_region = body.enhance_face_region ?? true;
+
+    const seed =
+      body.seed !== undefined
+        ? Math.floor(clampNumber(body.seed, 0, 2_147_483_647, 42))
+        : undefined;
+
+    const result: any = await fal.subscribe("fal-ai/instantid/standard", {
       input: {
-        prompt,
-        image_url: inputImage, // ✅ Kontext: image_url (ei image_urls) :contentReference[oaicite:3]{index=3}
-        aspect_ratio,
-        guidance_scale,
+        face_image_url: faceImage, // required :contentReference[oaicite:3]{index=3}
+        prompt, // required :contentReference[oaicite:4]{index=4}
+        style, // :contentReference[oaicite:5]{index=5}
+        negative_prompt, // :contentReference[oaicite:6]{index=6}
+
+        num_inference_steps, // :contentReference[oaicite:7]{index=7}
+        guidance_scale, // :contentReference[oaicite:8]{index=8}
+
+        controlnet_selection, // :contentReference[oaicite:9]{index=9}
+        controlnet_conditioning_scale, // :contentReference[oaicite:10]{index=10}
+
+        ip_adapter_scale, // :contentReference[oaicite:11]{index=11}
+        identity_controlnet_conditioning_scale, // :contentReference[oaicite:12]{index=12}
+
+        enhance_face_region, // :contentReference[oaicite:13]{index=13}
+
         ...(seed !== undefined ? { seed } : {}),
-        num_images: 1,
-        output_format,
-        sync_mode: true, // palauttaa usein data-URI:nä :contentReference[oaicite:4]{index=4}
-        enhance_prompt,
-        safety_tolerance,
       },
       logs: true,
       onQueueUpdate: (update) => {
@@ -128,24 +149,34 @@ export const POST: APIRoute = async ({ request }) => {
       },
     });
 
-    // serverless-clientissä voi tulla result.images tai result.data.images -> otetaan molemmat
-    const images = result?.images ?? result?.data?.images;
-    const outUrlOrDataUri: string | undefined = images?.[0]?.url;
+    // Output schema: result.data.image.url (tai serverless-clientissä joskus suoraan result.image.url) :contentReference[oaicite:14]{index=14}
+    const imageObj = result?.data?.image ?? result?.image;
+    const imageUrl: string | undefined = imageObj?.url;
 
-    if (!outUrlOrDataUri) {
+    if (!imageUrl) {
       console.error("Full result:", JSON.stringify(result, null, 2));
-      throw new Error("Fal.ai ei palauttanut kuvan URL:ia / data-URI:a.");
+      throw new Error("Fal.ai ei palauttanut image.url:ia (tuntematon vastausmuoto).");
     }
 
-    const outputBase64 = outUrlOrDataUri.startsWith("data:")
-      ? dataUriToBase64(outUrlOrDataUri)
-      : await urlToBase64(outUrlOrDataUri);
+    const base64Out = await urlToBase64(imageUrl);
 
     return new Response(
       JSON.stringify({
-        image: outputBase64,
-        message: "Luotu Fal.ai FLUX Kontext (pro) -mallilla",
-        meta: { aspect_ratio, guidance_scale, output_format, enhance_prompt, seed },
+        image: base64Out,
+        contentType: imageObj?.content_type ?? "image/png",
+        seed: result?.data?.seed ?? result?.seed,
+        message: "Luotu Fal.ai InstantID Standard -mallilla",
+        meta: {
+          style,
+          num_inference_steps,
+          guidance_scale,
+          ip_adapter_scale,
+          identity_controlnet_conditioning_scale,
+          controlnet_selection,
+          controlnet_conditioning_scale,
+          enhance_face_region,
+          seed,
+        },
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
