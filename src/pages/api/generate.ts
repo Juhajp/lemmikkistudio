@@ -2,7 +2,6 @@ import type { APIRoute } from 'astro';
 import Replicate from 'replicate';
 
 export const POST: APIRoute = async ({ request }) => {
-  // Hakee avaimen ympäristömuuttujista
   const REPLICATE_API_TOKEN = import.meta.env.REPLICATE_API_TOKEN || process.env.REPLICATE_API_TOKEN;
 
   if (!REPLICATE_API_TOKEN) {
@@ -21,11 +20,11 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ error: 'No image data' }), { status: 400 });
     }
 
-    console.log("Starting generation with Flux PuLID (Replicate)...");
+    console.log("Starting generation with Flux PuLID (idmbaron)...");
 
-    // Flux PuLID säilyttää kasvojen identiteetin erittäin tarkasti
     const output = await replicate.run(
-      "yan-ops/flux-pulid:8baa7ef2255075b46f4d91cd238c21d31181b3e6a864463f967960bb01125252",
+      // KORJATTU RIVI: Oikea omistaja on 'idmbaron', ei 'yan-ops'
+      "idmbaron/flux-pulid:8baa7ef2255075b46f4d91cd238c21d31181b3e6a864463f967960bb01125252",
       {
         input: {
           main_face_image: base64Image,
@@ -42,7 +41,6 @@ export const POST: APIRoute = async ({ request }) => {
 
     console.log("Replicate Output:", output);
 
-    // Replicate palauttaa yleensä URLin. Haetaan kuva sieltä ja muutetaan base64:ksi.
     let imageUrl = "";
     if (Array.isArray(output)) {
       imageUrl = String(output[0]);
