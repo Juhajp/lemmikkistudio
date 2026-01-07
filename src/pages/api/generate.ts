@@ -7,7 +7,7 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify({ error: 'Server Config Error: API Key missing' }), { status: 500 });
   }
 
-  // Kokeillaan listaltasi löytynyttä uusinta Gemini 3 -mallia
+  // KÄYTETÄÄN PYYTÄMÄÄSI GEMINI 3 -MALLIA
   const MODEL_NAME = "models/gemini-3-pro-image-preview";
 
   try {
@@ -20,39 +20,30 @@ export const POST: APIRoute = async ({ request }) => {
 
     const base64Data = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
 
-    console.log(`Attempting generation with hybrid model: ${MODEL_NAME}...`);
+    console.log(`Sending request to ${MODEL_NAME}...`);
 
     const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_NAME}:generateContent?key=${API_KEY}`;
     
-    // Gemini 3:lle lähetetään pyyntö, jossa pyydetään kuvaa vastaukseksi.
     const payload = {
       contents: [{
         parts: [
-          // PROMPTI: Ohjeistetaan mallia toimimaan kuin kuvankäsittelijä
+          // Prompti: Pyydetään selkeästi kuvaa
           { text: `
-            You are an expert portrait photographer and editor.
+            Function: Modify the input image to create a professional studio portrait.
             
-            TASK: Generate a new professional studio portrait based on the person in the input image.
-            
-            REQUIREMENTS:
-            1. KEEP THE IDENTITY: The person's face (eyes, nose, mouth, age, unique features) must look EXACTLY like the input image.
-            2. CHANGE THE STYLE:
-               - Outfit: Smart casual blazer.
-               - Background: Solid dark neutral grey #141414.
-               - Lighting: Soft cinematic studio lighting, professional rim light.
-               - Camera: 85mm lens, f/1.8, sharp focus on eyes.
-            
-            Output ONLY the generated image.
+            Instructions:
+            1. Preserve the Identity: The person's facial features must remain exactly unchanged.
+            2. Style: Apply a professional photoshoot style.
+            3. Outfit: Smart casual blazer.
+            4. Background: Solid dark neutral grey #141414.
+            5. Output: Generate the result as an image.
             ` 
           },
-          // INPUT KUVA
           { inline_data: { mime_type: "image/jpeg", data: base64Data } }
         ]
-      }],
-      // Tärkeä asetus: Pyydetään vastausta kuvamuodossa (jos malli tukee tätä)
-      generationConfig: {
-        responseMimeType: "image/jpeg" 
-      }
+      }]
+      // POISTETTU: generationConfig, joka aiheutti virheen.
+      // Annetaan mallin toimia oletusasetuksilla.
     };
 
     const response = await fetch(url, {
@@ -63,36 +54,32 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (!response.ok) {
       const err = await response.json();
-      // Jos tämä malli ei tue suoraa kuvagenerointia generateContent-kutsulla,
-      // se antaa tässä virheen.
-      console.error("Gemini 3 Error:", err);
+      console.error("Gemini 3 API Error:", err);
       throw new Error(`Gemini 3 Error: ${err.error?.message || JSON.stringify(err)}`);
     }
 
     const data = await response.json();
     
-    // Gemini 3:n vastausrakenne kuvalle voi olla joko "inlineData" tai "text" (jos se epäonnistui ja vastasi tekstillä)
+    // Tarkistetaan vastaus: Onko siellä kuva (inline_data) vai tekstiä?
     const candidate = data.candidates?.[0]?.content?.parts?.[0];
     
-    let generatedBase64 = "";
-    
     if (candidate?.inline_data?.data) {
-        // Hienoa! Malli palautti kuvan suoraan.
-        generatedBase64 = candidate.inline_data.data;
+        // ONNISTUI: Malli palautti kuvan
+        return new Response(JSON.stringify({ 
+          image: candidate.inline_data.data, 
+          message: `Luotu onnistuneesti mallilla: ${MODEL_NAME}` 
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        });
     } else if (candidate?.text) {
-        // Jos malli vastasi tekstillä (esim. "I cannot do that"), heitetään virhe
+        // Jos malli palauttaa vain tekstiä (esim. kieltäytyy tai kuvailee), näytetään se virheenä
+        // jotta tiedämme mitä tapahtui.
+        console.log("Malli vastasi tekstillä:", candidate.text);
         throw new Error(`Malli vastasi tekstillä kuvan sijaan: "${candidate.text}"`);
     } else {
-        throw new Error("Tuntematon vastausmuoto Gemini 3:lta.");
+        throw new Error("Malli vastasi tyhjää tai tunnistamatonta dataa.");
     }
-
-    return new Response(JSON.stringify({ 
-      image: generatedBase64, 
-      message: `Luotu suoraan mallilla: ${MODEL_NAME}` 
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
 
   } catch (error: any) {
     console.error('Process Error:', error);
