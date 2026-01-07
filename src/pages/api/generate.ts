@@ -4,12 +4,12 @@ export const POST: APIRoute = async ({ request }) => {
   const API_KEY = import.meta.env.GOOGLE_API_KEY || process.env.GOOGLE_API_KEY;
 
   if (!API_KEY) {
-    return new Response(JSON.stringify({ error: 'API Key missing' }), { status: 500 });
+    return new Response(JSON.stringify({ error: 'Server Config Error: API Key missing' }), { status: 500 });
   }
 
-  // Määritellään malli. Kokeillaan "Pro"-versiota, joka on usein vakiomalli.
-  // Jos tämäkään ei toimi, koodi tulostaa listan toimivista malleista.
-  const MODEL_NAME = "gemini-1.5-pro"; 
+  // Määritellään mallit listaltasi
+  const VISION_MODEL = "models/gemini-2.0-flash"; // Nopea ja älykäs näkemään
+  const IMAGE_MODEL = "models/imagen-4.0-ultra-generate-preview-06-06"; // Paras kuvanlaatu
 
   try {
     const body = await request.json();
@@ -21,61 +21,91 @@ export const POST: APIRoute = async ({ request }) => {
 
     const base64Data = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
 
-    // --- YRITYS 1: Generointi ---
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
-
-    const payload = {
+    // --- VAIHE 1: Analysoidaan alkuperäinen kuva (Gemini 2.0) ---
+    console.log(`Analyzing image with ${VISION_MODEL}...`);
+    
+    const visionUrl = `https://generativelanguage.googleapis.com/v1beta/${VISION_MODEL}:generateContent?key=${API_KEY}`;
+    
+    const visionPayload = {
       contents: [{
         parts: [
-          { text: "Analyze this image. Describe the person's appearance, age, and expression in detail." },
+          // Pyydämme Geminiä luomaan tarkan promptin Imagenille
+          { text: "Analyze this image and write a highly detailed text prompt that can be used to re-generate a portrait of this person. Describe their age, gender, facial features, hair, clothing, and expression precisely. Add artistic style tags for 'professional studio portrait, 8k resolution, photorealistic'." },
           { inline_data: { mime_type: "image/jpeg", data: base64Data } }
         ]
       }]
     };
 
-    console.log(`Attempting to use model: ${MODEL_NAME}...`);
-    
-    const googleResponse = await fetch(url, {
+    const visionResponse = await fetch(visionUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(visionPayload)
     });
 
-    if (!googleResponse.ok) {
-      const errorData = await googleResponse.json();
-      console.error("Generointi epäonnistui:", JSON.stringify(errorData, null, 2));
-
-      // --- DIAGNOSTIIKKA: Listataan saatavilla olevat mallit ---
-      // Jos saamme 404, katsotaan mihin malleihin avaimella ON oikeus.
-      if (googleResponse.status === 404) {
-        console.log("Malli ei löytynyt. Haetaan lista saatavilla olevista malleista...");
-        const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`;
-        const listResponse = await fetch(listUrl);
-        const listData = await listResponse.json();
-        
-        console.log("------------------------------------------------");
-        console.log("TÄSSÄ OVAT MALLIT, JOITA AVAIMESI VOI KÄYTTÄÄ:");
-        console.log(listData.models?.map((m: any) => m.name) || "Ei malleja");
-        console.log("------------------------------------------------");
-        
-        return new Response(JSON.stringify({ 
-          error: `Malli '${MODEL_NAME}' puuttuu. Katso Vercelin lokit (Logs) nähdäksesi toimivat mallit.` 
-        }), { status: 404 });
-      }
-
-      return new Response(JSON.stringify({ error: `Google Error: ${errorData.error?.message}` }), { status: googleResponse.status });
+    if (!visionResponse.ok) {
+      const err = await visionResponse.json();
+      throw new Error(`Vision Error (${VISION_MODEL}): ${JSON.stringify(err)}`);
     }
 
-    const data = await googleResponse.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "No description.";
+    const visionData = await visionResponse.json();
+    const imagePrompt = visionData.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    return new Response(JSON.stringify({ image: base64Data, message: text }), {
+    if (!imagePrompt) throw new Error("Vision model failed to describe the image.");
+    console.log("Generated Prompt:", imagePrompt.substring(0, 100) + "...");
+
+
+    // --- VAIHE 2: Generoidaan uusi kuva (Imagen 4.0 Ultra) ---
+    console.log(`Generating image with ${IMAGE_MODEL}...`);
+
+    // Huom: Imagen käyttää 'predict' endpointia, ei 'generateContent'
+    const imagenUrl = `https://generativelanguage.googleapis.com/v1beta/${IMAGE_MODEL}:predict?key=${API_KEY}`;
+    
+    const imagenPayload = {
+      instances: [
+        { prompt: imagePrompt }
+      ],
+      parameters: {
+        aspectRatio: "3:4", // Muotokuvasuhde
+        sampleCount: 1,
+        // Voit lisätä tähän negative_prompt jos haluat
+      }
+    };
+
+    const imagenResponse = await fetch(imagenUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(imagenPayload)
+    });
+
+    if (!imagenResponse.ok) {
+      const err = await imagenResponse.json();
+      // Fallback: Jos Imagen 4 preview ei toimi tällä endpointilla, heitetään virhe
+      throw new Error(`Imagen Error (${IMAGE_MODEL}): ${JSON.stringify(err)}`);
+    }
+
+    const imagenData = await imagenResponse.json();
+    
+    // Imagen palauttaa kuvan usein "bytesBase64Encoded" kentässä
+    // Tarkistetaan data structure, koska se vaihtelee versioittain
+    const prediction = imagenData.predictions?.[0];
+    const generatedBase64 = prediction?.bytesBase64Encoded || prediction?.bytes || prediction;
+
+    if (!generatedBase64) {
+      throw new Error("Imagen generation successful but no image data found in response.");
+    }
+
+    return new Response(JSON.stringify({ 
+      image: generatedBase64, 
+      message: `Luotu mallilla: ${IMAGE_MODEL}` 
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (error: any) {
-    console.error('Fatal Error:', error);
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    console.error('Process Error:', error);
+    return new Response(JSON.stringify({ 
+      error: error.message || 'Unknown processing error' 
+    }), { status: 500 });
   }
 };
