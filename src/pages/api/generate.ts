@@ -7,7 +7,6 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify({ error: 'Server Config Error: API Key missing' }), { status: 500 });
   }
 
-  // Tämä malli todistetusti toimii nyt!
   const MODEL_NAME = "models/gemini-2.0-flash-exp-image-generation";
 
   try {
@@ -20,7 +19,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     const base64Data = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
 
-    console.log(`Sending request to ${MODEL_NAME}...`);
+    console.log(`Sending STRICT request to ${MODEL_NAME}...`);
 
     const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_NAME}:generateContent?key=${API_KEY}`;
     
@@ -28,15 +27,15 @@ export const POST: APIRoute = async ({ request }) => {
       contents: [{
         parts: [
           { text: `
-            Task: Edit the input image to look like a professional studio portrait.
+            SYSTEM INSTRUCTION: You are an image processing engine, NOT a chatbot.
             
-            STRICT REQUIREMENT: Keep the person's face and identity EXACTLY as they are. This is an editing task.
+            Task: Transform the input image into a professional studio portrait.
             
-            Changes to apply:
-            - Outfit: Dark grey smart casual blazer.
-            - Background: Solid dark neutral grey #141414.
-            - Lighting: Soft cinematic studio lighting.
-            - Output: Generate the image.
+            RULES:
+            1. Keep the person's face/identity EXACTLY as is.
+            2. Change outfit to a dark grey blazer.
+            3. Change background to solid #141414.
+            4. OUTPUT REQUIREMENT: Return ONLY the image data. DO NOT output any text, do not say "Here is the image". Just the image.
             ` 
           },
           { inline_data: { mime_type: "image/jpeg", data: base64Data } }
@@ -47,7 +46,11 @@ export const POST: APIRoute = async ({ request }) => {
         { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
         { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
         { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-      ]
+      ],
+      generationConfig: {
+        // Yritetään pakottaa yksi vastaus
+        candidateCount: 1
+      }
     };
 
     const response = await fetch(url, {
@@ -64,35 +67,30 @@ export const POST: APIRoute = async ({ request }) => {
 
     const data = await response.json();
     
-    // --- KORJATTU LOGIIKKA ---
-    // Gemini voi vastata moniosaisella viestillä (Parts).
-    // Osa 1 voi olla tekstiä ("Here is the image") ja Osa 2 voi olla itse kuva.
-    // Meidän pitää etsiä KAIKKI osat läpi.
+    // --- DEBUG: TULOSTETAAN KOKO VASTAUS LOKIIN ---
+    // Jos tämä epäonnistuu, mene Vercelin Logs-välilehdelle. 
+    // Näet siellä kohdan "FULL GOOGLE RESPONSE", josta näemme mitä ihmettä malli oikein lähetti.
+    console.log("FULL GOOGLE RESPONSE:", JSON.stringify(data, null, 2));
 
     const candidate = data.candidates?.[0];
     const parts = candidate?.content?.parts || [];
 
-    // Etsitään se osa, jossa on kuva (inline_data)
+    // Etsitään kuva
     const imagePart = parts.find((p: any) => p.inline_data && p.inline_data.data);
-    
-    // Etsitään myös teksti, jos sellaista tuli (kiva näyttää käyttäjälle)
     const textPart = parts.find((p: any) => p.text);
-    const aiMessage = textPart ? textPart.text : "Kuva luotu onnistuneesti.";
 
     if (imagePart) {
-        // LÖYTYI!
-        console.log("Kuva löytyi vastauksesta!");
         return new Response(JSON.stringify({ 
           image: imagePart.inline_data.data, 
-          message: aiMessage
+          message: "Kuva luotu onnistuneesti." 
         }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' }
         });
     } else {
-        // Jos loopattiin kaikki läpi eikä kuvaa löytynyt, sitten se on virhe.
-        console.warn("Vastaus ei sisältänyt kuvaa. Teksti oli:", aiMessage);
-        throw new Error(`Malli vastasi vain tekstillä: "${aiMessage}"`);
+        // Jos kuvaa ei ole, heitetään virhe, mutta kerrotaan myös mitä malli sanoi.
+        const msg = textPart ? textPart.text : "Tyhjä vastaus";
+        throw new Error(`Malli ei tuottanut kuvaa. Se vastasi: "${msg}" (Katso Vercel Logs nähdäksesi raakadatan)`);
     }
 
   } catch (error: any) {
