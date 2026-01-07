@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import Replicate from 'replicate';
 
 export const POST: APIRoute = async ({ request }) => {
+  // Muista päivittää uusi turvallinen avain .env-tiedostoon!
   const REPLICATE_API_TOKEN = import.meta.env.REPLICATE_API_TOKEN || process.env.REPLICATE_API_TOKEN;
 
   if (!REPLICATE_API_TOKEN) {
@@ -20,11 +21,22 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ error: 'No image data' }), { status: 400 });
     }
 
-    console.log("Starting generation with Flux PuLID (idmbaron)...");
+    console.log("Fetching latest Flux PuLID version...");
 
+    // 1. Haetaan mallin uusin versio dynaamisesti (ei kovakoodattua hashia)
+    // Tämä korjaa "Invalid version" -virheen lopullisesti.
+    const model = await replicate.models.get("idmbaron", "flux-pulid");
+    const latestVersion = model.latest_version?.id;
+
+    if (!latestVersion) {
+      throw new Error("Flux PuLID -mallin versiota ei löytynyt.");
+    }
+
+    console.log(`Starting generation with version: ${latestVersion}`);
+
+    // 2. Ajetaan malli uusimmalla versiolla
     const output = await replicate.run(
-      // KORJATTU RIVI: Oikea omistaja on 'idmbaron', ei 'yan-ops'
-      "idmbaron/flux-pulid:8baa7ef2255075b46f4d91cd238c21d31181b3e6a864463f967960bb01125252",
+      `idmbaron/flux-pulid:${latestVersion}`,
       {
         input: {
           main_face_image: base64Image,
@@ -54,7 +66,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     return new Response(JSON.stringify({ 
       image: base64Result, 
-      message: "Luotu Flux PuLID -mallilla" 
+      message: "Luotu Flux PuLID -mallilla (Auto-Version)" 
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
