@@ -1,61 +1,82 @@
 import type { APIRoute } from 'astro';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export const POST: APIRoute = async ({ request }) => {
-  // 1. Haetaan API-avain ympäristömuuttujista
-  const API_KEY = import.meta.env.GOOGLE_API_KEY;
-  
+  const API_KEY = import.meta.env.GOOGLE_API_KEY || process.env.GOOGLE_API_KEY;
+
   if (!API_KEY) {
-    return new Response(JSON.stringify({ error: 'Server configuration error: No API Key found' }), { status: 500 });
+    return new Response(JSON.stringify({ error: 'API Key missing' }), { status: 500 });
   }
 
   try {
-    // 2. Luetaan lähetetty data
     const body = await request.json();
-    const base64Image = body.image; // Muodossa "data:image/jpeg;base64,..."
+    const base64Image = body.image;
 
     if (!base64Image) {
-      return new Response(JSON.stringify({ error: 'No image data provided' }), { status: 400 });
+      return new Response(JSON.stringify({ error: 'No image data' }), { status: 400 });
     }
 
-    // Puhdistetaan Base64-header pois, jotta Google ymmärtää sen
-    const base64Data = base64Image.split(',')[1] || base64Image;
+    // 1. Puhdistetaan Base64 (poistetaan "data:image/jpeg;base64," alku)
+    // Tämä on kriittinen vaihe.
+    const base64Data = base64Image.includes(',') 
+      ? base64Image.split(',')[1] 
+      : base64Image;
 
-    // 3. Alustetaan Gemini-malli
-    const genAI = new GoogleGenerativeAI(API_KEY);
-    // Käytetään Flash-mallia, joka on nopea ja halpa/ilmainen
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // 2. Määritellään Googlen REST API -osoite (Flash-malli)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
-    // 4. Lähetetään kuva Geminille analysoitavaksi
-    // (Tämä todistaa, että backend-yhteys toimii)
-    const result = await model.generateContent([
-      "Analyze this image. Describe the person's appearance, style, and facial expression in a creative way like an art critic.",
-      {
-        inlineData: {
-          data: base64Data,
-          mimeType: "image/jpeg",
-        },
+    // 3. Rakennetaan pyyntö manuaalisesti (Raw Fetch)
+    const payload = {
+      contents: [{
+        parts: [
+          { text: "Analyze this image. Describe the person's appearance and facial features in detail." },
+          {
+            inline_data: {
+              mime_type: "image/jpeg",
+              data: base64Data
+            }
+          }
+        ]
+      }]
+    };
+
+    console.log("Sending request to Google REST API...");
+
+    const googleResponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
       },
-    ]);
+      body: JSON.stringify(payload)
+    });
 
-    const response = await result.response;
-    const text = response.text();
+    // 4. Käsitellään vastaus
+    if (!googleResponse.ok) {
+      const errorData = await googleResponse.json();
+      console.error("Google API Error:", JSON.stringify(errorData, null, 2));
+      
+      // Palautetaan TARKKA virhe Googlelta
+      return new Response(JSON.stringify({ 
+        error: `Google API Error: ${errorData.error?.message || googleResponse.statusText}` 
+      }), { status: googleResponse.status });
+    }
+
+    const data = await googleResponse.json();
     
-    console.log("Gemini vastaus:", text);
+    // Kaivetaan teksti vastauksesta
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "No description generated.";
+    
+    console.log("Success:", text.substring(0, 50) + "...");
 
-    // 5. Palautetaan vastaus frontendiin
-    // Koska emme vielä generoi uutta kuvatiedostoa, palautamme alkuperäisen kuvan
-    // ja Geminin keksimän tekstin.
     return new Response(JSON.stringify({ 
-      image: base64Data, // Palautetaan sama kuva toistaiseksi
-      message: text      // Tämä näytetään konsolissa tai UI:ssa
+      image: base64Data, 
+      message: text 
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (error: any) {
-    console.error('API Error:', error);
-    return new Response(JSON.stringify({ error: error.message || 'AI processing failed' }), { status: 500 });
+    console.error('Server Fetch Error:', error);
+    return new Response(JSON.stringify({ error: error.message || 'Unknown error' }), { status: 500 });
   }
 };
