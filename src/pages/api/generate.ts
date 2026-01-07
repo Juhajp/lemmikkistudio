@@ -7,20 +7,8 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify({ error: 'Server Config Error: API Key missing' }), { status: 500 });
   }
 
-  // Kokeillaan Imagen 3.0:aa, joka tukee usein "editointia" paremmin kuin 4.0-preview
-  // Jos haluat väkisin käyttää 4.0:aa, vaihda tähän: "models/imagen-4.0-generate-001"
-  const IMAGE_MODEL = "models/imagen-3.0-generate-001";
-
-  // Tämä on puhtaasti tyyliohjeistus. Emme kuvaile henkilöä, koska AI näkee kuvan.
-  const STYLE_PROMPT = `
-  Change the style of this photo to a professional studio portrait.
-  Keep the person's identity, facial features, and pose exactly as they are.
-  
-  Wear a smart casual blazer.
-  Background: Solid dark neutral grey #141414.
-  Lighting: Soft cinematic studio lighting, rim light, sharp focus on eyes.
-  Style: 85mm lens, photorealistic, 8k, highly detailed skin texture.
-  `;
+  // Kokeillaan listaltasi löytynyttä uusinta Gemini 3 -mallia
+  const MODEL_NAME = "models/gemini-3-pro-image-preview";
 
   try {
     const body = await request.json();
@@ -32,64 +20,75 @@ export const POST: APIRoute = async ({ request }) => {
 
     const base64Data = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
 
-    // --- SUORA LÄHETYS IMAGENILLE ---
-    console.log(`Sending image directly to ${IMAGE_MODEL}...`);
+    console.log(`Attempting generation with hybrid model: ${MODEL_NAME}...`);
 
-    const imagenUrl = `https://generativelanguage.googleapis.com/v1beta/${IMAGE_MODEL}:predict?key=${API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_NAME}:generateContent?key=${API_KEY}`;
     
-    // Rakennetaan payload, jossa on sekä kuva ETTÄ prompti.
-    // Tämä on "Image Editing" tai "Instruction based editing" pyyntö.
-    const imagenPayload = {
-      instances: [
-        { 
-          prompt: STYLE_PROMPT,
-          image: {
-             bytesBase64Encoded: base64Data
-          }
-        }
-      ],
-      parameters: {
-        aspectRatio: "3:4", 
-        sampleCount: 1,
-        // Nämä parametrit ovat tärkeitä kun muokataan olemassa olevaa kuvaa:
-        // personGeneration: "allow_adult" varmistaa että ihmisiä saa generoida
-        personGeneration: "allow_adult",
-        safetySettings: [
-            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
-            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_ONLY_HIGH" },
-            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_ONLY_HIGH" },
-            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" }
+    // Gemini 3:lle lähetetään pyyntö, jossa pyydetään kuvaa vastaukseksi.
+    const payload = {
+      contents: [{
+        parts: [
+          // PROMPTI: Ohjeistetaan mallia toimimaan kuin kuvankäsittelijä
+          { text: `
+            You are an expert portrait photographer and editor.
+            
+            TASK: Generate a new professional studio portrait based on the person in the input image.
+            
+            REQUIREMENTS:
+            1. KEEP THE IDENTITY: The person's face (eyes, nose, mouth, age, unique features) must look EXACTLY like the input image.
+            2. CHANGE THE STYLE:
+               - Outfit: Smart casual blazer.
+               - Background: Solid dark neutral grey #141414.
+               - Lighting: Soft cinematic studio lighting, professional rim light.
+               - Camera: 85mm lens, f/1.8, sharp focus on eyes.
+            
+            Output ONLY the generated image.
+            ` 
+          },
+          // INPUT KUVA
+          { inline_data: { mime_type: "image/jpeg", data: base64Data } }
         ]
+      }],
+      // Tärkeä asetus: Pyydetään vastausta kuvamuodossa (jos malli tukee tätä)
+      generationConfig: {
+        responseMimeType: "image/jpeg" 
       }
     };
 
-    const imagenResponse = await fetch(imagenUrl, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(imagenPayload)
+      body: JSON.stringify(payload)
     });
 
-    if (!imagenResponse.ok) {
-      const err = await imagenResponse.json();
-      console.error("Imagen API Error:", JSON.stringify(err, null, 2));
-      
-      // Jos API valittaa, että "image input not supported", tiedämme että malli on väärä
-      throw new Error(`Imagen Error: ${err.error?.message || JSON.stringify(err)}`);
+    if (!response.ok) {
+      const err = await response.json();
+      // Jos tämä malli ei tue suoraa kuvagenerointia generateContent-kutsulla,
+      // se antaa tässä virheen.
+      console.error("Gemini 3 Error:", err);
+      throw new Error(`Gemini 3 Error: ${err.error?.message || JSON.stringify(err)}`);
     }
 
-    const imagenData = await imagenResponse.json();
+    const data = await response.json();
     
-    // Tarkistetaan vastaus (rakenne voi vaihdella)
-    const prediction = imagenData.predictions?.[0];
-    const generatedBase64 = prediction?.bytesBase64Encoded || prediction?.bytes || prediction;
-
-    if (!generatedBase64) {
-      throw new Error("Generointi onnistui, mutta kuadataa ei löytynyt vastauksesta.");
+    // Gemini 3:n vastausrakenne kuvalle voi olla joko "inlineData" tai "text" (jos se epäonnistui ja vastasi tekstillä)
+    const candidate = data.candidates?.[0]?.content?.parts?.[0];
+    
+    let generatedBase64 = "";
+    
+    if (candidate?.inline_data?.data) {
+        // Hienoa! Malli palautti kuvan suoraan.
+        generatedBase64 = candidate.inline_data.data;
+    } else if (candidate?.text) {
+        // Jos malli vastasi tekstillä (esim. "I cannot do that"), heitetään virhe
+        throw new Error(`Malli vastasi tekstillä kuvan sijaan: "${candidate.text}"`);
+    } else {
+        throw new Error("Tuntematon vastausmuoto Gemini 3:lta.");
     }
 
     return new Response(JSON.stringify({ 
       image: generatedBase64, 
-      message: `Suora editointi mallilla: ${IMAGE_MODEL}` 
+      message: `Luotu suoraan mallilla: ${MODEL_NAME}` 
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
@@ -97,8 +96,6 @@ export const POST: APIRoute = async ({ request }) => {
 
   } catch (error: any) {
     console.error('Process Error:', error);
-    return new Response(JSON.stringify({ 
-      error: error.message || 'Unknown processing error' 
-    }), { status: 500 });
+    return new Response(JSON.stringify({ error: error.message || 'Error' }), { status: 500 });
   }
 };
