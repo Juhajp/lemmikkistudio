@@ -20,27 +20,20 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ error: 'No image data' }), { status: 400 });
     }
 
-    console.log("Starting generation with Fal.ai (Flux Dev)...");
+    console.log("Starting generation with Fal.ai (GPT-Image-1.5 Edit)...");
 
-    // KORJATTU MALLI: Käytetään standardia 'fal-ai/flux/dev' mallia.
-    // Tämä on varmin valinta, joka ei anna 404-virhettä.
-    const result: any = await fal.subscribe("fal-ai/flux/dev", {
+    // KORJATTU MALLI: Käytetään pyytämääsi 'fal-ai/gpt-image-1.5/edit' mallia.
+    const result: any = await fal.subscribe("fal-ai/gpt-image-1.5/edit", {
       input: {
         // Kuva syötetään image_url-kenttään
         image_url: base64Image,
         
-        // Prompti ohjaa muutosta
-        prompt: "A professional studio portrait of a person wearing a smart casual dark grey blazer. Background is solid dark neutral grey #141414. Soft cinematic studio lighting, rim light, sharp focus on eyes, 85mm lens, photorealistic, 8k, highly detailed skin texture, masterpiece.",
+        // Prompti on nyt ohje (instruction) eikä vain kuvaus.
+        // Tämä malli ymmärtää paremmin käskyjä "vaihda X", "pidä Y".
+        prompt: "Based on the input image, keep the person's facial features and identity exactly the same. Change their clothing to a smart casual dark grey blazer. Replace the background with a solid dark neutral grey #141414 studio setting. Apply soft cinematic studio lighting with a subtle rim light.",
         
-        // Strength (0.0 - 1.0) määrittää kuinka paljon kuvaa saa muuttaa.
-        // 0.85 on hyvä tasapaino: muuttaa vaatteet, mutta säilyttää kasvojen rakenteen.
-        strength: 0.85, 
-        
-        guidance_scale: 3.5,
-        num_inference_steps: 28,
-        width: 896,
-        height: 1152,
-        enable_safety_checker: false // Yritetään välttää turhia blokkauksia
+        // Tämä malli ei välttämättä tarvitse tai tue samoja lisäparametreja
+        // (kuten strength, steps, jne.) kuin Flux, joten pidetään input yksinkertaisena.
       },
       logs: true,
       onQueueUpdate: (update) => {
@@ -52,10 +45,13 @@ export const POST: APIRoute = async ({ request }) => {
 
     console.log("Fal.ai Result:", JSON.stringify(result, null, 2));
 
-    const imageUrl = result.images?.[0]?.url;
+    // Tarkistetaan tulos. Rakenne voi vaihdella malleittain.
+    // Yleensä se on result.images[0].url tai suoraan result.image.url
+    const imageUrl = result.images?.[0]?.url || result.image?.url;
 
     if (!imageUrl) {
-        throw new Error("Fal.ai ei palauttanut kuvan URLia.");
+        console.error("Full result object:", JSON.stringify(result, null, 2));
+        throw new Error("Fal.ai ei palauttanut kuvan URLia (tuntematon vastausmuoto).");
     }
 
     const imageResponse = await fetch(imageUrl);
@@ -64,7 +60,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     return new Response(JSON.stringify({ 
       image: base64Result, 
-      message: "Luotu Fal.ai Flux Dev -mallilla" 
+      message: "Luotu Fal.ai GPT-Image-1.5 Edit -mallilla" 
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
@@ -72,6 +68,8 @@ export const POST: APIRoute = async ({ request }) => {
 
   } catch (error: any) {
     console.error('Fal.ai Error:', error);
-    return new Response(JSON.stringify({ error: error.message || 'Generation failed' }), { status: 500 });
+    // Jos virhe on Falin päästä, siinä on usein 'body'-kenttä, jossa on tarkempi syy
+    const errorMessage = error.body?.detail || error.message || 'Generation failed';
+    return new Response(JSON.stringify({ error: errorMessage }), { status: 500 });
   }
 };
