@@ -56,38 +56,45 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   // Oletus 86400s = 24h
   const WINDOW_SECONDS = Number(import.meta.env.RATE_LIMIT_WINDOW ?? 86400);
 
-  // Vercelissä ja monissa proxyissä oikea IP on x-forwarded-for -headerissa.
-  // clientAddress on Astron tarjoama fallback.
-  const ip = request.headers.get("x-forwarded-for") || clientAddress || "unknown";
-  
-  // Tehdään uniikki avain Redisille, esim "ratelimit:127.0.0.1"
-  const rateLimitKey = `ratelimit:${ip}`;
+  // Admin secret bypass
+  const ADMIN_SECRET = import.meta.env.ADMIN_SECRET ?? process.env.ADMIN_SECRET;
+  const requestSecret = request.headers.get("x-admin-secret");
+  const isAdmin = ADMIN_SECRET && requestSecret === ADMIN_SECRET;
 
-  try {
-    // Kasvatetaan laskuria (INCR)
-    const requests = await kv.incr(rateLimitKey);
+  if (!isAdmin) {
+      // Vercelissä ja monissa proxyissä oikea IP on x-forwarded-for -headerissa.
+      // clientAddress on Astron tarjoama fallback.
+      const ip = request.headers.get("x-forwarded-for") || clientAddress || "unknown";
+      
+      // Tehdään uniikki avain Redisille, esim "ratelimit:127.0.0.1"
+      const rateLimitKey = `ratelimit:${ip}`;
 
-    // Jos tämä oli ensimmäinen pyyntö tällä avaimella (arvo on 1), asetetaan vanhenemisaika
-    if (requests === 1) {
-      await kv.expire(rateLimitKey, WINDOW_SECONDS);
-    }
+      try {
+        // Kasvatetaan laskuria (INCR)
+        const requests = await kv.incr(rateLimitKey);
 
-    // Jos raja ylittyy, palautetaan virhe
-    if (requests > MAX_GENERATIONS) {
-      return new Response(
-        JSON.stringify({ 
-          error: "Päivittäinen kuvakiintiö täynnä. Kokeile huomenna uudelleen." 
-        }), 
-        {
-          status: 429,
-          headers: { "Content-Type": "application/json" }
+        // Jos tämä oli ensimmäinen pyyntö tällä avaimella (arvo on 1), asetetaan vanhenemisaika
+        if (requests === 1) {
+          await kv.expire(rateLimitKey, WINDOW_SECONDS);
         }
-      );
-    }
-  } catch (kvError) {
-    // Jos KV ei toimi (esim. yhteysongelma tai lokaalisti ilman env-muuttujia),
-    // logataan virhe mutta PÄÄSTETÄÄN KÄYTTÄJÄ LÄPI, jotta palvelu ei kaadu kokonaan.
-    console.error("Rate limit check failed (allowing request):", kvError);
+
+        // Jos raja ylittyy, palautetaan virhe
+        if (requests > MAX_GENERATIONS) {
+          return new Response(
+            JSON.stringify({ 
+              error: "Päivittäinen kuvakiintiö täynnä. Kokeile huomenna uudelleen." 
+            }), 
+            {
+              status: 429,
+              headers: { "Content-Type": "application/json" }
+            }
+          );
+        }
+      } catch (kvError) {
+        // Jos KV ei toimi (esim. yhteysongelma tai lokaalisti ilman env-muuttujia),
+        // logataan virhe mutta PÄÄSTETÄÄN KÄYTTÄJÄ LÄPI, jotta palvelu ei kaadu kokonaan.
+        console.error("Rate limit check failed (allowing request):", kvError);
+      }
   }
   // --- RATE LIMIT END ---
 

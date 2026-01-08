@@ -3,6 +3,18 @@ import { kv } from "@vercel/kv";
 
 export const GET: APIRoute = async ({ request, clientAddress }) => {
   const MAX_GENERATIONS = Number(import.meta.env.RATE_LIMIT_MAX ?? 5);
+
+  // Admin secret bypass
+  const ADMIN_SECRET = import.meta.env.ADMIN_SECRET ?? process.env.ADMIN_SECRET;
+  const requestSecret = request.headers.get("x-admin-secret");
+  const isAdmin = ADMIN_SECRET && requestSecret === ADMIN_SECRET;
+
+  if (isAdmin) {
+      return new Response(JSON.stringify({ remaining: 99999, max: 99999 }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+      });
+  }
   
   // IP resolution (same logic as in generate.ts)
   const ip = request.headers.get("x-forwarded-for") || clientAddress || "unknown";
