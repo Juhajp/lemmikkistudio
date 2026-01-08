@@ -24,10 +24,18 @@ function dataUriToBlob(dataUri: string): Blob {
 async function createWatermarkSvg(width: number, height: number) {
   const fontSize = Math.floor(width / 12);
   
-  // Luetaan fontti
-  // Huom: Varmista että public/fonts/Roboto-Bold.ttf on olemassa (latasimme sen aiemmin)
-  const fontPath = join(process.cwd(), 'public', 'fonts', 'Roboto-Bold.ttf');
-  const fontData = readFileSync(fontPath);
+  // Haetaan fontti lennosta CDN:stä (varmempi kuin levytallennus serverlessissä)
+  // Käytetään ArrayBufferia suoraan
+  let fontData: ArrayBuffer;
+  try {
+      const fontRes = await fetch('https://github.com/google/fonts/raw/main/apache/roboto/Roboto-Bold.ttf');
+      if (!fontRes.ok) throw new Error("Font download failed");
+      fontData = await fontRes.arrayBuffer();
+  } catch (e) {
+      console.error("Font fetch failed, trying fallback logic or failing gracefully:", e);
+      // Jos fontin haku epäonnistuu, voimme palauttaa tyhjän SVG:n tai heittää virheen
+      throw new Error("Watermark font missing");
+  }
 
   // Satori renderöi React-like objektin SVG-koodiksi
   const svg = await satori(
