@@ -17,48 +17,30 @@ function dataUriToBlob(dataUri: string): Blob {
   return new Blob([buffer], { type: mimeString });
 }
 
-// FAIL-SAFE VESILEIMA: Ei ulkoisia riippuvuuksia, ei fonttilatauksia.
-// Piirtää yksinkertaisen SVG-grafiikan.
+// VESILEIMA: Vain isot ruksit, ei tekstiä.
 async function createWatermarkSvg(width: number, height: number) {
-  const fontSize = Math.floor(width / 10);
-  const boxWidth = width * 0.7;
-  const boxHeight = fontSize * 2;
-
-  // Käytämme SVG:tä ilman Satoria. Sharp hoitaa renderöinnin.
-  // Jos teksti ei näy (neliöitä), "cross" viivat suojaavat kuvaa silti.
+  // Yksinkertainen, varma vesileima.
+  
   return `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
       <style>
-        .cross { stroke: rgba(255, 255, 255, 0.2); stroke-width: 5; }
-        .box { fill: rgba(0, 0, 0, 0.5); stroke: rgba(255,255,255,0.8); stroke-width: 5; }
-        .text { 
-          fill: white; 
-          font-family: sans-serif; 
-          font-weight: 900; 
-          font-size: ${fontSize}px;
-          text-anchor: middle;
-          dominant-baseline: middle;
+        .cross { 
+          stroke: rgba(255, 255, 255, 0.3); 
+          stroke-width: ${width / 40}; 
+        }
+        .cross-bg { 
+          stroke: rgba(0, 0, 0, 0.3); 
+          stroke-width: ${width / 40}; 
         }
       </style>
       
-      <!-- Isot ruksit yli kuvan -->
+      <!-- Varjo (hieman siirrettynä) -->
+      <line x1="4" y1="4" x2="${width+4}" y2="${height+4}" class="cross-bg" />
+      <line x1="${width+4}" y1="4" x2="4" y2="${height+4}" class="cross-bg" />
+
+      <!-- Varsinainen viiva -->
       <line x1="0" y1="0" x2="${width}" y2="${height}" class="cross" />
       <line x1="${width}" y1="0" x2="0" y2="${height}" class="cross" />
-
-      <!-- Laatikko keskellä -->
-      <rect 
-        x="${(width - boxWidth) / 2}" 
-        y="${(height - boxHeight) / 2}" 
-        width="${boxWidth}" 
-        height="${boxHeight}" 
-        rx="20"
-        class="box" 
-      />
-
-      <!-- Teksti -->
-      <text x="50%" y="50%" class="text">
-        PREVIEW
-      </text>
     </svg>
   `;
 }
