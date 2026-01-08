@@ -130,6 +130,21 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         backgroundPrompt = "Solid pitch black background (#000000). High contrast.";
     } else if (bgOption === "white") {
         backgroundPrompt = "Solid pure white background (#FFFFFF). High key lighting.";
+    } else if (bgOption === "outdoor") {
+        backgroundPrompt = "Outdoor background, natural lighting, fresh and bright atmosphere, shallow depth of field, strong bokeh, blurred background.";
+    } else if (bgOption === "office") {
+        backgroundPrompt = "Modern office background, professional setting, shallow depth of field, strong bokeh, blurred background.";
+    } else if (bgOption.startsWith("color_")) {
+        const colorMap: Record<string, string> = {
+            "color_blue": "blue",
+            "color_red": "red",
+            "color_orange": "orange",
+            "color_green": "green",
+            "color_teal": "teal",
+            "color_beige": "beige"
+        };
+        const color = colorMap[bgOption] || "grey";
+        backgroundPrompt = `Solid ${color} background. Studio lighting.`;
     }
 
     // KÄSITELLÄÄN VAATEVALINTA

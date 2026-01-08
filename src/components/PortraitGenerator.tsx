@@ -4,6 +4,14 @@ const BACKGROUND_OPTIONS = [
   { id: 'studio', label: 'Tummanharmaa studio (Oletus)' },
   { id: 'black', label: 'Musta tausta' },
   { id: 'white', label: 'Valkoinen tausta' },
+  { id: 'outdoor', label: 'Ulkoilma (Bokeh)' },
+  { id: 'office', label: 'Toimisto (Bokeh)' },
+  { id: 'color_blue', label: 'Väri: Sininen' },
+  { id: 'color_red', label: 'Väri: Punainen' },
+  { id: 'color_orange', label: 'Väri: Oranssi' },
+  { id: 'color_green', label: 'Väri: Vihreä' },
+  { id: 'color_teal', label: 'Väri: Teal' },
+  { id: 'color_beige', label: 'Väri: Beige' },
 ];
 
 const CLOTHING_OPTIONS = [
