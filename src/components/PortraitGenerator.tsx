@@ -11,7 +11,6 @@ export default function PortraitGenerator() {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      // Luodaan esikatselu selaimessa
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
       setGeneratedImage(null);
@@ -25,7 +24,6 @@ export default function PortraitGenerator() {
     setError(null);
 
     try {
-      // 1. Muutetaan kuva Base64-muotoon
       const base64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(selectedFile);
@@ -33,7 +31,6 @@ export default function PortraitGenerator() {
         reader.onerror = (error) => reject(error);
       });
 
-      // 2. Lähetetään API:lle
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -43,9 +40,7 @@ export default function PortraitGenerator() {
       if (!response.ok) throw new Error('Generointi epäonnistui');
 
       const data = await response.json();
-      
-      // 3. Asetetaan saatu kuva näkyviin
-      setGeneratedImage(data.image); // Oletetaan että API palauttaa base64 stringin
+      setGeneratedImage(data.image);
     } catch (err) {
       console.error(err);
       setError('Jotain meni pieleen. Kokeile uudestaan.');
@@ -55,7 +50,7 @@ export default function PortraitGenerator() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white rounded-xl shadow-md space-y-6">
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-md space-y-6">
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700">Lataa kasvokuva</label>
         <input 
@@ -66,12 +61,6 @@ export default function PortraitGenerator() {
         />
       </div>
 
-      {preview && !generatedImage && (
-        <div className="border rounded-lg overflow-hidden">
-           <img src={preview} alt="Original" className="w-full h-auto object-cover" />
-        </div>
-      )}
-
       {loading && (
         <div className="text-center py-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-700 mx-auto"></div>
@@ -81,27 +70,43 @@ export default function PortraitGenerator() {
 
       {error && <p className="text-red-500 text-center">{error}</p>}
 
-      {generatedImage && (
-        <div className="space-y-4">
-          <h3 className="font-bold text-lg text-center">Valmis muotokuva!</h3>
-          <img src={`data:image/png;base64,${generatedImage}`} alt="Generated" className="w-full rounded-lg shadow-lg" />
-          <a 
-            href={`data:image/png;base64,${generatedImage}`} 
-            download="muotokuva.png"
-            className="block w-full py-3 bg-violet-600 text-white text-center rounded-lg font-bold hover:bg-violet-700 transition"
-          >
-            Lataa täysikokoinen kuva
-          </a>
-        </div>
-      )}
+      {generatedImage ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-2">
+            <h3 className="text-center font-medium text-gray-500">Alkuperäinen</h3>
+            <div className="border rounded-lg overflow-hidden">
+              <img src={preview!} alt="Original" className="w-full h-auto object-cover" />
+            </div>
+          </div>
 
-      {preview && !loading && !generatedImage && (
-        <button 
-          onClick={handleGenerate}
-          className="w-full py-3 bg-black text-white rounded-lg font-bold hover:bg-gray-800 transition"
-        >
-          Luo Muotokuva
-        </button>
+          <div className="space-y-2">
+            <h3 className="text-center font-bold text-violet-700">Valmis Muotokuva</h3>
+            <div className="rounded-lg overflow-hidden shadow-lg border-2 border-violet-100">
+              <img src={`data:image/png;base64,${generatedImage}`} alt="Generated" className="w-full h-auto object-cover" />
+            </div>
+            <a 
+              href={`data:image/png;base64,${generatedImage}`} 
+              download="muotokuva.png"
+              className="block w-full py-3 bg-violet-600 text-white text-center rounded-lg font-bold hover:bg-violet-700 transition"
+            >
+              Lataa kuva
+            </a>
+          </div>
+        </div>
+      ) : (
+        preview && !loading && (
+          <div className="max-w-xl mx-auto space-y-6">
+            <div className="border rounded-lg overflow-hidden">
+               <img src={preview} alt="Original" className="w-full h-auto object-cover" />
+            </div>
+            <button 
+              onClick={handleGenerate}
+              className="w-full py-3 bg-black text-white rounded-lg font-bold hover:bg-gray-800 transition"
+            >
+              Luo Muotokuva
+            </button>
+          </div>
+        )
       )}
     </div>
   );
