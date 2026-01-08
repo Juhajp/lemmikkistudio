@@ -74,17 +74,26 @@ export const POST: APIRoute = async ({ request }) => {
     const imageBlob = dataUriToBlob(dataUri);
     const uploadedUrl = await fal.storage.upload(imageBlob);
 
-    // KÄSITELLÄÄN TAUSTAVÄRIVALINTA
+    // KÄSITELLÄÄN VALINNAT (Tausta & Vaatteet)
+    
+    // Tausta
     const bgOption = body.background ?? "studio";
     let backgroundPrompt = "Solid dark neutral grey background (#141414).";
-    
     if (bgOption === "black") {
         backgroundPrompt = "Solid pitch black background (#000000). High contrast.";
     } else if (bgOption === "white") {
         backgroundPrompt = "Solid pure white background (#FFFFFF). High key lighting.";
     }
 
-    const prompt = body.prompt ?? `Keep the person's facial features and identity the same. Create a professional studio headshot. Change clothing to a smart casual dark grey blazer. ${backgroundPrompt} Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.`;
+    // Vaatteet
+    const clothingOption = body.clothing ?? "blazer";
+    let clothingPrompt = "Change clothing to a smart casual dark grey blazer.";
+    if (clothingOption === "original") {
+        clothingPrompt = "Keep the original clothing visible in the photo.";
+    }
+
+    // Yhdistetään promptiin
+    const prompt = body.prompt ?? `Keep the person's facial features and identity the same. Create a professional studio headshot. ${clothingPrompt} ${backgroundPrompt} Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.`;
 
     // 2. Generate with Fal
     const result: any = await fal.subscribe("fal-ai/gpt-image-1.5/edit", {
