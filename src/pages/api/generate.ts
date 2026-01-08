@@ -130,41 +130,9 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         backgroundPrompt = "Solid pitch black background (#000000). High contrast.";
     } else if (bgOption === "white") {
         backgroundPrompt = "Solid pure white background (#FFFFFF). High key lighting.";
-    } else if (bgOption === "outdoor") {
-        backgroundPrompt = "Outdoor background, natural lighting, fresh and bright atmosphere, shallow depth of field, strong bokeh, blurred background.";
-    } else if (bgOption === "office") {
-        backgroundPrompt = "Modern office background, professional setting, shallow depth of field, strong bokeh, blurred background.";
-    } else if (bgOption.startsWith("color_")) {
-        const colorMap: Record<string, string> = {
-            "color_blue": "blue",
-            "color_red": "red",
-            "color_orange": "orange",
-            "color_green": "green",
-            "color_teal": "teal",
-            "color_beige": "beige",
-            "color_yellow": "yellow"
-        };
-        const color = colorMap[bgOption] || "grey";
-        backgroundPrompt = `Solid ${color} background. Studio lighting.`;
     }
 
-    // KÄSITELLÄÄN VAATEVALINTA
-    const clothingOption = body.clothing ?? "blazer";
-    let clothingPrompt = "Change clothing to a smart casual dark grey blazer.";
-    if (clothingOption === "original") {
-        clothingPrompt = "Keep the original clothing.";
-    }
-
-    // KÄSITELLÄÄN ILMEVALINTA
-    const expressionOption = body.expression ?? "original";
-    let expressionPrompt = "Keep the person's facial features and identity the same.";
-    if (expressionOption === "smile") {
-        expressionPrompt = "Keep the person's facial features and identity the same but add a slight, warm, natural smile.";
-    } else if (expressionOption === "confident") {
-        expressionPrompt = "Keep the person's facial features and identity the same with a confident, professional expression.";
-    }
-
-    const prompt = body.prompt ?? `${expressionPrompt} Create a professional studio headshot. ${clothingPrompt} ${backgroundPrompt} Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.`;
+    const prompt = body.prompt ?? `Keep the person's facial features and identity the same. Create a professional studio headshot. Change clothing to a smart casual dark grey blazer. ${backgroundPrompt} Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.`;
 
     // 2. Generate with Fal
     const result: any = await fal.subscribe("fal-ai/gpt-image-1.5/edit", {
