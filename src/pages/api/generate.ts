@@ -22,23 +22,25 @@ function dataUriToBlob(dataUri: string): Blob {
 // VESILEIMA: Vain isot ruksit, ei tekstiä.
 async function createWatermarkSvg(width: number, height: number) {
   // Yksinkertainen, varma vesileima.
+  // Ohuempi viiva: width / 80
+  const strokeWidth = Math.max(2, Math.floor(width / 80)); 
   
   return `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
       <style>
         .cross { 
-          stroke: rgba(255, 255, 255, 0.3); 
-          stroke-width: ${width / 5}; 
+          stroke: rgba(255, 255, 255, 0.5); 
+          stroke-width: ${strokeWidth}; 
         }
         .cross-bg { 
           stroke: rgba(0, 0, 0, 0.3); 
-          stroke-width: ${width / 5}; 
+          stroke-width: ${strokeWidth}; 
         }
       </style>
       
       <!-- Varjo (hieman siirrettynä) -->
-      <line x1="4" y1="4" x2="${width+4}" y2="${height+4}" class="cross-bg" />
-      <line x1="${width+4}" y1="4" x2="4" y2="${height+4}" class="cross-bg" />
+      <line x1="${strokeWidth}" y1="${strokeWidth}" x2="${width+strokeWidth}" y2="${height+strokeWidth}" class="cross-bg" />
+      <line x1="${width+strokeWidth}" y1="${strokeWidth}" x2="${strokeWidth}" y2="${height+strokeWidth}" class="cross-bg" />
 
       <!-- Varsinainen viiva -->
       <line x1="0" y1="0" x2="${width}" y2="${height}" class="cross" />
@@ -117,11 +119,10 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // 5. Luo vesileima (RASTI + PNG-TEKSTI)
-    
     const metadata = await sharp(originalBuffer).metadata();
     const width = metadata.width || 1024;
     
-    // A. Luodaan rasti SVG:nä (nykyinen funktio)
+    // A. Luodaan rasti SVG:nä (ohut viiva)
     const watermarkSvg = await createWatermarkSvg(width, metadata.height || 1536);
     
     // B. Valmistellaan kerrokset
@@ -129,19 +130,47 @@ export const POST: APIRoute = async ({ request }) => {
         { input: Buffer.from(watermarkSvg), gravity: 'center' } // Rasti
     ];
 
-    // C. Yritetään lukea PNG-teksti levyltä
+    // C. Yritetään hakea PNG-teksti (fetch ensin, sitten fs fallback)
     try {
-        const watermarkPngPath = join(process.cwd(), 'public', 'watermark.png');
-        const rawPng = readFileSync(watermarkPngPath);
+        let pngBuffer: Buffer | null = null;
         
-        // Skaalataan PNG sopivaksi (esim 80% kuvan leveydestä)
-        const watermarkPngBuffer = await sharp(rawPng)
-            .resize({ width: Math.floor(width * 0.8) })
-            .toBuffer();
-            
-        compositeLayers.push({ input: watermarkPngBuffer, gravity: 'center' });
+        // Yritä hakea URL:n kautta (Vercelissä varmempi tapa saada public assetit)
+        try {
+            const origin = new URL(request.url).origin;
+            const watermarkUrl = `${origin}/watermark.png`;
+            const pngRes = await fetch(watermarkUrl);
+            if (pngRes.ok) {
+                const arr = await pngRes.arrayBuffer();
+                pngBuffer = Buffer.from(arr);
+            }
+        } catch (fetchErr) {
+            console.warn("Fetch watermark failed, trying FS fallback");
+        }
+
+        // Jos fetch epäonnistui, yritä lukea levyltä (toimii lokaalisti ja joissain serverless-konfiguraatioissa)
+        if (!pngBuffer) {
+             const watermarkPngPath = join(process.cwd(), 'public', 'watermark.png');
+             // Tarkistetaan onko tiedosto olemassa ennen lukua virheen välttämiseksi
+             try {
+                pngBuffer = readFileSync(watermarkPngPath);
+             } catch (fsErr) {
+                console.warn("FS read watermark failed: " + fsErr);
+             }
+        }
+
+        if (pngBuffer) {
+             // Skaalataan PNG sopivaksi (esim 80% kuvan leveydestä)
+            const watermarkPngBuffer = await sharp(pngBuffer)
+                .resize({ width: Math.floor(width * 0.8) })
+                .toBuffer();
+                
+            compositeLayers.push({ input: watermarkPngBuffer, gravity: 'center' });
+        } else {
+            console.warn("Watermark PNG could not be loaded via fetch OR fs.");
+        }
+
     } catch (e) {
-        console.warn("Watermark PNG missing, continuing with SVG cross only.", e);
+        console.warn("Watermark processing error:", e);
     }
 
     const watermarkedBuffer = await sharp(originalBuffer)
