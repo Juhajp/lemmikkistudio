@@ -12,11 +12,18 @@ const BACKGROUND_OPTIONS = [
   { id: 'color_green', label: 'Väri: Vihreä' },
   { id: 'color_teal', label: 'Väri: Teal' },
   { id: 'color_beige', label: 'Väri: Beige' },
+  { id: 'color_yellow', label: 'Väri: Keltainen' },
 ];
 
 const CLOTHING_OPTIONS = [
   { id: 'blazer', label: 'Tumma bleiseri (Oletus)' },
   { id: 'original', label: 'Säilytä alkuperäiset vaatteet' },
+];
+
+const EXPRESSION_OPTIONS = [
+  { id: 'original', label: 'Säilytä alkuperäinen ilme (Oletus)' },
+  { id: 'smile', label: 'Hienoinen hymy' },
+  { id: 'confident', label: 'Itsevarma' },
 ];
 
 export default function PortraitGenerator() {
@@ -29,6 +36,7 @@ export default function PortraitGenerator() {
   const [error, setError] = useState<string | null>(null);
   const [background, setBackground] = useState<string>("studio");
   const [clothing, setClothing] = useState<string>("blazer");
+  const [expression, setExpression] = useState<string>("original");
   const [remainingGenerations, setRemainingGenerations] = useState<number | null>(null);
 
   useEffect(() => {
@@ -74,7 +82,8 @@ export default function PortraitGenerator() {
         body: JSON.stringify({ 
             image: base64,
             background: background,
-            clothing: clothing
+            clothing: clothing,
+            expression: expression
         }),
       });
 
@@ -166,6 +175,27 @@ export default function PortraitGenerator() {
                   className="block w-full pl-4 pr-10 py-3 text-base border border-stone-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent sm:text-sm rounded-2xl bg-white shadow-sm appearance-none cursor-pointer hover:border-gray-400 transition-colors text-gray-800"
               >
                   {CLOTHING_OPTIONS.map((opt) => (
+                      <option key={opt.id} value={opt.id}>{opt.label}</option>
+                  ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+              </div>
+          </div>
+        </div>
+
+        {/* Expression Selection */}
+        <div className="w-full max-w-xs">
+          <label className="block text-sm font-medium text-gray-700 mb-2 pl-1">Valitse ilme</label>
+          <div className="relative">
+              <select
+                  value={expression}
+                  onChange={(e) => setExpression(e.target.value)}
+                  className="block w-full pl-4 pr-10 py-3 text-base border border-stone-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent sm:text-sm rounded-2xl bg-white shadow-sm appearance-none cursor-pointer hover:border-gray-400 transition-colors text-gray-800"
+              >
+                  {EXPRESSION_OPTIONS.map((opt) => (
                       <option key={opt.id} value={opt.id}>{opt.label}</option>
                   ))}
               </select>

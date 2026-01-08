@@ -141,7 +141,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
             "color_orange": "orange",
             "color_green": "green",
             "color_teal": "teal",
-            "color_beige": "beige"
+            "color_beige": "beige",
+            "color_yellow": "yellow"
         };
         const color = colorMap[bgOption] || "grey";
         backgroundPrompt = `Solid ${color} background. Studio lighting.`;
@@ -154,7 +155,16 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         clothingPrompt = "Keep the original clothing.";
     }
 
-    const prompt = body.prompt ?? `Keep the person's facial features and identity the same. Create a professional studio headshot. ${clothingPrompt} ${backgroundPrompt} Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.`;
+    // KÄSITELLÄÄN ILMEVALINTA
+    const expressionOption = body.expression ?? "original";
+    let expressionPrompt = "Keep the person's facial features and identity the same.";
+    if (expressionOption === "smile") {
+        expressionPrompt = "Keep the person's facial features and identity the same but add a slight, warm, natural smile.";
+    } else if (expressionOption === "confident") {
+        expressionPrompt = "Keep the person's facial features and identity the same with a confident, professional expression.";
+    }
+
+    const prompt = body.prompt ?? `${expressionPrompt} Create a professional studio headshot. ${clothingPrompt} ${backgroundPrompt} Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.`;
 
     // 2. Generate with Fal
     const result: any = await fal.subscribe("fal-ai/gpt-image-1.5/edit", {
