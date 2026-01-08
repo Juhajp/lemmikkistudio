@@ -6,6 +6,7 @@ import { put } from "@vercel/blob";
 import sharp from "sharp";
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import satori from "satori";
 
 function toDataUri(image: string, mimeType = "image/jpeg") {
   if (/^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(image)) return image;
@@ -19,55 +20,89 @@ function dataUriToBlob(dataUri: string): Blob {
   return new Blob([buffer], { type: mimeString });
 }
 
-// Apufunktio vesileiman luomiseen SVG:nä
-function createWatermarkSvg(width: number, height: number) {
+// Uusi vesileimafunktio Satorilla - VARMA TOIMIVUUS
+async function createWatermarkSvg(width: number, height: number) {
   const fontSize = Math.floor(width / 12);
   
-  // Luetaan fontti ja muutetaan base64:ksi
-  let fontBase64 = '';
-  try {
-      // Yritetään löytää fontti public-kansiosta
-      const fontPath = join(process.cwd(), 'public', 'fonts', 'Roboto-Bold.ttf');
-      const fontBuffer = readFileSync(fontPath);
-      fontBase64 = fontBuffer.toString('base64');
-  } catch (e) {
-      console.error("Font loading failed:", e);
-      // Jos fonttia ei löydy, yritetään ilman (fallback system font)
-  }
+  // Luetaan fontti
+  // Huom: Varmista että public/fonts/Roboto-Bold.ttf on olemassa (latasimme sen aiemmin)
+  const fontPath = join(process.cwd(), 'public', 'fonts', 'Roboto-Bold.ttf');
+  const fontData = readFileSync(fontPath);
 
-  const fontFaceStyle = fontBase64 ? `
-    @font-face {
-      font-family: 'CustomWatermarkFont';
-      src: url('data:font/ttf;base64,${fontBase64}') format('truetype');
-      font-weight: bold;
-      font-style: normal;
+  // Satori renderöi React-like objektin SVG-koodiksi
+  const svg = await satori(
+    {
+      type: 'div',
+      props: {
+        style: {
+          display: 'flex',
+          height: '100%',
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          // Satori ei tue 'transform' parentissa täydellisesti samalla tavalla kuin CSS, 
+          // mutta kokeillaan laittaa kierto lapsiin tai wrapperiin.
+        },
+        children: [
+            {
+                type: 'div',
+                props: {
+                    style: {
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transform: 'rotate(-45deg)', // Kierto tässä wrapperissa
+                    },
+                    children: [
+                        {
+                            type: 'p',
+                            props: {
+                                style: {
+                                    color: 'rgba(255, 255, 255, 0.4)',
+                                    fontSize: `${fontSize}px`,
+                                    fontWeight: 700,
+                                    textShadow: '0px 0px 20px rgba(0,0,0,0.8)',
+                                    margin: 0,
+                                },
+                                children: 'MUOTOKUVAT.FI',
+                            }
+                        },
+                        {
+                            type: 'p',
+                            props: {
+                                style: {
+                                    color: 'rgba(255, 255, 255, 0.4)',
+                                    fontSize: `${fontSize * 0.5}px`,
+                                    fontWeight: 700,
+                                    textShadow: '0px 0px 20px rgba(0,0,0,0.8)',
+                                    marginTop: '20px',
+                                },
+                                children: 'ESIKATSELU',
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+      },
+    } as any,
+    {
+      width,
+      height,
+      fonts: [
+        {
+          name: 'Roboto',
+          data: fontData,
+          weight: 700,
+          style: 'normal',
+        },
+      ],
     }
-  ` : '';
-
-  const fontFamily = fontBase64 ? "'CustomWatermarkFont', sans-serif" : "Verdana, Arial, sans-serif";
-
-  return `
-    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <style>
-          ${fontFaceStyle}
-          .text { 
-            fill: rgba(255, 255, 255, 0.4); 
-            font-size: ${fontSize}px; 
-            font-family: ${fontFamily};
-            font-weight: bold;
-            text-shadow: 0px 0px 20px rgba(0,0,0,0.5);
-          }
-        </style>
-      </defs>
-      <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" class="text" transform="rotate(-45, ${width / 2}, ${height / 2})">
-        MUOTOKUVAT.FI
-      </text>
-      <text x="50%" y="60%" text-anchor="middle" dominant-baseline="middle" class="text" style="font-size: ${fontSize * 0.5}px" transform="rotate(-45, ${width / 2}, ${height / 2})">
-        ESIKATSELU
-      </text>
-    </svg>
-  `;
+  );
+  
+  return svg;
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -144,8 +179,9 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // 5. Luo VESILEIMALLINEN versio näytettäväksi
+    // Huom: createWatermarkSvg on nyt async
     const metadata = await sharp(originalBuffer).metadata();
-    const watermarkSvg = createWatermarkSvg(metadata.width || 1024, metadata.height || 1536);
+    const watermarkSvg = await createWatermarkSvg(metadata.width || 1024, metadata.height || 1536);
     
     const watermarkedBuffer = await sharp(originalBuffer)
       .composite([{ input: Buffer.from(watermarkSvg), gravity: 'center' }])
