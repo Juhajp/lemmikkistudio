@@ -49,8 +49,9 @@ try {
 
           <a 
             href={downloadUrl} 
-            download="muotokuva-pro.jpg"
-            class="block w-full py-4 bg-violet-600 text-white text-center rounded-full font-medium hover:bg-violet-700 transition shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+            data-download-url={downloadUrl}
+            id="download-btn"
+            class="block w-full py-4 bg-violet-600 text-white text-center rounded-full font-medium hover:bg-violet-700 transition shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
           >
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -61,6 +62,49 @@ try {
           <a href="/" class="block mt-4 text-sm text-gray-500 hover:text-gray-800">
             Luo uusi kuva
           </a>
+
+          <script>
+            const btn = document.getElementById('download-btn');
+            if (btn) {
+              btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const url = btn.getAttribute('data-download-url');
+                if (!url) return;
+
+                // Tallenna alkuperäinen sisältö
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = `
+                  <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                  Ladataan...
+                `;
+                btn.style.pointerEvents = 'none';
+                btn.classList.add('opacity-75');
+
+                try {
+                  const response = await fetch(url);
+                  const blob = await response.blob();
+                  const blobUrl = URL.createObjectURL(blob);
+                  
+                  const a = document.createElement('a');
+                  a.href = blobUrl;
+                  a.download = 'muotokuva-pro.jpg'; // Tämä nimi näkyy käyttäjälle
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(blobUrl);
+                } catch (err) {
+                  console.error('Lataus epäonnistui, avataan uuteen välilehteen', err);
+                  // Fallback: avataan uuteen välilehteen
+                  window.open(url, '_blank');
+                } finally {
+                  // Palautetaan nappi entiselleen
+                  btn.innerHTML = originalContent;
+                  btn.style.pointerEvents = 'auto';
+                  btn.classList.remove('opacity-75');
+                }
+              });
+            }
+          </script>
         </>
       ) : (
         <>

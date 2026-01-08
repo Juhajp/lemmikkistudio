@@ -4,6 +4,8 @@ import type { APIRoute } from "astro";
 import * as fal from "@fal-ai/serverless-client";
 import { put } from "@vercel/blob";
 import sharp from "sharp";
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 function toDataUri(image: string, mimeType = "image/jpeg") {
   if (/^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(image)) return image;
@@ -26,11 +28,11 @@ async function createWatermarkSvg(width: number, height: number) {
       <style>
         .cross { 
           stroke: rgba(255, 255, 255, 0.3); 
-          stroke-width: ${width / 40}; 
+          stroke-width: ${width / 5}; 
         }
         .cross-bg { 
           stroke: rgba(0, 0, 0, 0.3); 
-          stroke-width: ${width / 40}; 
+          stroke-width: ${width / 5}; 
         }
       </style>
       
@@ -114,12 +116,36 @@ export const POST: APIRoute = async ({ request }) => {
         cleanImageUrl = outUrl;
     }
 
-    // 5. Luo VESILEIMALLINEN versio näytettäväksi
-    const metadata = await sharp(originalBuffer).metadata();
-    const watermarkSvg = await createWatermarkSvg(metadata.width || 1024, metadata.height || 1536);
+    // 5. Luo vesileima (RASTI + PNG-TEKSTI)
     
+    const metadata = await sharp(originalBuffer).metadata();
+    const width = metadata.width || 1024;
+    
+    // A. Luodaan rasti SVG:nä (nykyinen funktio)
+    const watermarkSvg = await createWatermarkSvg(width, metadata.height || 1536);
+    
+    // B. Valmistellaan kerrokset
+    const compositeLayers: any[] = [
+        { input: Buffer.from(watermarkSvg), gravity: 'center' } // Rasti
+    ];
+
+    // C. Yritetään lukea PNG-teksti levyltä
+    try {
+        const watermarkPngPath = join(process.cwd(), 'public', 'watermark.png');
+        const rawPng = readFileSync(watermarkPngPath);
+        
+        // Skaalataan PNG sopivaksi (esim 80% kuvan leveydestä)
+        const watermarkPngBuffer = await sharp(rawPng)
+            .resize({ width: Math.floor(width * 0.8) })
+            .toBuffer();
+            
+        compositeLayers.push({ input: watermarkPngBuffer, gravity: 'center' });
+    } catch (e) {
+        console.warn("Watermark PNG missing, continuing with SVG cross only.", e);
+    }
+
     const watermarkedBuffer = await sharp(originalBuffer)
-      .composite([{ input: Buffer.from(watermarkSvg), gravity: 'center' }])
+      .composite(compositeLayers)
       .jpeg({ quality: 80 })
       .toBuffer();
 
