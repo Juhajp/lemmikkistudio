@@ -5,7 +5,7 @@ import * as fal from "@fal-ai/serverless-client";
 import { put } from "@vercel/blob";
 import sharp from "sharp";
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, resolve } from 'path';
 
 function toDataUri(image: string, mimeType = "image/jpeg") {
   if (/^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(image)) return image;
@@ -22,8 +22,8 @@ function dataUriToBlob(dataUri: string): Blob {
 // VESILEIMA: Vain isot ruksit, ei tekstiä.
 async function createWatermarkSvg(width: number, height: number) {
   // Yksinkertainen, varma vesileima.
-  // Ohuempi viiva: width / 80
-  const strokeWidth = Math.max(2, Math.floor(width / 80)); 
+  // Ohuempi viiva: width / 160 (käyttäjän pyynnöstä)
+  const strokeWidth = Math.max(2, Math.floor(width / 160)); 
   
   return `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
@@ -134,27 +134,47 @@ export const POST: APIRoute = async ({ request }) => {
     try {
         let pngBuffer: Buffer | null = null;
         
+        // DEBUG: Logataan origin
+        const origin = new URL(request.url).origin;
+        console.log("Watermark fetch origin:", origin);
+
         // Yritä hakea URL:n kautta (Vercelissä varmempi tapa saada public assetit)
         try {
-            const origin = new URL(request.url).origin;
             const watermarkUrl = `${origin}/watermark.png`;
             const pngRes = await fetch(watermarkUrl);
             if (pngRes.ok) {
                 const arr = await pngRes.arrayBuffer();
                 pngBuffer = Buffer.from(arr);
+                console.log("Watermark fetched successfully from URL");
+            } else {
+                console.warn(`Watermark fetch failed: ${pngRes.status} from ${watermarkUrl}`);
             }
         } catch (fetchErr) {
-            console.warn("Fetch watermark failed, trying FS fallback");
+            console.warn("Fetch watermark failed:", fetchErr);
         }
 
-        // Jos fetch epäonnistui, yritä lukea levyltä (toimii lokaalisti ja joissain serverless-konfiguraatioissa)
+        // Jos fetch epäonnistui, yritä lukea levyltä (FS Fallback)
         if (!pngBuffer) {
-             const watermarkPngPath = join(process.cwd(), 'public', 'watermark.png');
-             // Tarkistetaan onko tiedosto olemassa ennen lukua virheen välttämiseksi
-             try {
-                pngBuffer = readFileSync(watermarkPngPath);
-             } catch (fsErr) {
-                console.warn("FS read watermark failed: " + fsErr);
+             const pathsToTry = [
+                 join(process.cwd(), 'public', 'watermark.png'),
+                 join(process.cwd(), 'watermark.png'),
+                 resolve('./public/watermark.png'),
+                 // Joskus Vercelissä dist kansio on eri paikassa
+                 join(process.cwd(), 'dist', 'client', 'watermark.png')
+             ];
+             
+             console.log("Trying FS read from:", pathsToTry);
+
+             for (const p of pathsToTry) {
+                 try {
+                    pngBuffer = readFileSync(p);
+                    if (pngBuffer) {
+                        console.log("Watermark found at FS path:", p);
+                        break;
+                    }
+                 } catch (fsErr) {
+                    // ignore
+                 }
              }
         }
 
@@ -166,7 +186,7 @@ export const POST: APIRoute = async ({ request }) => {
                 
             compositeLayers.push({ input: watermarkPngBuffer, gravity: 'center' });
         } else {
-            console.warn("Watermark PNG could not be loaded via fetch OR fs.");
+            console.error("CRITICAL: Watermark PNG could not be loaded via fetch OR fs.");
         }
 
     } catch (e) {
