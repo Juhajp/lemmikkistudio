@@ -4,10 +4,13 @@ import type { APIRoute } from "astro";
 import * as fal from "@fal-ai/serverless-client";
 
 function toDataUri(image: string, mimeType = "image/jpeg") {
-  // hyväksy jo valmiit data-URI:t
   if (/^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(image)) return image;
-  // muuten oletetaan että tulee pelkkä base64
   return "data:" + mimeType + ";base64," + image;
+}
+
+function dataUriToBase64(dataUri: string) {
+  const i = dataUri.indexOf(",");
+  return i >= 0 ? dataUri.slice(i + 1) : dataUri;
 }
 
 async function urlToBase64(url: string) {
@@ -25,13 +28,8 @@ async function urlToBase64(url: string) {
   return btoa(binary);
 }
 
-function clampNumber(value: any, min: number, max: number, fallback: number) {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return fallback;
-  return Math.max(min, Math.min(max, n));
-}
-
 export const POST: APIRoute = async ({ request }) => {
+  // ✅ Vercelissä serverless/node-runtime: käytä process.env
   const FAL_KEY = process.env.FAL_KEY;
 
   if (!FAL_KEY) {
@@ -56,90 +54,22 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // (valinnainen) suoja: liian iso base64 voi räjäyttää serverlessin
-    if (base64OrDataUri.length > 12_000_000) {
-      return new Response(JSON.stringify({ error: "Image payload too large" }), {
-        status: 413,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    const inputImage = toDataUri(base64OrDataUri, mimeType);
 
-    // InstantID ottaa face_image_url:in (URL tai base64 data-URI) :contentReference[oaicite:1]{index=1}
-    const faceImage = toDataUri(base64OrDataUri, mimeType);
-
-    // Prompti: tee studio-headshot + puku + tausta
     const prompt =
       (body.prompt as string | undefined) ??
-      [
-        "Professional studio headshot photo of the same person.",
-        "Smart casual dark grey blazer, clean corporate look.",
-        "Solid dark neutral grey background (#141414).",
-        "Soft studio lighting with subtle rim light.",
-        "Realistic skin texture, subtle retouch, sharp focus.",
-        "No noise, no grain.",
-      ].join(" ");
+      "Keep the person's facial features and identity the same. Create a professional studio headshot. Change clothing to a smart casual dark grey blazer. Replace background with solid dark neutral grey (#141414). Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.";
 
-    // InstantID: style oletuksena "Headshot" :contentReference[oaicite:2]{index=2}
-    const style =
-      (body.style as
-        | "Headshot"
-        | "Spring Festival"
-        | "Watercolor"
-        | "Film Noir"
-        | "Neon"
-        | "Jungle"
-        | "Mars"
-        | "Vibrant Color"
-        | "Snow"
-        | "Line art"
-        | undefined) ?? "Headshot";
-
-    // Negatiivinen prompti (auttaa “kohinaa” + artefakteja vastaan)
-    const negative_prompt =
-      (body.negative_prompt as string | undefined) ??
-      "lowres, blurry, noise, grain, jpeg artifacts, watermark, text, logo, worst quality, low quality";
-
-    // Hyvät lähtöarvot identiteetin säilyttämiseen
-    const num_inference_steps = clampNumber(body.num_inference_steps, 10, 60, 30);
-    const guidance_scale = clampNumber(body.guidance_scale, 0.1, 20, 5);
-    const ip_adapter_scale = clampNumber(body.ip_adapter_scale, 0, 2, 0.7);
-    const identity_controlnet_conditioning_scale = clampNumber(
-      body.identity_controlnet_conditioning_scale,
-      0,
-      2,
-      0.9 // hieman yli defaultin (0.7) -> yleensä parempi identiteetille
-    );
-
-    const controlnet_selection =
-      (body.controlnet_selection as "pose" | "canny" | "depth" | undefined) ?? "canny";
-    const controlnet_conditioning_scale = clampNumber(body.controlnet_conditioning_scale, 0, 2, 0.4);
-
-    const enhance_face_region = body.enhance_face_region ?? true;
-
-    const seed =
-      body.seed !== undefined
-        ? Math.floor(clampNumber(body.seed, 0, 2_147_483_647, 42))
-        : undefined;
-
-    const result: any = await fal.subscribe("fal-ai/instantid/standard", {
+    const result: any = await fal.subscribe("fal-ai/gpt-image-1.5/edit", {
       input: {
-        face_image_url: faceImage, // required :contentReference[oaicite:3]{index=3}
-        prompt, // required :contentReference[oaicite:4]{index=4}
-        style, // :contentReference[oaicite:5]{index=5}
-        negative_prompt, // :contentReference[oaicite:6]{index=6}
-
-        num_inference_steps, // :contentReference[oaicite:7]{index=7}
-        guidance_scale, // :contentReference[oaicite:8]{index=8}
-
-        controlnet_selection, // :contentReference[oaicite:9]{index=9}
-        controlnet_conditioning_scale, // :contentReference[oaicite:10]{index=10}
-
-        ip_adapter_scale, // :contentReference[oaicite:11]{index=11}
-        identity_controlnet_conditioning_scale, // :contentReference[oaicite:12]{index=12}
-
-        enhance_face_region, // :contentReference[oaicite:13]{index=13}
-
-        ...(seed !== undefined ? { seed } : {}),
+        prompt,
+        image_urls: [inputImage],
+        image_size: "1024x1536",
+        quality: "medium",
+        input_fidelity: "high",
+        num_images: 1,
+        output_format: "jpeg",
+        sync_mode: true,
       },
       logs: true,
       onQueueUpdate: (update) => {
@@ -149,34 +79,21 @@ export const POST: APIRoute = async ({ request }) => {
       },
     });
 
-    // Output schema: result.data.image.url (tai serverless-clientissä joskus suoraan result.image.url) :contentReference[oaicite:14]{index=14}
-    const imageObj = result?.data?.image ?? result?.image;
-    const imageUrl: string | undefined = imageObj?.url;
+    const outUrlOrDataUri: string | undefined = result?.images?.[0]?.url;
 
-    if (!imageUrl) {
+    if (!outUrlOrDataUri) {
       console.error("Full result:", JSON.stringify(result, null, 2));
-      throw new Error("Fal.ai ei palauttanut image.url:ia (tuntematon vastausmuoto).");
+      throw new Error("Fal.ai ei palauttanut kuvan URL:ia / data-URI:a.");
     }
 
-    const base64Out = await urlToBase64(imageUrl);
+    const outputBase64 = outUrlOrDataUri.startsWith("data:")
+      ? dataUriToBase64(outUrlOrDataUri)
+      : await urlToBase64(outUrlOrDataUri);
 
     return new Response(
       JSON.stringify({
-        image: base64Out,
-        contentType: imageObj?.content_type ?? "image/png",
-        seed: result?.data?.seed ?? result?.seed,
-        message: "Luotu Fal.ai InstantID Standard -mallilla",
-        meta: {
-          style,
-          num_inference_steps,
-          guidance_scale,
-          ip_adapter_scale,
-          identity_controlnet_conditioning_scale,
-          controlnet_selection,
-          controlnet_conditioning_scale,
-          enhance_face_region,
-          seed,
-        },
+        image: outputBase64,
+        message: "Luotu Fal.ai GPT-Image-1.5 Edit -mallilla",
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
