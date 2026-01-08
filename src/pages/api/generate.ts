@@ -4,6 +4,8 @@ import type { APIRoute } from "astro";
 import * as fal from "@fal-ai/serverless-client";
 import { put } from "@vercel/blob";
 import sharp from "sharp";
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 function toDataUri(image: string, mimeType = "image/jpeg") {
   if (/^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(image)) return image;
@@ -20,22 +22,49 @@ function dataUriToBlob(dataUri: string): Blob {
 // Apufunktio vesileiman luomiseen SVG:nä
 function createWatermarkSvg(width: number, height: number) {
   const fontSize = Math.floor(width / 12);
+  
+  // Luetaan fontti ja muutetaan base64:ksi
+  let fontBase64 = '';
+  try {
+      // Yritetään löytää fontti public-kansiosta
+      const fontPath = join(process.cwd(), 'public', 'fonts', 'Roboto-Bold.ttf');
+      const fontBuffer = readFileSync(fontPath);
+      fontBase64 = fontBuffer.toString('base64');
+  } catch (e) {
+      console.error("Font loading failed:", e);
+      // Jos fonttia ei löydy, yritetään ilman (fallback system font)
+  }
+
+  const fontFaceStyle = fontBase64 ? `
+    @font-face {
+      font-family: 'CustomWatermarkFont';
+      src: url('data:font/ttf;base64,${fontBase64}') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+  ` : '';
+
+  const fontFamily = fontBase64 ? "'CustomWatermarkFont', sans-serif" : "Verdana, Arial, sans-serif";
+
   return `
-    <svg width="${width}" height="${height}">
-      <style>
-        .text { 
-          fill: rgba(255, 255, 255, 0.5); 
-          font-size: ${fontSize}px; 
-          font-weight: 800; 
-          font-family: sans-serif;
-          text-shadow: 0px 0px 20px rgba(0,0,0,0.5);
-        }
-      </style>
+    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <style>
+          ${fontFaceStyle}
+          .text { 
+            fill: rgba(255, 255, 255, 0.4); 
+            font-size: ${fontSize}px; 
+            font-family: ${fontFamily};
+            font-weight: bold;
+            text-shadow: 0px 0px 20px rgba(0,0,0,0.5);
+          }
+        </style>
+      </defs>
       <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" class="text" transform="rotate(-45, ${width / 2}, ${height / 2})">
         MUOTOKUVAT.FI
       </text>
-       <text x="50%" y="60%" text-anchor="middle" dominant-baseline="middle" class="text" style="font-size: ${fontSize * 0.5}px" transform="rotate(-45, ${width / 2}, ${height / 2})">
-        PREVIEW
+      <text x="50%" y="60%" text-anchor="middle" dominant-baseline="middle" class="text" style="font-size: ${fontSize * 0.5}px" transform="rotate(-45, ${width / 2}, ${height / 2})">
+        ESIKATSELU
       </text>
     </svg>
   `;
@@ -129,7 +158,7 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(
       JSON.stringify({
         image: watermarkedBase64, // Vesileimattu versio
-        purchaseToken: cleanImageUrl, // Alkuperäisen kuvan URL (piilotettuna frontendiltä jos mahdollista, tässä MVP:ssä se on "token")
+        purchaseToken: cleanImageUrl, // Alkuperäisen kuvan URL
         message: "Vesileimallinen esikatselu luotu",
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
