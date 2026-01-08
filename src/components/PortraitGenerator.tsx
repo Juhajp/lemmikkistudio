@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 
+const BACKGROUND_OPTIONS = [
+  { id: 'studio', label: 'Tummanharmaa studio (Oletus)' },
+  { id: 'black', label: 'Musta tausta' },
+  { id: 'white', label: 'Valkoinen tausta' },
+];
+
 export default function PortraitGenerator() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -8,6 +14,7 @@ export default function PortraitGenerator() {
   const [loading, setLoading] = useState(false);
   const [buying, setBuying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [background, setBackground] = useState<string>("studio");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -37,7 +44,10 @@ export default function PortraitGenerator() {
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: base64 }),
+        body: JSON.stringify({ 
+            image: base64,
+            background: background 
+        }),
       });
 
       const data = await response.json();
@@ -90,6 +100,27 @@ export default function PortraitGenerator() {
 
   return (
     <div className="w-full">
+      {/* Background Selection */}
+      <div className="mb-8 w-full max-w-sm mx-auto">
+        <label className="block text-sm font-medium text-gray-700 mb-2 pl-1">Valitse tausta</label>
+        <div className="relative">
+            <select
+                value={background}
+                onChange={(e) => setBackground(e.target.value)}
+                className="block w-full pl-4 pr-10 py-3 text-base border border-stone-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent sm:text-sm rounded-2xl bg-white shadow-sm appearance-none cursor-pointer hover:border-gray-400 transition-colors text-gray-800"
+            >
+                {BACKGROUND_OPTIONS.map((opt) => (
+                    <option key={opt.id} value={opt.id}>{opt.label}</option>
+                ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+            </div>
+        </div>
+      </div>
+
       {/* Error Banner */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center gap-3">

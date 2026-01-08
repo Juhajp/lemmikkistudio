@@ -23,7 +23,7 @@ function dataUriToBlob(dataUri: string): Blob {
 async function createWatermarkSvg(width: number, height: number) {
   // Yksinkertainen, varma vesileima.
   // Ohuempi viiva: width / 160 (käyttäjän pyynnöstä)
-  const strokeWidth = Math.max(2, Math.floor(width / 160)); 
+  const strokeWidth = Math.max(2, Math.floor(width / 240)); 
   
   return `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
@@ -74,7 +74,17 @@ export const POST: APIRoute = async ({ request }) => {
     const imageBlob = dataUriToBlob(dataUri);
     const uploadedUrl = await fal.storage.upload(imageBlob);
 
-    const prompt = body.prompt ?? "Keep the person's facial features and identity the same. Create a professional studio headshot. Change clothing to a smart casual dark grey blazer. Replace background with solid dark neutral grey (#141414). Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.";
+    // KÄSITELLÄÄN TAUSTAVÄRIVALINTA
+    const bgOption = body.background ?? "studio";
+    let backgroundPrompt = "Solid dark neutral grey background (#141414).";
+    
+    if (bgOption === "black") {
+        backgroundPrompt = "Solid pitch black background (#000000). High contrast.";
+    } else if (bgOption === "white") {
+        backgroundPrompt = "Solid pure white background (#FFFFFF). High key lighting.";
+    }
+
+    const prompt = body.prompt ?? `Keep the person's facial features and identity the same. Create a professional studio headshot. Change clothing to a smart casual dark grey blazer. ${backgroundPrompt} Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.`;
 
     // 2. Generate with Fal
     const result: any = await fal.subscribe("fal-ai/gpt-image-1.5/edit", {
