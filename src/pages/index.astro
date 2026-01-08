@@ -4,14 +4,22 @@ import PortraitGenerator from '../components/PortraitGenerator';
 ---
 
 <Layout title="Muotokuvat.fi">
-	<main class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-		<h1 class="text-4xl font-extrabold text-gray-900 mb-2">muotokuvat.fi</h1>
-		<p class="text-gray-600 mb-8">Muuta kuvasi taiteeksi sekunneissa.</p>
-		
-		<PortraitGenerator client:load />
-		
-		<p class="mt-8 text-xs text-gray-400">
-			Emme tallenna kuviasi. Kaikki käsittely on väliaikaista.
-		</p>
+	<main class="min-h-screen bg-[#c4e7d3] flex flex-col items-center py-12 px-4 md:px-8">
+		<div class="max-w-6xl w-full space-y-8">
+			<header class="text-center space-y-4 mb-12">
+				<h1 class="text-4xl md:text-5xl font-semibold tracking-tight text-[#1F1F1F]">
+					Muotokuvat helposti ja nopeasti
+				</h1>
+				<p class="text-lg text-gray-600 max-w-2xl mx-auto">
+					Lataa kuvasi ja anna tekoälyn luoda ammattimainen studiokuva hetkessä.
+				</p>
+			</header>
+			
+			<PortraitGenerator client:load />
+			
+			<footer class="text-center pt-12 text-sm text-gray-500">
+				<p>Emme tallenna kuviasi pysyvästi. Kaikki käsittely on väliaikaista ja turvallista.</p>
+			</footer>
+		</div>
 	</main>
 </Layout>

@@ -13,26 +13,26 @@ function dataUriToBase64(dataUri: string) {
   return i >= 0 ? dataUri.slice(i + 1) : dataUri;
 }
 
+function dataUriToBlob(dataUri: string): Blob {
+  const split = dataUri.split(",");
+  const mimeString = split[0].split(":")[1].split(";")[0];
+  const buffer = Buffer.from(split[1], "base64");
+  return new Blob([buffer], { type: mimeString });
+}
+
 async function urlToBase64(url: string) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch generated image: ${res.status} ${res.statusText}`);
   const ab = await res.arrayBuffer();
-
-  const B = (globalThis as any).Buffer;
-  if (B) return B.from(ab).toString("base64");
-
-  const bytes = new Uint8Array(ab);
-  let binary = "";
-  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-  // @ts-ignore
-  return btoa(binary);
+  return Buffer.from(ab).toString("base64");
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  // ✅ Vercelissä serverless/node-runtime: käytä process.env
-  const FAL_KEY = process.env.FAL_KEY;
+  // ✅ Tuki sekä Astro local dev (import.meta.env) että Vercel (process.env)
+  const FAL_KEY = import.meta.env.FAL_KEY ?? process.env.FAL_KEY;
 
   if (!FAL_KEY) {
+    console.error("VIRHE: FAL_KEY puuttuu ympäristömuuttujista!");
     return new Response(JSON.stringify({ error: "Server Config Error: FAL_KEY missing" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
@@ -54,16 +54,20 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    const inputImage = toDataUri(base64OrDataUri, mimeType);
+    // 1. Ladataan kuva ensin pilveen (varmempi tapa)
+    const dataUri = toDataUri(base64OrDataUri, mimeType);
+    const imageBlob = dataUriToBlob(dataUri);
+    const uploadedUrl = await fal.storage.upload(imageBlob);
 
     const prompt =
       (body.prompt as string | undefined) ??
       "Keep the person's facial features and identity the same. Create a professional studio headshot. Change clothing to a smart casual dark grey blazer. Replace background with solid dark neutral grey (#141414). Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.";
 
+    // 2. Kutsutaan mallia
     const result: any = await fal.subscribe("fal-ai/gpt-image-1.5/edit", {
       input: {
         prompt,
-        image_urls: [inputImage],
+        image_urls: [uploadedUrl],
         image_size: "1024x1536",
         quality: "medium",
         input_fidelity: "high",
@@ -83,7 +87,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (!outUrlOrDataUri) {
       console.error("Full result:", JSON.stringify(result, null, 2));
-      throw new Error("Fal.ai ei palauttanut kuvan URL:ia / data-URI:a.");
+      throw new Error("Fal.ai ei palauttanut kuvan URL:ia.");
     }
 
     const outputBase64 = outUrlOrDataUri.startsWith("data:")

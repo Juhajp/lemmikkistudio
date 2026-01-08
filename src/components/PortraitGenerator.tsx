@@ -13,6 +13,11 @@ export default function PortraitGenerator() {
       setSelectedFile(file);
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
+      // We don't clear generated image immediately so user can compare side-by-side if they upload new one, 
+      // but usually upload means new intent. Let's clear for clarity.
+      // Actually requirement says: "input and output... visible both same time AFTER generation".
+      // So if I upload new, maybe keep old result until I generate new? 
+      // Let's clear to avoid confusion.
       setGeneratedImage(null);
       setError(null);
     }
@@ -37,77 +42,151 @@ export default function PortraitGenerator() {
         body: JSON.stringify({ image: base64 }),
       });
 
-      if (!response.ok) throw new Error('Generointi epäonnistui');
-
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Generointi epäonnistui');
+      }
+      
       setGeneratedImage(data.image);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError('Jotain meni pieleen. Kokeile uudestaan.');
+      setError(err.message || 'Jotain meni pieleen. Kokeile uudestaan.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-md space-y-6">
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">Lataa kasvokuva</label>
-        <input 
-          type="file" 
-          accept="image/*" 
-          onChange={handleFileChange}
-          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
-        />
+    <div className="w-full">
+      {/* Error Banner */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center gap-3">
+          <svg className="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p>{error}</p>
+        </div>
+      )}
+
+      {/* Main Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
+        
+        {/* INPUT CARD */}
+        <div className="flex flex-col gap-4">
+            <div className="bg-white p-6 rounded-[28px] shadow-sm border border-stone-100 h-full flex flex-col">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-stone-100 text-sm">1</span>
+                        Lähdekuva
+                    </h2>
+                </div>
+
+                <div className="flex-grow flex flex-col items-center justify-center">
+                    {!preview ? (
+                        <label className="w-full aspect-[3/4] flex flex-col items-center justify-center border-2 border-dashed border-stone-300 rounded-2xl cursor-pointer hover:bg-stone-50 transition-colors bg-stone-50/50">
+                            <div className="flex flex-col items-center text-center p-6 text-gray-500">
+                                <svg className="w-12 h-12 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span className="font-medium text-lg text-gray-700">Valitse kuva</span>
+                                <span className="text-sm mt-2">tai raahaa tiedosto tähän</span>
+                            </div>
+                            <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
+                        </label>
+                    ) : (
+                        <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden bg-stone-100 group">
+                            <img src={preview} alt="Input" className="w-full h-full object-cover" />
+                            <label className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-full text-sm font-medium shadow-sm cursor-pointer hover:bg-white transition-colors">
+                                Vaihda kuva
+                                <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
+                            </label>
+                        </div>
+                    )}
+                </div>
+
+                {/* Generate Action Area */}
+                <div className="mt-8 pt-6 border-t border-stone-100">
+                    <button
+                        onClick={handleGenerate}
+                        disabled={!selectedFile || loading}
+                        className={`w-full py-4 px-6 rounded-full text-lg font-medium transition-all shadow-md flex items-center justify-center gap-3
+                            ${!selectedFile 
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none' 
+                                : 'bg-gray-900 text-white hover:bg-black hover:shadow-lg active:scale-[0.99]'
+                            }`}
+                    >
+                        {loading ? (
+                            <>
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                Generoidaan...
+                            </>
+                        ) : (
+                            <>
+                                <span>Luo Muotokuva</span>
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </>
+                        )}
+                    </button>
+                    {loading && <p className="text-center text-sm text-gray-500 mt-3 animate-pulse">Tämä kestää noin 10-20 sekuntia...</p>}
+                </div>
+            </div>
+        </div>
+
+        {/* OUTPUT CARD */}
+        <div className="flex flex-col gap-4">
+             <div className={`bg-white p-6 rounded-[28px] shadow-sm border border-stone-100 h-full flex flex-col ${!generatedImage && !loading ? 'opacity-80' : ''}`}>
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-violet-100 text-violet-700 text-sm">2</span>
+                        Valmis muotokuva
+                    </h2>
+                    {generatedImage && (
+                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                            Valmis
+                        </span>
+                    )}
+                </div>
+
+                <div className="flex-grow flex flex-col items-center justify-center min-h-[400px]">
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center text-gray-400 space-y-4">
+                             <div className="w-full aspect-[3/4] bg-stone-50 rounded-2xl animate-pulse flex items-center justify-center">
+                                <svg className="w-16 h-16 text-stone-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                             </div>
+                             <p className="text-sm">Tekoäly käsittelee kuvaa...</p>
+                        </div>
+                    ) : generatedImage ? (
+                        <div className="w-full space-y-6">
+                            <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-lg border-4 border-white">
+                                <img src={`data:image/png;base64,${generatedImage}`} alt="Generated" className="w-full h-full object-cover" />
+                            </div>
+                            
+                            <a 
+                                href={`data:image/png;base64,${generatedImage}`} 
+                                download="muotokuva.png"
+                                className="block w-full py-4 bg-violet-600 text-white text-center rounded-full font-medium hover:bg-violet-700 transition shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                            >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                Lataa kuva
+                            </a>
+                        </div>
+                    ) : (
+                        <div className="text-center text-gray-400 p-8 border-2 border-dashed border-stone-200 rounded-2xl w-full h-full flex flex-col items-center justify-center bg-stone-50/30">
+                            <p>Valmis kuva ilmestyy tähän</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+
       </div>
-
-      {loading && (
-        <div className="text-center py-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-700 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Tekoäly taiteilee...</p>
-        </div>
-      )}
-
-      {error && <p className="text-red-500 text-center">{error}</p>}
-
-      {generatedImage ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-2">
-            <h3 className="text-center font-medium text-gray-500">Alkuperäinen</h3>
-            <div className="border rounded-lg overflow-hidden">
-              <img src={preview!} alt="Original" className="w-full h-auto object-cover" />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="text-center font-bold text-violet-700">Valmis Muotokuva</h3>
-            <div className="rounded-lg overflow-hidden shadow-lg border-2 border-violet-100">
-              <img src={`data:image/png;base64,${generatedImage}`} alt="Generated" className="w-full h-auto object-cover" />
-            </div>
-            <a 
-              href={`data:image/png;base64,${generatedImage}`} 
-              download="muotokuva.png"
-              className="block w-full py-3 bg-violet-600 text-white text-center rounded-lg font-bold hover:bg-violet-700 transition"
-            >
-              Lataa kuva
-            </a>
-          </div>
-        </div>
-      ) : (
-        preview && !loading && (
-          <div className="max-w-xl mx-auto space-y-6">
-            <div className="border rounded-lg overflow-hidden">
-               <img src={preview} alt="Original" className="w-full h-auto object-cover" />
-            </div>
-            <button 
-              onClick={handleGenerate}
-              className="w-full py-3 bg-black text-white rounded-lg font-bold hover:bg-gray-800 transition"
-            >
-              Luo Muotokuva
-            </button>
-          </div>
-        )
-      )}
     </div>
   );
 }
