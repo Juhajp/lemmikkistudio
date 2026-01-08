@@ -4,9 +4,6 @@ import type { APIRoute } from "astro";
 import * as fal from "@fal-ai/serverless-client";
 import { put } from "@vercel/blob";
 import sharp from "sharp";
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import satori from "satori";
 
 function toDataUri(image: string, mimeType = "image/jpeg") {
   if (/^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(image)) return image;
@@ -20,97 +17,50 @@ function dataUriToBlob(dataUri: string): Blob {
   return new Blob([buffer], { type: mimeString });
 }
 
-// Uusi vesileimafunktio Satorilla - VARMA TOIMIVUUS
+// FAIL-SAFE VESILEIMA: Ei ulkoisia riippuvuuksia, ei fonttilatauksia.
+// Piirtää yksinkertaisen SVG-grafiikan.
 async function createWatermarkSvg(width: number, height: number) {
-  const fontSize = Math.floor(width / 12);
-  
-  // Haetaan fontti lennosta CDN:stä (varmempi kuin levytallennus serverlessissä)
-  // Käytetään ArrayBufferia suoraan
-  let fontData: ArrayBuffer;
-  try {
-      const fontRes = await fetch('https://github.com/google/fonts/raw/main/apache/roboto/Roboto-Bold.ttf');
-      if (!fontRes.ok) throw new Error("Font download failed");
-      fontData = await fontRes.arrayBuffer();
-  } catch (e) {
-      console.error("Font fetch failed, trying fallback logic or failing gracefully:", e);
-      // Jos fontin haku epäonnistuu, voimme palauttaa tyhjän SVG:n tai heittää virheen
-      throw new Error("Watermark font missing");
-  }
+  const fontSize = Math.floor(width / 10);
+  const boxWidth = width * 0.7;
+  const boxHeight = fontSize * 2;
 
-  // Satori renderöi React-like objektin SVG-koodiksi
-  const svg = await satori(
-    {
-      type: 'div',
-      props: {
-        style: {
-          display: 'flex',
-          height: '100%',
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
-          // Satori ei tue 'transform' parentissa täydellisesti samalla tavalla kuin CSS, 
-          // mutta kokeillaan laittaa kierto lapsiin tai wrapperiin.
-        },
-        children: [
-            {
-                type: 'div',
-                props: {
-                    style: {
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transform: 'rotate(-45deg)', // Kierto tässä wrapperissa
-                    },
-                    children: [
-                        {
-                            type: 'p',
-                            props: {
-                                style: {
-                                    color: 'rgba(255, 255, 255, 0.4)',
-                                    fontSize: `${fontSize}px`,
-                                    fontWeight: 700,
-                                    textShadow: '0px 0px 20px rgba(0,0,0,0.8)',
-                                    margin: 0,
-                                },
-                                children: 'MUOTOKUVAT.FI',
-                            }
-                        },
-                        {
-                            type: 'p',
-                            props: {
-                                style: {
-                                    color: 'rgba(255, 255, 255, 0.4)',
-                                    fontSize: `${fontSize * 0.5}px`,
-                                    fontWeight: 700,
-                                    textShadow: '0px 0px 20px rgba(0,0,0,0.8)',
-                                    marginTop: '20px',
-                                },
-                                children: 'ESIKATSELU',
-                            }
-                        }
-                    ]
-                }
-            }
-        ],
-      },
-    } as any,
-    {
-      width,
-      height,
-      fonts: [
-        {
-          name: 'Roboto',
-          data: fontData,
-          weight: 700,
-          style: 'normal',
-        },
-      ],
-    }
-  );
-  
-  return svg;
+  // Käytämme SVG:tä ilman Satoria. Sharp hoitaa renderöinnin.
+  // Jos teksti ei näy (neliöitä), "cross" viivat suojaavat kuvaa silti.
+  return `
+    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        .cross { stroke: rgba(255, 255, 255, 0.2); stroke-width: 5; }
+        .box { fill: rgba(0, 0, 0, 0.5); stroke: rgba(255,255,255,0.8); stroke-width: 5; }
+        .text { 
+          fill: white; 
+          font-family: sans-serif; 
+          font-weight: 900; 
+          font-size: ${fontSize}px;
+          text-anchor: middle;
+          dominant-baseline: middle;
+        }
+      </style>
+      
+      <!-- Isot ruksit yli kuvan -->
+      <line x1="0" y1="0" x2="${width}" y2="${height}" class="cross" />
+      <line x1="${width}" y1="0" x2="0" y2="${height}" class="cross" />
+
+      <!-- Laatikko keskellä -->
+      <rect 
+        x="${(width - boxWidth) / 2}" 
+        y="${(height - boxHeight) / 2}" 
+        width="${boxWidth}" 
+        height="${boxHeight}" 
+        rx="20"
+        class="box" 
+      />
+
+      <!-- Teksti -->
+      <text x="50%" y="50%" class="text">
+        PREVIEW
+      </text>
+    </svg>
+  `;
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -120,10 +70,6 @@ export const POST: APIRoute = async ({ request }) => {
   if (!FAL_KEY) {
     console.error("VIRHE: FAL_KEY puuttuu!");
     return new Response(JSON.stringify({ error: "Server Config Error: FAL_KEY missing" }), { status: 500 });
-  }
-
-  if (!BLOB_READ_WRITE_TOKEN) {
-    console.warn("VAROITUS: BLOB_READ_WRITE_TOKEN puuttuu! Kuvan tallennus ei onnistu.");
   }
 
   fal.config({ credentials: FAL_KEY });
@@ -187,7 +133,6 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // 5. Luo VESILEIMALLINEN versio näytettäväksi
-    // Huom: createWatermarkSvg on nyt async
     const metadata = await sharp(originalBuffer).metadata();
     const watermarkSvg = await createWatermarkSvg(metadata.width || 1024, metadata.height || 1536);
     
