@@ -1,14 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const BACKGROUND_OPTIONS = [
   { id: 'studio', label: 'Tummanharmaa studio (Oletus)' },
   { id: 'black', label: 'Musta tausta' },
   { id: 'white', label: 'Valkoinen tausta' },
-];
-
-const CLOTHING_OPTIONS = [
-  { id: 'blazer', label: 'Tumma bleiseri (Oletus)' },
-  { id: 'original', label: 'Säilytä alkuperäiset vaatteet' },
 ];
 
 export default function PortraitGenerator() {
@@ -20,7 +15,18 @@ export default function PortraitGenerator() {
   const [buying, setBuying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [background, setBackground] = useState<string>("studio");
-  const [clothing, setClothing] = useState<string>("blazer");
+  const [remainingGenerations, setRemainingGenerations] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch('/api/check-limit')
+      .then(res => res.json())
+      .then(data => {
+        if (typeof data.remaining === 'number') {
+          setRemainingGenerations(data.remaining);
+        }
+      })
+      .catch(err => console.error('Failed to check rate limit:', err));
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -52,8 +58,7 @@ export default function PortraitGenerator() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             image: base64,
-            background: background,
-            clothing: clothing
+            background: background 
         }),
       });
 
@@ -65,6 +70,11 @@ export default function PortraitGenerator() {
       
       setGeneratedImage(data.image);
       setPurchaseToken(data.purchaseToken);
+      
+      // Update remaining count
+      if (remainingGenerations !== null) {
+          setRemainingGenerations(Math.max(0, remainingGenerations - 1));
+      }
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Jotain meni pieleen. Kokeile uudestaan.');
@@ -107,52 +117,25 @@ export default function PortraitGenerator() {
 
   return (
     <div className="w-full">
-      
-      {/* Controls Area: Background & Clothing */}
-      <div className="w-full max-w-2xl mx-auto mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        
-        {/* Background Selection */}
-        <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 pl-1">Valitse tausta</label>
-            <div className="relative">
-                <select
-                    value={background}
-                    onChange={(e) => setBackground(e.target.value)}
-                    className="block w-full pl-4 pr-10 py-3 text-base border border-stone-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent sm:text-sm rounded-2xl bg-white shadow-sm appearance-none cursor-pointer hover:border-gray-400 transition-colors text-gray-800"
-                >
-                    {BACKGROUND_OPTIONS.map((opt) => (
-                        <option key={opt.id} value={opt.id}>{opt.label}</option>
-                    ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                </div>
+      {/* Background Selection */}
+      <div className="mb-8 w-full max-w-sm mx-auto">
+        <label className="block text-sm font-medium text-gray-700 mb-2 pl-1">Valitse tausta</label>
+        <div className="relative">
+            <select
+                value={background}
+                onChange={(e) => setBackground(e.target.value)}
+                className="block w-full pl-4 pr-10 py-3 text-base border border-stone-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent sm:text-sm rounded-2xl bg-white shadow-sm appearance-none cursor-pointer hover:border-gray-400 transition-colors text-gray-800"
+            >
+                {BACKGROUND_OPTIONS.map((opt) => (
+                    <option key={opt.id} value={opt.id}>{opt.label}</option>
+                ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
             </div>
         </div>
-
-        {/* Clothing Selection */}
-        <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 pl-1">Vaatetus</label>
-            <div className="relative">
-                <select
-                    value={clothing}
-                    onChange={(e) => setClothing(e.target.value)}
-                    className="block w-full pl-4 pr-10 py-3 text-base border border-stone-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent sm:text-sm rounded-2xl bg-white shadow-sm appearance-none cursor-pointer hover:border-gray-400 transition-colors text-gray-800"
-                >
-                    {CLOTHING_OPTIONS.map((opt) => (
-                        <option key={opt.id} value={opt.id}>{opt.label}</option>
-                    ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                </div>
-            </div>
-        </div>
-
       </div>
 
       {/* Error Banner */}
@@ -203,11 +186,18 @@ export default function PortraitGenerator() {
 
                 {/* Generate Action Area */}
                 <div className="mt-8 pt-6 border-t border-stone-100">
+                    <div className="mb-2 text-center">
+                       {remainingGenerations !== null && (
+                         <span className={`text-sm font-medium ${remainingGenerations === 0 ? 'text-red-600' : 'text-gray-500'}`}>
+                           Kuvia jäljellä tänään: {remainingGenerations}
+                         </span>
+                       )}
+                    </div>
                     <button
                         onClick={handleGenerate}
-                        disabled={!selectedFile || loading}
+                        disabled={!selectedFile || loading || remainingGenerations === 0}
                         className={`w-full py-4 px-6 rounded-full text-lg font-medium transition-all shadow-md flex items-center justify-center gap-3
-                            ${!selectedFile 
+                            ${(!selectedFile || remainingGenerations === 0)
                                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none' 
                                 : 'bg-gray-900 text-white hover:bg-black hover:shadow-lg active:scale-[0.99]'
                             }`}

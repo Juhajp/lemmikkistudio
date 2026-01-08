@@ -1,6 +1,7 @@
 /// <reference types="node" />
 
 import type { APIRoute } from "astro";
+import { kv } from "@vercel/kv";
 import * as fal from "@fal-ai/serverless-client";
 import { put } from "@vercel/blob";
 import sharp from "sharp";
@@ -49,7 +50,47 @@ async function createWatermarkSvg(width: number, height: number) {
   `;
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, clientAddress }) => {
+  // --- RATE LIMIT START ---
+  const MAX_GENERATIONS = Number(import.meta.env.RATE_LIMIT_MAX ?? 5);
+  // Oletus 86400s = 24h
+  const WINDOW_SECONDS = Number(import.meta.env.RATE_LIMIT_WINDOW ?? 86400);
+
+  // Vercelissä ja monissa proxyissä oikea IP on x-forwarded-for -headerissa.
+  // clientAddress on Astron tarjoama fallback.
+  const ip = request.headers.get("x-forwarded-for") || clientAddress || "unknown";
+  
+  // Tehdään uniikki avain Redisille, esim "ratelimit:127.0.0.1"
+  const rateLimitKey = `ratelimit:${ip}`;
+
+  try {
+    // Kasvatetaan laskuria (INCR)
+    const requests = await kv.incr(rateLimitKey);
+
+    // Jos tämä oli ensimmäinen pyyntö tällä avaimella (arvo on 1), asetetaan vanhenemisaika
+    if (requests === 1) {
+      await kv.expire(rateLimitKey, WINDOW_SECONDS);
+    }
+
+    // Jos raja ylittyy, palautetaan virhe
+    if (requests > MAX_GENERATIONS) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Päivittäinen kuvakiintiö täynnä. Kokeile huomenna uudelleen." 
+        }), 
+        {
+          status: 429,
+          headers: { "Content-Type": "application/json" }
+        }
+      );
+    }
+  } catch (kvError) {
+    // Jos KV ei toimi (esim. yhteysongelma tai lokaalisti ilman env-muuttujia),
+    // logataan virhe mutta PÄÄSTETÄÄN KÄYTTÄJÄ LÄPI, jotta palvelu ei kaadu kokonaan.
+    console.error("Rate limit check failed (allowing request):", kvError);
+  }
+  // --- RATE LIMIT END ---
+
   const FAL_KEY = import.meta.env.FAL_KEY ?? process.env.FAL_KEY;
   const BLOB_READ_WRITE_TOKEN = import.meta.env.BLOB_READ_WRITE_TOKEN ?? process.env.BLOB_READ_WRITE_TOKEN;
 
@@ -74,26 +115,17 @@ export const POST: APIRoute = async ({ request }) => {
     const imageBlob = dataUriToBlob(dataUri);
     const uploadedUrl = await fal.storage.upload(imageBlob);
 
-    // KÄSITELLÄÄN VALINNAT (Tausta & Vaatteet)
-    
-    // Tausta
+    // KÄSITELLÄÄN TAUSTAVÄRIVALINTA
     const bgOption = body.background ?? "studio";
     let backgroundPrompt = "Solid dark neutral grey background (#141414).";
+    
     if (bgOption === "black") {
         backgroundPrompt = "Solid pitch black background (#000000). High contrast.";
     } else if (bgOption === "white") {
         backgroundPrompt = "Solid pure white background (#FFFFFF). High key lighting.";
     }
 
-    // Vaatteet
-    const clothingOption = body.clothing ?? "blazer";
-    let clothingPrompt = "Change clothing to a smart casual dark grey blazer.";
-    if (clothingOption === "original") {
-        clothingPrompt = "Keep the original clothing visible in the photo.";
-    }
-
-    // Yhdistetään promptiin
-    const prompt = body.prompt ?? `Keep the person's facial features and identity the same. Create a professional studio headshot. ${clothingPrompt} ${backgroundPrompt} Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.`;
+    const prompt = body.prompt ?? `Keep the person's facial features and identity the same. Create a professional studio headshot. Change clothing to a smart casual dark grey blazer. ${backgroundPrompt} Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.`;
 
     // 2. Generate with Fal
     const result: any = await fal.subscribe("fal-ai/gpt-image-1.5/edit", {
