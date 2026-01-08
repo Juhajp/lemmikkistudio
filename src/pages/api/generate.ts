@@ -2,15 +2,12 @@
 
 import type { APIRoute } from "astro";
 import * as fal from "@fal-ai/serverless-client";
+import { put } from "@vercel/blob";
+import sharp from "sharp";
 
 function toDataUri(image: string, mimeType = "image/jpeg") {
   if (/^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(image)) return image;
   return "data:" + mimeType + ";base64," + image;
-}
-
-function dataUriToBase64(dataUri: string) {
-  const i = dataUri.indexOf(",");
-  return i >= 0 ? dataUri.slice(i + 1) : dataUri;
 }
 
 function dataUriToBlob(dataUri: string): Blob {
@@ -20,50 +17,62 @@ function dataUriToBlob(dataUri: string): Blob {
   return new Blob([buffer], { type: mimeString });
 }
 
-async function urlToBase64(url: string) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch generated image: ${res.status} ${res.statusText}`);
-  const ab = await res.arrayBuffer();
-  return Buffer.from(ab).toString("base64");
+// Apufunktio vesileiman luomiseen SVG:nä
+function createWatermarkSvg(width: number, height: number) {
+  const fontSize = Math.floor(width / 12);
+  return `
+    <svg width="${width}" height="${height}">
+      <style>
+        .text { 
+          fill: rgba(255, 255, 255, 0.5); 
+          font-size: ${fontSize}px; 
+          font-weight: 800; 
+          font-family: sans-serif;
+          text-shadow: 0px 0px 20px rgba(0,0,0,0.5);
+        }
+      </style>
+      <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" class="text" transform="rotate(-45, ${width / 2}, ${height / 2})">
+        MUOTOKUVAT.FI
+      </text>
+       <text x="50%" y="60%" text-anchor="middle" dominant-baseline="middle" class="text" style="font-size: ${fontSize * 0.5}px" transform="rotate(-45, ${width / 2}, ${height / 2})">
+        PREVIEW
+      </text>
+    </svg>
+  `;
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  // ✅ Tuki sekä Astro local dev (import.meta.env) että Vercel (process.env)
   const FAL_KEY = import.meta.env.FAL_KEY ?? process.env.FAL_KEY;
+  const BLOB_READ_WRITE_TOKEN = import.meta.env.BLOB_READ_WRITE_TOKEN ?? process.env.BLOB_READ_WRITE_TOKEN;
 
   if (!FAL_KEY) {
-    console.error("VIRHE: FAL_KEY puuttuu ympäristömuuttujista!");
-    return new Response(JSON.stringify({ error: "Server Config Error: FAL_KEY missing" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    console.error("VIRHE: FAL_KEY puuttuu!");
+    return new Response(JSON.stringify({ error: "Server Config Error: FAL_KEY missing" }), { status: 500 });
+  }
+
+  if (!BLOB_READ_WRITE_TOKEN) {
+    console.warn("VAROITUS: BLOB_READ_WRITE_TOKEN puuttuu! Kuvan tallennus ei onnistu.");
   }
 
   fal.config({ credentials: FAL_KEY });
 
   try {
     const body = await request.json();
-
     const base64OrDataUri = body.image as string | undefined;
     const mimeType = (body.mimeType as string | undefined) ?? "image/jpeg";
-
+    
     if (!base64OrDataUri) {
-      return new Response(JSON.stringify({ error: "No image data" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(JSON.stringify({ error: "No image data" }), { status: 400 });
     }
 
-    // 1. Ladataan kuva ensin pilveen (varmempi tapa)
+    // 1. Upload input image to Fal storage
     const dataUri = toDataUri(base64OrDataUri, mimeType);
     const imageBlob = dataUriToBlob(dataUri);
     const uploadedUrl = await fal.storage.upload(imageBlob);
 
-    const prompt =
-      (body.prompt as string | undefined) ??
-      "A professional, high-resolution, profile photo, maintaining the exact facial structure, identity, and key features of the person in the input image. The subject is framed from the chest up, with ample headroom and negative space above their head, ensuring the top of their head is not cropped. The person looks directly at the camera, and the subject’s body is also directly facing the camera. They are styled for a professional photo studio shoot, wearing a smart casual blazer. The background is a solid ‘#141414’ neutral studio. Shot from a high angle with bright and airy soft, diffused studio lighting, gently illuminating the face and creating a subtle catchlight in the eyes, conveying a sense of clarity. Captured on an 85mm f/1.8 lens with a shallow depth of field, exquisite focus on the eyes, and beautiful, soft bokeh. Observe crisp detail on the fabric texture of the blazer, individual strands of hair, and natural, realistic skin texture. The atmosphere exudes confidence, professionalism, and approachability. Clean and bright cinematic color grading with subtle warmth and balanced tones, ensuring a polished and contemporary feel.";
+    const prompt = body.prompt ?? "Keep the person's facial features and identity the same. Create a professional studio headshot. Change clothing to a smart casual dark grey blazer. Replace background with solid dark neutral grey (#141414). Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.";
 
-    // 2. Kutsutaan mallia
+    // 2. Generate with Fal
     const result: any = await fal.subscribe("fal-ai/gpt-image-1.5/edit", {
       input: {
         prompt,
@@ -83,26 +92,51 @@ export const POST: APIRoute = async ({ request }) => {
       },
     });
 
-    const outUrlOrDataUri: string | undefined = result?.images?.[0]?.url;
+    const outUrl: string | undefined = result?.images?.[0]?.url;
+    if (!outUrl) throw new Error("Fal.ai ei palauttanut kuvan URL:ia.");
 
-    if (!outUrlOrDataUri) {
-      console.error("Full result:", JSON.stringify(result, null, 2));
-      throw new Error("Fal.ai ei palauttanut kuvan URL:ia.");
+    // 3. Hae generoidun kuvan data puskuriin (Buffer)
+    const imageRes = await fetch(outUrl);
+    if (!imageRes.ok) throw new Error("Failed to fetch generated image");
+    const imageArrayBuffer = await imageRes.arrayBuffer();
+    const originalBuffer = Buffer.from(imageArrayBuffer);
+
+    // 4. Tallenna ALKUPERÄINEN (puhdas) kuva Vercel Blobiin
+    let cleanImageUrl = "";
+    if (BLOB_READ_WRITE_TOKEN) {
+        const blob = await put(`portraits/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`, originalBuffer, {
+            access: 'public',
+            contentType: 'image/jpeg',
+        });
+        cleanImageUrl = blob.url;
+    } else {
+        console.warn("Skipping Blob upload because token is missing. Using FAL url as fallback (will expire).");
+        cleanImageUrl = outUrl;
     }
 
-    const outputBase64 = outUrlOrDataUri.startsWith("data:")
-      ? dataUriToBase64(outUrlOrDataUri)
-      : await urlToBase64(outUrlOrDataUri);
+    // 5. Luo VESILEIMALLINEN versio näytettäväksi
+    const metadata = await sharp(originalBuffer).metadata();
+    const watermarkSvg = createWatermarkSvg(metadata.width || 1024, metadata.height || 1536);
+    
+    const watermarkedBuffer = await sharp(originalBuffer)
+      .composite([{ input: Buffer.from(watermarkSvg), gravity: 'center' }])
+      .jpeg({ quality: 80 })
+      .toBuffer();
 
+    const watermarkedBase64 = watermarkedBuffer.toString("base64");
+
+    // 6. Palauta vastaus
     return new Response(
       JSON.stringify({
-        image: outputBase64,
-        message: "Luotu Fal.ai GPT-Image-1.5 Edit -mallilla",
+        image: watermarkedBase64, // Vesileimattu versio
+        purchaseToken: cleanImageUrl, // Alkuperäisen kuvan URL (piilotettuna frontendiltä jos mahdollista, tässä MVP:ssä se on "token")
+        message: "Vesileimallinen esikatselu luotu",
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
+
   } catch (error: any) {
-    console.error("Fal.ai Error:", error);
+    console.error("Error:", error);
     const errorMessage = error?.body?.detail || error?.message || "Generation failed";
     return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,

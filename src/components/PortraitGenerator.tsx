@@ -4,7 +4,9 @@ export default function PortraitGenerator() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [purchaseToken, setPurchaseToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [buying, setBuying] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -13,12 +15,8 @@ export default function PortraitGenerator() {
       setSelectedFile(file);
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
-      // We don't clear generated image immediately so user can compare side-by-side if they upload new one, 
-      // but usually upload means new intent. Let's clear for clarity.
-      // Actually requirement says: "input and output... visible both same time AFTER generation".
-      // So if I upload new, maybe keep old result until I generate new? 
-      // Let's clear to avoid confusion.
       setGeneratedImage(null);
+      setPurchaseToken(null);
       setError(null);
     }
   };
@@ -49,6 +47,7 @@ export default function PortraitGenerator() {
       }
       
       setGeneratedImage(data.image);
+      setPurchaseToken(data.purchaseToken);
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Jotain meni pieleen. Kokeile uudestaan.');
@@ -56,6 +55,38 @@ export default function PortraitGenerator() {
       setLoading(false);
     }
   };
+
+  const handleBuy = async () => {
+    if (!purchaseToken) return;
+    setBuying(true);
+    setError(null);
+    
+    try {
+        const response = await fetch('/api/create-checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageUrl: purchaseToken }),
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+             throw new Error(data.error || 'Maksusivun luonti epäonnistui');
+        }
+
+        if (data.url) {
+            window.location.href = data.url;
+        } else {
+             throw new Error('Ei maksulinkkiä');
+        }
+
+    } catch(err: any) {
+        console.error(err);
+        setError(err.message || "Maksupalveluun siirtyminen epäonnistui");
+    } finally {
+        setBuying(false);
+    }
+  }
 
   return (
     <div className="w-full">
@@ -141,11 +172,11 @@ export default function PortraitGenerator() {
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                         <span className="flex items-center justify-center w-8 h-8 rounded-full bg-violet-100 text-violet-700 text-sm">2</span>
-                        Valmis muotokuva
+                        Esikatselu
                     </h2>
                     {generatedImage && (
-                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                            Valmis
+                        <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                            Vesileimattu
                         </span>
                     )}
                 </div>
@@ -166,16 +197,28 @@ export default function PortraitGenerator() {
                                 <img src={`data:image/png;base64,${generatedImage}`} alt="Generated" className="w-full h-full object-cover" />
                             </div>
                             
-                            <a 
-                                href={`data:image/png;base64,${generatedImage}`} 
-                                download="muotokuva.png"
-                                className="block w-full py-4 bg-violet-600 text-white text-center rounded-full font-medium hover:bg-violet-700 transition shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                            <button
+                                onClick={handleBuy}
+                                disabled={buying}
+                                className="w-full py-4 bg-violet-600 text-white text-center rounded-full font-medium hover:bg-violet-700 transition shadow-md hover:shadow-lg flex items-center justify-center gap-2 active:scale-[0.99]"
                             >
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                                Lataa kuva
-                            </a>
+                                {buying ? (
+                                    <>
+                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        Avataan kassaa...
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        Osta kuva (4.90€)
+                                    </>
+                                )}
+                            </button>
+                            <p className="text-center text-xs text-gray-400">
+                                Saat täysikokoisen, vesileimattoman kuvan heti maksun jälkeen.
+                            </p>
                         </div>
                     ) : (
                         <div className="text-center text-gray-400 p-8 border-2 border-dashed border-stone-200 rounded-2xl w-full h-full flex flex-col items-center justify-center bg-stone-50/30">

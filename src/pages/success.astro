@@ -1,0 +1,82 @@
+---
+import Layout from '../layouts/layout.astro';
+import Stripe from 'stripe';
+
+const STRIPE_SECRET_KEY = import.meta.env.STRIPE_SECRET_KEY ?? process.env.STRIPE_SECRET_KEY;
+const stripe = new Stripe(STRIPE_SECRET_KEY as string);
+
+const sessionId = Astro.url.searchParams.get('session_id');
+let downloadUrl = null;
+let error = null;
+
+if (!sessionId) {
+  return Astro.redirect('/');
+}
+
+try {
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  
+  if (session.payment_status === 'paid') {
+    // Maksu onnistui! Haetaan kuvan URL metadatasta
+    downloadUrl = session.metadata?.original_image_url;
+  } else {
+    error = "Maksu ei ole vielä vahvistunut.";
+  }
+} catch (e: any) {
+  console.error(e);
+  error = "Virhe maksun tarkistuksessa.";
+}
+---
+
+<Layout title="Kiitos tilauksesta! - Muotokuvat.fi">
+  <main class="min-h-screen flex flex-col items-center justify-center p-4 bg-[#F2F0ED]">
+    <div class="bg-white p-8 rounded-[28px] shadow-sm max-w-lg w-full text-center space-y-6">
+      
+      {downloadUrl ? (
+        <>
+          <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          
+          <h1 class="text-2xl font-bold text-gray-900">Kiitos tilauksesta!</h1>
+          <p class="text-gray-600">Maksusi on vastaanotettu onnistuneesti. Tässä on valmis muotokuvasi.</p>
+          
+          <div class="rounded-xl overflow-hidden shadow-lg border-4 border-white my-6">
+            <img src={downloadUrl} alt="Ostettu kuva" class="w-full h-auto" />
+          </div>
+
+          <a 
+            href={downloadUrl} 
+            download="muotokuva-pro.jpg"
+            class="block w-full py-4 bg-violet-600 text-white text-center rounded-full font-medium hover:bg-violet-700 transition shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Lataa alkuperäinen kuva
+          </a>
+          
+          <a href="/" class="block mt-4 text-sm text-gray-500 hover:text-gray-800">
+            Luo uusi kuva
+          </a>
+        </>
+      ) : (
+        <>
+          <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <h1 class="text-xl font-bold text-gray-900">Jotain meni pieleen</h1>
+          <p class="text-gray-600">{error || "Emme voineet vahvistaa maksua."}</p>
+          <a href="/" class="block mt-6 text-violet-600 font-medium hover:underline">
+            Palaa etusivulle
+          </a>
+        </>
+      )}
+
+    </div>
+  </main>
+</Layout>
