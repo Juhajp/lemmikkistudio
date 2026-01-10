@@ -256,7 +256,7 @@ export default function PortraitGenerator() {
                             </>
                         )}
                     </button>
-                    {loading && <p className="text-center text-sm text-gray-500 mt-3 animate-pulse">Tämä kestää noin 10-20 sekuntia...</p>}
+                    {loading && <p className="text-center text-sm text-gray-500 mt-3 animate-pulse">Tämä kestää noin 20-40 sekuntia...</p>}
                 </div>
             </div>
         </div>
@@ -307,7 +307,8 @@ export default function PortraitGenerator() {
                                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
-                                        Osta kuva (4.90€)
+                                        Osta kuva (2,90 €)
+                                        <span className="ml-2 text-sm text-violet-200 line-through">4,90 €</span>
                                     </>
                                 )}
                             </button>
