@@ -3,8 +3,8 @@ import Layout from '../layouts/layout.astro';
 
 // Voit vaihtaa nämä tiedot helposti tästä tai suoraan HTML:stä
 const lastUpdated = new Date().toLocaleDateString('fi-FI');
-const companyName = "[Yrityksesi nimi]";
-const contactEmail = "[sähköpostiosoitteesi]";
+const companyName = "[Unik Design]";
+const contactEmail = "[info@muotokuvasi.fi]";
 ---
 
 <Layout title={`Tietosuojaseloste | ${companyName}`}>
@@ -20,14 +20,14 @@ const contactEmail = "[sähköpostiosoitteesi]";
       <div class="space-y-8 text-gray-700 leading-relaxed">
         
         <p class="italic">
-          Tämä tietosuojaseloste kuvaa, miten <strong>{companyName}</strong> ("Palvelu") käsittelee käyttäjien henkilötietoja. Olemme sitoutuneet suojaamaan yksityisyyttäsi.
+          Tämä tietosuojaseloste kuvaa, miten "muotokuvasi.fi" -palvelu käsittelee käyttäjien henkilötietoja. Olemme sitoutuneet suojaamaan yksityisyyttäsi.
         </p>
 
         <section>
           <h2 class="text-xl font-semibold text-gray-900 mb-3">1. Rekisterinpitäjä</h2>
           <p>
             {companyName}<br>
-            [Osoite / Paikkakunta]<br>
+            [Otavakuja 10, Oulu]<br>
             {contactEmail}
           </p>
         </section>
@@ -38,7 +38,7 @@ const contactEmail = "[sähköpostiosoitteesi]";
           <ul class="list-disc pl-5 space-y-1">
             <li><strong>Käyttäjän lataama kuva:</strong> Alkuperäinen valokuva, jonka lataat palveluun.</li>
             <li><strong>Generoitu kuva:</strong> Tekoälyn luoma uusi versio kuvastasi.</li>
-            <li><strong>Maksutiedot:</strong> Maksunvälittäjä (esim. Stripe) käsittelee maksutiedot. Me emme tallenna täydellisiä luottokorttitietojasi.</li>
+            <li><strong>Maksutiedot:</strong> Maksunvälittäjä (Stripe) käsittelee maksutiedot. Me emme tallenna luottokorttitietojasi.</li>
           </ul>
         </section>
 
@@ -54,32 +54,23 @@ const contactEmail = "[sähköpostiosoitteesi]";
         <section>
           <h2 class="text-xl font-semibold text-gray-900 mb-3">4. Tietojen luovutus ja siirto (Tekoälymallit)</h2>
           <p class="mb-2">
-            Kuvan generoimiseksi lataamasi kuva siirretään teknisesti käyttämällemme tekoälypalveluntarjoajalle (Fal.ai / Replicate).
+            Kuvan generoimiseksi lataamasi kuva siirretään teknisesti käyttämällemme tekoälypalveluntarjoajalle (fal.ai, OpenAI)
           </p>
           <p>
-            Nämä kumppanit toimivat henkilötietojen käsittelijöinä ja käsittelevät kuvaa ainoastaan generointiprosessin ajan. He eivät käytä kuviasi omien malliensa kouluttamiseen.
+            Nämä kumppanit käsittelevät kuvaa ainoastaan generointiprosessin ajan. He eivät käytä kuviasi omien malliensa kouluttamiseen.
           </p>
         </section>
 
         <section>
           <h2 class="text-xl font-semibold text-gray-900 mb-3">5. Tietojen säilytysaika (24 tunnin sääntö)</h2>
-          <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
-            <p class="font-medium text-blue-900">Noudatamme tiukkaa tietojen minimointia:</p>
-            <p class="text-blue-800 mt-1">
+          <div class="border-l-4 p-4">
+            <p class="font-medium">Noudatamme tiukkaa tietojen minimointia:</p>
+            <p class="mt-1">
               Ladatut ja generoidut kuvat poistetaan automaattisesti palvelimiltamme ja käsittelijöidemme järjestelmistä <strong>24 tunnin kuluessa</strong> latauksesta/generoinnista.
             </p>
           </div>
         </section>
 
-        <section>
-          <h2 class="text-xl font-semibold text-gray-900 mb-3">6. Käyttäjän oikeudet</h2>
-          <p class="mb-2">Sinulla on oikeus:</p>
-          <ul class="list-disc pl-5 space-y-1">
-            <li>Pyytää pääsy omiin tietoihisi.</li>
-            <li>Vaatia tietojen poistamista välittömästi.</li>
-            <li>Peruuttaa suostumuksesi tietojen käsittelyyn.</li>
-          </ul>
-        </section>
 
         <section>
           <h2 class="text-xl font-semibold text-gray-900 mb-3">7. Evästeet</h2>

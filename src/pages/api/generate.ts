@@ -3,7 +3,7 @@
 import type { APIRoute } from "astro";
 import { kv } from "@vercel/kv";
 import * as fal from "@fal-ai/serverless-client";
-import { put } from "@vercel/blob";
+import { put, del } from "@vercel/blob";
 import sharp from "sharp";
 import { readFileSync } from 'fs';
 import { join, resolve } from 'path';
@@ -273,7 +273,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     const watermarkedBase64 = watermarkedBuffer.toString("base64");
 
     // 6. Palauta vastaus
-    return new Response(
+    const response = new Response(
       JSON.stringify({
         image: watermarkedBase64, // Vesileimattu versio
         purchaseToken: cleanImageUrl, // Alkuperäisen kuvan URL
@@ -281,6 +281,18 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
+
+    // Poistetaan input-kuva heti generoinnin jälkeen tilan säästämiseksi
+    if (uploadedUrl) {
+        try {
+            await del(uploadedUrl);
+            console.log("Deleted temporary input image:", uploadedUrl);
+        } catch (delErr) {
+            console.warn("Failed to delete input image:", delErr);
+        }
+    }
+
+    return response;
 
   } catch (error: any) {
     console.error("Error:", error);
