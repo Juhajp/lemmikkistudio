@@ -1,4 +1,8 @@
 ---
+// 1. Tuodaan komponentti (Tämä oli aiemmin omassa lohkossaan)
+import CookieConsent from '../components/CookieConsent.astro';
+
+// 2. Määritellään propsit (Tämä oli aiemmin alemmassa lohkossa)
 interface Props {
 	title: string;
 }
@@ -27,7 +31,7 @@ const { title } = Astro.props;
 					{/* Vasen sarake */}
 					<div>
 						<p class="text-sm text-gray-500">
-							&copy; {new Date().getFullYear()} Muotokuvat. Kaikki oikeudet pidätetään.
+							&copy; {new Date().getFullYear()} Muotokuvasi.fi
 						</p>
 					</div>
 					
