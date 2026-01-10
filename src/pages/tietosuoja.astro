@@ -1,0 +1,101 @@
+---
+import Layout from '../layouts/layout.astro';
+
+// Voit vaihtaa nämä tiedot helposti tästä tai suoraan HTML:stä
+const lastUpdated = new Date().toLocaleDateString('fi-FI');
+const companyName = "[Yrityksesi nimi]";
+const contactEmail = "[sähköpostiosoitteesi]";
+---
+
+<Layout title={`Tietosuojaseloste | ${companyName}`}>
+  <main class="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-sm">
+      
+      <div class="mb-8 border-b pb-6">
+        <a href="/" class="text-sm text-blue-600 hover:text-blue-800 mb-4 inline-block">&larr; Takaisin etusivulle</a>
+        <h1 class="text-3xl font-bold text-gray-900">Tietosuojaseloste</h1>
+        <p class="text-sm text-gray-500 mt-2">Päivitetty: {lastUpdated}</p>
+      </div>
+
+      <div class="space-y-8 text-gray-700 leading-relaxed">
+        
+        <p class="italic">
+          Tämä tietosuojaseloste kuvaa, miten <strong>{companyName}</strong> ("Palvelu") käsittelee käyttäjien henkilötietoja. Olemme sitoutuneet suojaamaan yksityisyyttäsi.
+        </p>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 mb-3">1. Rekisterinpitäjä</h2>
+          <p>
+            {companyName}<br>
+            [Osoite / Paikkakunta]<br>
+            {contactEmail}
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 mb-3">2. Mitä tietoja keräämme?</h2>
+          <p class="mb-2">Palvelumme on suunniteltu keräämään mahdollisimman vähän tietoa. Käsittelemme vain seuraavia tietoja:</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li><strong>Käyttäjän lataama kuva:</strong> Alkuperäinen valokuva, jonka lataat palveluun.</li>
+            <li><strong>Generoitu kuva:</strong> Tekoälyn luoma uusi versio kuvastasi.</li>
+            <li><strong>Maksutiedot:</strong> Maksunvälittäjä (esim. Stripe) käsittelee maksutiedot. Me emme tallenna täydellisiä luottokorttitietojasi.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 mb-3">3. Mihin tarkoitukseen tietoja käsitellään?</h2>
+          <p>Tietoja käytetään ainoastaan:</p>
+          <ol class="list-decimal pl-5 space-y-1 mt-2">
+            <li>Tekoälymuotokuvan generoimiseen lataamasi kuvan perusteella.</li>
+            <li>Valmiin kuvan toimittamiseen sinulle.</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 mb-3">4. Tietojen luovutus ja siirto (Tekoälymallit)</h2>
+          <p class="mb-2">
+            Kuvan generoimiseksi lataamasi kuva siirretään teknisesti käyttämällemme tekoälypalveluntarjoajalle (Fal.ai / Replicate).
+          </p>
+          <p>
+            Nämä kumppanit toimivat henkilötietojen käsittelijöinä ja käsittelevät kuvaa ainoastaan generointiprosessin ajan. He eivät käytä kuviasi omien malliensa kouluttamiseen.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 mb-3">5. Tietojen säilytysaika (24 tunnin sääntö)</h2>
+          <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+            <p class="font-medium text-blue-900">Noudatamme tiukkaa tietojen minimointia:</p>
+            <p class="text-blue-800 mt-1">
+              Ladatut ja generoidut kuvat poistetaan automaattisesti palvelimiltamme ja käsittelijöidemme järjestelmistä <strong>24 tunnin kuluessa</strong> latauksesta/generoinnista.
+            </p>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 mb-3">6. Käyttäjän oikeudet</h2>
+          <p class="mb-2">Sinulla on oikeus:</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>Pyytää pääsy omiin tietoihisi.</li>
+            <li>Vaatia tietojen poistamista välittömästi.</li>
+            <li>Peruuttaa suostumuksesi tietojen käsittelyyn.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 mb-3">7. Evästeet</h2>
+          <p>
+            Sivustomme käyttää vain välttämättömiä evästeitä tai paikallista tallennusta (Local Storage) palvelun teknisen toimivuuden takaamiseksi. Emme käytä seurantakoodeja mainostarkoituksiin.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 mb-3">8. Yhteydenotot</h2>
+          <p>
+            Tietosuojaan liittyvissä asioissa voit ottaa yhteyttä: <a href={`mailto:${contactEmail}`} class="text-blue-600 hover:underline">{contactEmail}</a>
+          </p>
+        </section>
+
+      </div>
+    </div>
+  </main>
+</Layout>

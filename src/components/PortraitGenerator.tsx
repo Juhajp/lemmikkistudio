@@ -189,7 +189,7 @@ export default function PortraitGenerator() {
       )}
 
       {/* Main Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 mx-auto max-w-5xl">
         
         {/* INPUT CARD */}
         <div className="flex flex-col gap-4">
