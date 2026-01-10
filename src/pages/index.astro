@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/layout.astro';
 import PortraitGenerator from '../components/PortraitGenerator';
+import FAQ from '../components/FAQ';
 ---
 
 <Layout title="Muotokuvat.fi">
@@ -16,9 +17,9 @@ import PortraitGenerator from '../components/PortraitGenerator';
 			
 			<PortraitGenerator client:load />
 			
-			<div class="text-center pt-12 text-sm text-[#234b4d]">
-				<p>Emme tallenna kuviasi pysyvästi. Kaikki käsittely on väliaikaista ja turvallista.</p>
-			</div>
+			
+
+			<FAQ client:idle />
 		</div>
 	</main>
 </Layout>

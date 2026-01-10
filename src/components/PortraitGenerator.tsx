@@ -210,6 +210,8 @@ export default function PortraitGenerator() {
                                 </svg>
                                 <span className="font-medium text-lg text-gray-700">Valitse kuva</span>
                                 <span className="text-sm mt-2">tai raahaa tiedosto tähän</span>
+                                
+
                             </div>
                             <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
                         </label>
