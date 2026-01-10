@@ -4,7 +4,7 @@ import PortraitGenerator from '../components/PortraitGenerator';
 ---
 
 <Layout title="Muotokuvat.fi">
-	<main class="min-h-screen bg-[#c4e7d3] flex flex-col items-center py-12 px-4 md:px-8">
+	<main class="w-full bg-[#c4e7d3] flex flex-col items-center py-12 px-4 md:px-8">
 		<div class="max-w-6xl w-full space-y-8">
 			<header class="text-center space-y-4 mb-12">
 				<h1 class="text-4xl md:text-5xl font-semibold tracking-tight text-[#1F1F1F]">
@@ -17,9 +17,9 @@ import PortraitGenerator from '../components/PortraitGenerator';
 			
 			<PortraitGenerator client:load />
 			
-			<footer class="text-center pt-12 text-sm text-gray-500">
+			<div class="text-center pt-12 text-sm text-gray-500">
 				<p>Emme tallenna kuviasi pysyvästi. Kaikki käsittely on väliaikaista ja turvallista.</p>
-			</footer>
+			</div>
 		</div>
 	</main>
 </Layout>
