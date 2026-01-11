@@ -265,6 +265,9 @@ export default function PortraitGenerator() {
                             </label>
                         </div>
                     )}
+                    <p className="text-xs text-gray-400 mt-4 text-center leading-relaxed px-4">
+                        Lataamalla kuvan vahvistat, että sinulla on kuvaan käyttöoikeus ja kuvassa esiintyvän henkilön suostumus. Toisten ihmisten kuvien luvaton käyttö on käyttöehtojemme vastaista.
+                    </p>
                 </div>
 
                 {/* Generate Action Area */}

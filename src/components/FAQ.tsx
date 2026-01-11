@@ -15,6 +15,10 @@ const FAQ_DATA: FAQItem[] = [
     answer: "Parhaan tuloksen saat, kun lataat hyvälaatuisen lähikuvan, jossa kasvosi näkyvät selkeästi ja valaistus on tasainen. Vältä kuvia, joissa on aurinkolasit, hattu tai voimakkaita varjoja kasvoilla. Selfie toimii hyvin!"
   },
   {
+    question: "Miten voin maksaa kuvani?",
+    answer: "Esikatsekuvan alapuolella on maksupainike joka ohjaa kassasivulle. Maksutapoina on käytössä luottokortti sekä mobilepay."
+  },
+  {
     question: "Säilyvätkö kuvani palvelussa?",
     answer: "Eivät. Lataamasi alkuperäinen kuva poistetaan heti kun generointi on valmis. Valmis generoitu kuva säilytetään 24 tuntia, jotta ehdit ladata sen itsellesi maksun jälkeen, minkä jälkeen se poistetaan automaattisesti."
   },
@@ -29,6 +33,22 @@ const FAQ_DATA: FAQItem[] = [
   {
     question: "Minulla on ongelmia kuvan latauksen kanssa. Mitä tehdä?",
     answer: "Ota yhteyttä info@muotokuvat.fi niin autamme sinua."
+  },
+  {
+    question: "Onko tämä joku tekoälyhuijaus?",
+    answer: (
+      <>
+        Uusi teknologia herättää aina epäilyksiä. Lyhyt vastaus on: <strong>Ei ole.</strong> Olemme aito palvelu, joka tarjoaa vastineen rahoillesi. Tässä muutama fakta toiminnastamme:
+        <br /><br />
+        <strong>Turvallinen maksu:</strong> Käytämme maksujen välitykseen maailmanlaajuisesti tunnettua Stripea. Me emme koskaan näe tai tallenna luottokorttitietojasi.
+        <br /><br />
+        <strong>Tietosuoja edellä:</strong> Emme myy kuviasi kolmansille osapuolille. Sekä lataamasi että generoidut kuvat poistetaan palvelimiltamme automaattisesti 24 tunnin kuluessa.
+        <br /><br />
+        <strong>Aito teknologia:</strong> Palvelumme pohjautuu uusimpaan kuvagenerointiteknologiaan, joka luo kuvat oikeasti, ei vain filtteröi niitä.
+        <br /><br />
+        <strong>Asiakaspalvelu:</strong> Jos et ole tyytyväinen tai teknologia tekee virheen, oikea ihminen asiakaspalvelussamme auttaa sinua.
+      </>
+    )
   }
 ];
 
@@ -65,7 +85,7 @@ export default function FAQ() {
             
             <div 
               className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                openIndex === index ? 'max-h-120 opacity-100' : 'max-h-0 opacity-0'
               }`}
             >
               <div className="px-6 pb-6 pt-0 text-gray-600 leading-relaxed border-t border-stone-50">
