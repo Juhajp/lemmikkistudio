@@ -72,7 +72,7 @@ export default function PortraitGenerator() {
 
       const response = await fetch('/api/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json','x-admin-secret': 'porkkana' },
+        headers: { 'Content-Type': 'application/json' },
         
         body: JSON.stringify({ 
             image: base64,
