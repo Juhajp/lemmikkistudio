@@ -29,7 +29,7 @@ const FAQ_DATA: FAQItem[] = [
   {
     question: "Minulla on ongelmia kuvan latauksen kanssa. Mitä tehdä?",
     answer: "Ota yhteyttä info@muotokuvat.fi niin autamme sinua."
-  },
+  }
 ];
 
 export default function FAQ() {

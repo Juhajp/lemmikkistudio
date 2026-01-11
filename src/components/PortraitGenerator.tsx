@@ -17,6 +17,7 @@ const BACKGROUND_OPTIONS = [
 const CLOTHING_OPTIONS = [
   { id: 'blazer', label: 'Tumma bleiseri (Oletus)' },
   { id: 'sweater_light', label: 'Vaalea neule' },
+  { id: 'turtleneck_black', label: 'Musta poolopaita' },
   { id: 'original', label: 'Säilytä alkuperäiset vaatteet' },
 ];
 

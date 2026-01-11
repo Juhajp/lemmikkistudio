@@ -147,6 +147,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         clothingPrompt = "Keep the original clothing.";
     } else if (clothingOption === "sweater_light") {
         clothingPrompt = "Change clothing to a cozy, high-quality beige or cream colored knitted sweater. Soft texture, casual but elegant.";
+    } else if (clothingOption === "turtleneck_black") {
+        clothingPrompt = "Change clothing to a stylish black turtleneck. Minimalist, modern, Steve Jobs style.";
     }
 
     const prompt = body.prompt ?? `Keep the person's facial features and identity the same. Create a professional studio headshot. ${clothingPrompt} ${backgroundPrompt} Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.`;
