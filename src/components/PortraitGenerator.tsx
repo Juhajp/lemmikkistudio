@@ -18,6 +18,7 @@ const CLOTHING_OPTIONS = [
   { id: 'blazer', label: 'Tumma bleiseri (Oletus)' },
   { id: 'sweater_light', label: 'Vaalea neule' },
   { id: 'turtleneck_black', label: 'Musta poolopaita' },
+  { id: 'tshirt_grey', label: 'Harmaa t-paita (Smart Casual)' },
   { id: 'original', label: 'Säilytä alkuperäiset vaatteet' },
 ];
 

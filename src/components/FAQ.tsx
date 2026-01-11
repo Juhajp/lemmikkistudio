@@ -12,7 +12,7 @@ const FAQ_DATA: FAQItem[] = [
   },
   {
     question: "Millaisia kuvia voin käyttää lähdekuvina?",
-    answer: "Parhaan tuloksen saat, kun lataat hyvälaatuisen kuvan, jossa kasvosi näkyvät selkeästi ja valaistus on tasainen. Vältä kuvia, joissa on aurinkolasit, hattu tai voimakkaita varjoja kasvoilla. Selfie toimii hyvin!"
+    answer: "Parhaan tuloksen saat, kun lataat hyvälaatuisen lähikuvan, jossa kasvosi näkyvät selkeästi ja valaistus on tasainen. Vältä kuvia, joissa on aurinkolasit, hattu tai voimakkaita varjoja kasvoilla. Selfie toimii hyvin!"
   },
   {
     question: "Säilyvätkö kuvani palvelussa?",
