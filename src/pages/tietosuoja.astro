@@ -7,13 +7,13 @@ const companyName = "[Mainospalvelu Unik Design]";
 const contactEmail = "[info@muotokuvasi.fi]";
 ---
 
-<Layout title={`Tietosuojaseloste | ${companyName}`}>
+<Layout title={`Tietosuojaseloste ja käyttöehdot | ${companyName}`}>
   <main class="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
     <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-sm">
       
       <div class="mb-8 border-b pb-6">
         <a href="/" class="text-sm text-blue-600 hover:text-blue-800 mb-4 inline-block">&larr; Takaisin etusivulle</a>
-        <h1 class="text-3xl font-bold text-gray-900">Tietosuojaseloste</h1>
+        <h1 class="text-3xl font-bold text-gray-900">Tietosuojaseloste ja käyttöehdot</h1>
         <p class="text-sm text-gray-500 mt-2">Päivitetty: {lastUpdated}</p>
       </div>
 
@@ -54,12 +54,17 @@ const contactEmail = "[info@muotokuvasi.fi]";
         </section>
 
         <section>
-          <h2 class="text-xl font-semibold text-gray-900 mb-3">4. Tietojen luovutus ja siirto (Tekoälymallit)</h2>
+          <h2 class="text-xl font-semibold text-gray-900 mb-3">4. Tietojen luovutus ja siirto</h2>
           <p class="mb-2">
-            Kuvan generoimiseksi lataamasi kuva siirretään teknisesti käyttämällemme tekoälypalveluntarjoajalle (fal.ai, OpenAI)
+            Palvelun tuottamiseksi käytämme luotettavia palveluntarjoajia, jotka toimivat henkilötietojen käsittelijöinä:
           </p>
+          <ul class="list-disc pl-5 space-y-1 mt-2 mb-4">
+            <li><strong>Fal.ai (Tekoälymallit):</strong> Käytämme Fal.ai-palvelua kuvien generointiin. Kuva siirretään heidän palvelimilleen prosessointia varten. (USA/EU)</li>
+            <li><strong>Vercel (Hosting):</strong> Verkkosivustomme ja väliaikainen kuvatallennus sijaitsevat Vercelin pilvipalvelussa.</li>
+            <li><strong>Stripe (Maksut):</strong> Maksutapahtumat käsitellään turvallisesti Stripen kautta.</li>
+          </ul>
           <p>
-            Nämä kumppanit käsittelevät kuvaa ainoastaan generointiprosessin ajan. He eivät käytä kuviasi omien malliensa kouluttamiseen.
+            Nämä kumppanit käsittelevät kuvaa ainoastaan generointiprosessin ajan. Fal.ai:n ehtojen mukaisesti he eivät käytä API:n kautta lähetettyjä kuvia omien malliensa kouluttamiseen. Osa tiedoista saatetaan siirtää EU/ETA-alueen ulkopuolelle (esim. USA), jolloin siirto turvataan asianmukaisilla suojamekanismeilla (esim. SCC).
           </p>
         </section>
 
@@ -73,6 +78,16 @@ const contactEmail = "[info@muotokuvasi.fi]";
           </div>
         </section>
 
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 mb-3">6. Käyttöehdot ja oikeudet kuviin</h2>
+          <p class="mb-2">
+            Käyttämällä palvelua vakuutat, että sinulla on täysi käyttöoikeus lataamaasi kuvaan ja kuvassa esiintyvän henkilön suostumus kuvan käsittelyyn. Toisten ihmisten kuvien luvaton käyttö tai "deepfake"-materiaalin luominen ilman lupaa on kiellettyä.
+          </p>
+          <p>
+            Palvelu on tarkoitettu yli 18-vuotiaille.
+          </p>
+        </section>
 
         <section>
             <h2 class="text-xl font-semibold text-gray-900 mb-3">7. Evästeet ja seuranta</h2>
