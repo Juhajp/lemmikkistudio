@@ -35,18 +35,20 @@ const { title } = Astro.props;
 					{/* Vasen sarake */}
 					<div>
 						<p class="text-sm text-white">
-							Olemme suomalainen toimija. Jos sinulla on kysyttävää, vastaamme mielellämme osoitteessa  <a href="mailto:info@muotokuvasi.fi" class="text-white hover:text-gray-900 transition-colors">info@muotokuvasi.fi</a>
+							Olemme suomalainen toimija. Jos sinulla on kysyttävää, vastaamme mielellämme osoitteessa:  <a href="mailto:info@muotokuvasi.fi" class="text-white hover:text-gray-900 transition-colors">info@muotokuvasi.fi</a>
 						</p>
 					</div>
 
 					
 					
 					{/* Oikea sarake */}
-					<div class="flex md:justify-end">
+					<div class="flex flex-col md:items-end">
 						<a href="/tietosuoja" class="text-sm text-white hover:text-gray-900 transition-colors leading-loose">
-							Tietosuojaseloste ja käyttöehdot<br>
-							&copy; {new Date().getFullYear()} Muotokuvasi.fi 
+							Tietosuojaseloste ja käyttöehdot
+							
 						</a>
+						<p class="text-sm text-white leading-loose">&copy; {new Date().getFullYear()} Muotokuvasi.fi </p>
+						
 					</div>
 				</div>
 			</div>
