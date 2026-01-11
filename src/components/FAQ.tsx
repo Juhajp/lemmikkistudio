@@ -11,7 +11,7 @@ const FAQ_DATA: FAQItem[] = [
     answer: "Lataa palveluun tavallinen kuva kasvoistasi. Tekoälymme analysoi kuvan ja luo siitä ammattimaisen version valitsemallasi taustalla ja vaatetuksella. Voit esikatsella lopputulosta (vesileimalla) ilmaiseksi. Jos olet tyytyväinen, voit ostaa kuvan ilman vesileimaa."
   },
   {
-    question: "Mitä kuvia minun kannattaa ladata?",
+    question: "Millaisia kuvia voin käyttää lähdekuvina?",
     answer: "Parhaan tuloksen saat, kun lataat hyvälaatuisen kuvan, jossa kasvosi näkyvät selkeästi ja valaistus on tasainen. Vältä kuvia, joissa on aurinkolasit, hattu tai voimakkaita varjoja kasvoilla. Selfie toimii hyvin!"
   },
   {
@@ -25,7 +25,11 @@ const FAQ_DATA: FAQItem[] = [
   {
     question: "Mitä jos en ole tyytyväinen tulokseen?",
     answer: "Esikatselu on täysin ilmainen, joten et maksa mitään ennen kuin näet lopputuloksen. Jos et ole tyytyväinen ensimmäiseen versioon, voit kokeilla ladata eri kuvan tai vaihtaa asetuksia ja generoida uuden kuvan veloituksetta."
-  }
+  },
+  {
+    question: "Minulla on ongelmia kuvan latauksen kanssa. Mitä tehdä?",
+    answer: "Ota yhteyttä info@muotokuvat.fi niin autamme sinua."
+  },
 ];
 
 export default function FAQ() {

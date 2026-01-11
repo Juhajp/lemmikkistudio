@@ -35,14 +35,17 @@ const { title } = Astro.props;
 					{/* Vasen sarake */}
 					<div>
 						<p class="text-sm text-white">
-							&copy; {new Date().getFullYear()} Muotokuvasi.fi
+							Asiakaspalvelu: <a href="mailto:info@muotokuvat.fi" class="text-white hover:text-gray-900 transition-colors">info@muotokuvat.fi</a>
 						</p>
 					</div>
+
+					
 					
 					{/* Oikea sarake */}
 					<div class="flex md:justify-end">
-						<a href="/tietosuoja" class="text-sm text-white hover:text-gray-900 transition-colors">
-							Tietosuojaseloste
+						<a href="/tietosuoja" class="text-sm text-white hover:text-gray-900 transition-colors leading-loose">
+							Tietosuojaseloste<br>
+							&copy; {new Date().getFullYear()} Muotokuvasi.fi 
 						</a>
 					</div>
 				</div>
