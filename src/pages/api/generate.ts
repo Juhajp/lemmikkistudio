@@ -153,7 +153,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         clothingPrompt = "Change clothing to a high-quality, well-fitted grey t-shirt. Clean, smart casual look, relaxed but professional.";
     }
 
-    const prompt = body.prompt ?? `Keep the person's facial features and identity the same. Create a professional studio headshot. ${clothingPrompt} ${backgroundPrompt} Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo.`;
+    const prompt = body.prompt ?? `Keep the person's facial features and identity the same. Create a professional studio headshot. Frame as a medium close-up, ensuring the entire head and shoulders are completely visible. Leave ample empty space (headroom) above the top of the hair ${clothingPrompt} ${backgroundPrompt} Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo. `;
 
     // 2. Generate with Fal
     const result: any = await fal.subscribe("fal-ai/gpt-image-1.5/edit", {
