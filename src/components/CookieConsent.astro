@@ -2,6 +2,7 @@
 // src/components/CookieConsent.astro
 // Korvaa tämä omalla Pixel ID:lläsi!
 const META_PIXEL_ID = "727470510437164";
+const GOOGLE_TAG_ID = "AW-17869883884";
 ---
 
 <div id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-4 md:p-6 z-50 hidden flex-col md:flex-row items-center justify-between gap-4 transition-transform duration-300 translate-y-full">
@@ -23,7 +24,7 @@ const META_PIXEL_ID = "727470510437164";
   </div>
 </div>
 
-<script is:inline define:vars={{ META_PIXEL_ID }}>
+<script is:inline define:vars={{ META_PIXEL_ID, GOOGLE_TAG_ID }}>
   // 1. Määritellään funktio, joka lataa Meta Pixelin
   function loadMetaPixel() {
     console.log("Meta Pixel loaded with Consent ✅");
@@ -42,7 +43,24 @@ const META_PIXEL_ID = "727470510437164";
     fbq('track', 'PageView');
   }
 
-  // 2. Tarkistetaan onko lupa jo annettu
+  // 2. Määritellään funktio, joka lataa Google Tagin
+  function loadGoogleTag() {
+    console.log("Google Tag loaded with Consent ✅");
+    
+    // Lataa script-tagi
+    const script = document.createElement('script');
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_TAG_ID}`;
+    script.async = true;
+    document.head.appendChild(script);
+
+    // Alusta gtag
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', GOOGLE_TAG_ID);
+  }
+
+  // 3. Tarkistetaan onko lupa jo annettu
   const banner = document.getElementById('cookie-banner');
   const acceptBtn = document.getElementById('cookie-accept');
   const rejectBtn = document.getElementById('cookie-reject');
@@ -52,6 +70,7 @@ const META_PIXEL_ID = "727470510437164";
   if (consent === 'granted') {
     // Jos lupa on jo, ladataan Pixel heti
     loadMetaPixel();
+    loadGoogleTag();
   } else if (consent === 'denied') {
     // Jos kielletty, ei tehdä mitään (Pixel ei lataudu)
   } else {
@@ -66,6 +85,7 @@ const META_PIXEL_ID = "727470510437164";
   acceptBtn.addEventListener('click', () => {
     localStorage.setItem('cookie-consent', 'granted');
     loadMetaPixel(); // Käynnistä Pixel heti
+    loadGoogleTag(); // Käynnistä Google Tag heti
     hideBanner();
   });
 
