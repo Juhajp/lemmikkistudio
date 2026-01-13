@@ -240,6 +240,7 @@ export default function PortraitGenerator() {
                         <span className="flex items-center justify-center w-8 h-8 rounded-full bg-stone-100 text-sm">1</span>
                         Lähdekuva
                     </h2>
+                    
                 </div>
 
                 <div className="flex-grow flex flex-col items-center justify-center">
@@ -252,7 +253,20 @@ export default function PortraitGenerator() {
                                 <span className="font-medium text-lg text-gray-700">Valitse kuva</span>
                                 <span className="text-sm mt-2">tai raahaa tiedosto tähän</span>
                                 
-
+                                <div className="mt-8 text-xs text-gray-500 space-y-3 text-left max-w-[260px] mx-auto bg-white/50 p-4 rounded-xl border border-stone-100">
+                                    <div className="flex items-start gap-2">
+                                        <span className="shrink-0 mt-0.5">🗑️</span>
+                                        <span><strong>Automaattinen poisto:</strong> Kuvat poistetaan palvelimelta automaattisesti 24h kuluttua.</span>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <span className="shrink-0 mt-0.5">🇫🇮</span>
+                                        <span><strong>Kotimainen palvelu:</strong> Suomalainen palvelu – tietosi pysyvät turvassa.</span>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <span className="shrink-0 mt-0.5">🔒</span>
+                                        <span><strong>Ei julkaista:</strong> Kuviasi ei koskaan julkaista tai näytetä muille.</span>
+                                    </div>
+                                </div>
                             </div>
                             <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
                         </label>
@@ -295,7 +309,7 @@ export default function PortraitGenerator() {
                             </>
                         ) : (
                             <>
-                                <span>Luo Muotokuva</span>
+                                <span>Luo luonnos ilmaiseksi</span>
                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
