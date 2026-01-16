@@ -178,7 +178,7 @@ export default function PortraitGenerator() {
       <div className="mb-12 w-full max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 overflow-hidden px-4">
         {/* Source Image */}
         <div className="relative group shrink-0">
-           <div className="w-28 h-28 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white shadow-lg">
+           <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-lg">
              <img src="/refkuva-orig.webp" alt="" className="w-full h-full object-cover" />
            </div>
         </div>
@@ -196,12 +196,21 @@ export default function PortraitGenerator() {
         </div>
 
         {/* Result Images */}
-        <div className="flex gap-4 justify-center flex-wrap sm:flex-nowrap">
-          {[1, 2, 3].map((num) => (
-            <div key={num} className="w-28 h-28 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white shadow-lg shrink-0">
-              <img src={`/refkuva-${num}.webp`} alt="" className="w-full h-full object-cover" />
+        <div className="grid grid-cols-2 md:flex md:items-center justify-items-center">
+            {/* Image 1 - Centered on top (mobile) */}
+            <div className="col-span-2 md:col-auto relative z-30 w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-lg shrink-0">
+               <img src="/refkuva-1.webp" alt="" className="w-full h-full object-cover" />
             </div>
-          ))}
+
+            {/* Image 2 - Left (mobile) */}
+            <div className="col-span-1 md:col-auto relative z-20 w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-lg shrink-0 -mt-4 md:mt-0 -mr-4 md:mr-0 md:-ml-4 justify-self-end md:justify-self-auto">
+               <img src="/refkuva-2.webp" alt="" className="w-full h-full object-cover" />
+            </div>
+
+            {/* Image 3 - Right (mobile) */}
+            <div className="col-span-1 md:col-auto relative z-10 w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-lg shrink-0 -mt-4 md:mt-0 -ml-4 md:ml-0 md:-ml-4 justify-self-start md:justify-self-auto">
+               <img src="/refkuva-3.webp" alt="" className="w-full h-full object-cover" />
+            </div>
         </div>
       </div>
 
