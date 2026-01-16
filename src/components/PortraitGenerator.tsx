@@ -175,16 +175,16 @@ export default function PortraitGenerator() {
   return (
     <div className="w-full">
       {/* Example Images Section */}
-      <div className="mb-12 w-full max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8">
+      <div className="mb-12 w-full max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 overflow-hidden px-4">
         {/* Source Image */}
-        <div className="relative group">
-           <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
+        <div className="relative group shrink-0">
+           <div className="w-28 h-28 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white shadow-lg">
              <img src="/refkuva-orig.webp" alt="" className="w-full h-full object-cover" />
            </div>
         </div>
 
         {/* Arrow */}
-        <div className="text-gray-700">
+        <div className="text-gray-700 shrink-0">
           {/* Right arrow for desktop */}
           <svg className="w-8 h-8 hidden md:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -196,9 +196,9 @@ export default function PortraitGenerator() {
         </div>
 
         {/* Result Images */}
-        <div className="flex gap-4">
+        <div className="flex gap-4 justify-center flex-wrap sm:flex-nowrap">
           {[1, 2, 3].map((num) => (
-            <div key={num} className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
+            <div key={num} className="w-28 h-28 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white shadow-lg shrink-0">
               <img src={`/refkuva-${num}.webp`} alt="" className="w-full h-full object-cover" />
             </div>
           ))}
