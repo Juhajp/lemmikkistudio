@@ -405,7 +405,7 @@ export default function PortraitGenerator() {
                             </button>
                             <div className="text-center space-y-1">
                                 <p className="text-xs font-semibold text-amber-600">
-                                    Hinta voimassa rajoitetun ajan. Hinta nousee 5,90 € 25.2.
+                                    Kampanjahinta voimassa rajoitetun ajan. Hinta nousee 5,90 € 25.2.
                                 </p>
                                 <p className="text-xs text-gray-400">
                                     Saat täysikokoisen, vesileimattoman kuvan heti maksun jälkeen.
