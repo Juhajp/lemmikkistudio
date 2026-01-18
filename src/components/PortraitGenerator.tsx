@@ -27,6 +27,7 @@ export default function PortraitGenerator() {
   const [preview, setPreview] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [purchaseToken, setPurchaseToken] = useState<string | null>(null);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [buying, setBuying] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +54,7 @@ export default function PortraitGenerator() {
       setPreview(objectUrl);
       setGeneratedImage(null);
       setPurchaseToken(null);
+      setThumbnailUrl(null);
       setError(null);
     }
   };
@@ -127,6 +129,7 @@ export default function PortraitGenerator() {
       
       setGeneratedImage(data.image);
       setPurchaseToken(data.purchaseToken);
+      setThumbnailUrl(data.thumbnailUrl);
       
       // Update remaining count
       if (remainingGenerations !== null) {
@@ -149,7 +152,10 @@ export default function PortraitGenerator() {
         const response = await fetch('/api/create-checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ imageUrl: purchaseToken }),
+            body: JSON.stringify({ 
+                imageUrl: purchaseToken,
+                thumbnailUrl: thumbnailUrl // Lähetä pikkukuva kassalle
+            }),
         });
 
         const data = await response.json();

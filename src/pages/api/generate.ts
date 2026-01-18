@@ -186,15 +186,38 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
     // 4. Tallenna ALKUPERÄINEN (puhdas) kuva Vercel Blobiin
     let cleanImageUrl = "";
+    let thumbnailUrl = ""; // UUSI MUUTTUJA
     if (BLOB_READ_WRITE_TOKEN) {
+        // A. Tallenna iso kuva
         const blob = await put(`portraits/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`, originalBuffer, {
             access: 'public',
             contentType: 'image/jpeg',
         });
         cleanImageUrl = blob.url;
+
+        // B. Luo ja tallenna THUMBNAIL (200px)
+        try {
+            const thumbBuffer = await sharp(originalBuffer)
+                .resize(200) // Leveys 200px
+                .jpeg({ quality: 70 })
+                .toBuffer();
+
+            const thumbBlob = await put(`thumbnails/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`, thumbBuffer, {
+                access: 'public',
+                contentType: 'image/jpeg',
+            });
+            thumbnailUrl = thumbBlob.url;
+            console.log("Thumbnail created:", thumbnailUrl);
+        } catch (thumbErr) {
+            console.error("Failed to create thumbnail:", thumbErr);
+            // Ei katkaista prosessia, pikkukuva on "nice to have"
+        }
+
     } else {
         console.warn("Skipping Blob upload because token is missing. Using FAL url as fallback (will expire).");
         cleanImageUrl = outUrl;
+        // Thumbnailia ei voi tehdä ilman blob-tallennusta tässä kontekstissa (tai pitäisi ladata base64:nä)
+        thumbnailUrl = outUrl; // Fallback: käytetään isoa kuvaa jos blob ei toimi
     }
 
     // 5. Luo vesileima (RASTI + PNG-TEKSTI)
@@ -284,6 +307,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       JSON.stringify({
         image: watermarkedBase64, // Vesileimattu versio
         purchaseToken: cleanImageUrl, // Alkuperäisen kuvan URL
+        thumbnailUrl: thumbnailUrl, // Pikkukuvan URL
         message: "Vesileimallinen esikatselu luotu",
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }

@@ -11,11 +11,14 @@ export const POST: APIRoute = async ({ request }) => {
   const stripe = new Stripe(STRIPE_SECRET_KEY);
 
   try {
-    const { imageUrl } = await request.json();
+    const { imageUrl, thumbnailUrl } = await request.json();
 
     if (!imageUrl) {
       return new Response(JSON.stringify({ error: "Image URL missing" }), { status: 400 });
     }
+
+    // Pikkukuva tai fallback isoon kuvaan
+    const displayImage = thumbnailUrl || imageUrl;
 
     // Luodaan Stripe Checkout -sessio
     const session = await stripe.checkout.sessions.create({
@@ -26,7 +29,7 @@ export const POST: APIRoute = async ({ request }) => {
             product_data: {
               name: 'Ammattimainen Muotokuva',
               description: 'Täysikokoinen, vesileimaton studiokuva (1024x1536px)',
-              //images: [imageUrl], // Stripe näyttää tämän pikkukuvan kassalla (jos URL on julkinen)
+              images: [displayImage], // Stripe näyttää tämän pikkukuvan kassalla (jos URL on julkinen)
             },
             unit_amount: 190, // Hinta sentteinä (1.90€)
           },
