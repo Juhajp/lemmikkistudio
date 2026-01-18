@@ -195,10 +195,10 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         });
         cleanImageUrl = blob.url;
 
-        // B. Luo ja tallenna THUMBNAIL (200px)
+        // B. Luo ja tallenna THUMBNAIL (140px)
         try {
             const thumbBuffer = await sharp(originalBuffer)
-                .resize(200) // Leveys 200px
+                .resize(140) // Leveys 140px
                 .jpeg({ quality: 70 })
                 .toBuffer();
 
