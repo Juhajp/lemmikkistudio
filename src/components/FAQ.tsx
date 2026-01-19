@@ -32,7 +32,11 @@ const FAQ_DATA: FAQItem[] = [
   },
   {
     question: "Minulla on ongelmia kuvan latauksen kanssa. Mitä tehdä?",
-    answer: "Ota yhteyttä info@muotokuvat.fi niin autamme sinua."
+    answer: "Ota yhteyttä info@muotokuvasi.fi niin autamme sinua."
+  },
+  {
+    question: "Tarvitsemme yrityksellemme koko henkilöstöstä edustavat valokuvat. Voitteko auttaa?",
+    answer: "Kyllä onnistuu. Isommat kuvatilaukset voidaan räätälöidä tarpeisiinne ja toimittaa yhtenä pakettina. Ota yhteyttä info@muotokuvasi.fi ja kerromme lisää."
   },
   {
     question: "Onko tämä joku tekoälyhuijaus?",
