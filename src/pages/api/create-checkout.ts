@@ -22,6 +22,9 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Luodaan Stripe Checkout -sessio
     const session = await stripe.checkout.sessions.create({
+      automatic_tax: {
+        enabled: true,
+      },
       line_items: [
         {
           price_data: {
@@ -32,6 +35,7 @@ export const POST: APIRoute = async ({ request }) => {
               images: [displayImage], // Stripe näyttää tämän pikkukuvan kassalla (jos URL on julkinen)
             },
             unit_amount: 349, // Hinta sentteinä (3.49€)
+            tax_behavior: 'inclusive',
           },
           quantity: 1,
         },
