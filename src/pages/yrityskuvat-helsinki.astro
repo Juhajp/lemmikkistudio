@@ -1,0 +1,235 @@
+---
+import Layout from '../layouts/layout.astro';
+
+const pageTitle = "Yrityskuvat Helsinki – Yhtenäinen henkilöstökuvaus ilman kuvauspäivää | Muotokuvasi.fi";
+const pageDescription = "Tehokkain tapa hoitaa yrityskuvaus Helsingissä. Tekoäly luo yhtenäiset brändikuvat koko tiimille etänä. Ei logistisia haasteita, säästä jopa 70%.";
+
+// B2B FAQ Schema
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [{
+    "@type": "Question",
+    "name": "Miten varmistatte, että koko tiimin kuvat ovat yhtenäisiä?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Tämä on tekoälyn vahvuus. Määrittelemme etukäteen 'tyylin' (esim. tummanharmaa studio tai moderni toimisto), ja tekoäly generoi jokaisen työntekijän kuvan täsmälleen samoilla asetuksilla, valaistuksella ja taustalla, riippumatta alkuperäisen selfien olosuhteista."
+    }
+  }, {
+    "@type": "Question",
+    "name": "Voimmeko maksaa laskulla?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Kyllä, yritysasiakkaille tarjoamme laskutusmahdollisuuden isommista tilauksista (yli 5 kuvaa)."
+    }
+  }, {
+    "@type": "Question",
+    "name": "Mitä jos uusi työntekijä aloittaa myöhemmin?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Ei ongelmaa. Toisin kuin perinteisessä valokuvauksessa, teidän ei tarvitse tilata kuvaajaa uudestaan. Uusi työntekijä voi luoda itselleen tiimin tyylin mukaisen kuvan milloin tahansa palvelumme kautta."
+    }
+  }]
+};
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
+  <main class="w-full bg-white font-poppins">
+    
+    {/* HERO SECTION (B2B) */}
+    <section class="relative bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#eeffe0] to-[#a7e6e8] pt-24 pb-32 px-4 md:px-8 overflow-hidden">
+      <div class="max-w-6xl mx-auto relative z-10 flex flex-col md:flex-row items-center gap-12">
+        <div class="md:w-3/5 text-left">
+          <span class="inline-block py-1 px-3 rounded bg-white/60 border border-white/50 text-[#234b4d] text-sm font-semibold mb-6 tracking-wide uppercase backdrop-blur-sm">
+            Yrityskuvaus Helsinki & Pääkaupunkiseutu
+          </span>
+          <h1 class="text-4xl md:text-6xl font-bold tracking-tight text-[#234b4d] mb-6 leading-tight">
+            Helsingin vaivattomin <br/> <span class="text-[#234b4d]/80">henkilöstökuvaus</span>
+          </h1>
+          <p class="text-lg md:text-xl text-[#234b4d]/80 mb-10 max-w-xl leading-relaxed">
+            Päivitä koko tiimin ilme yhtenäiseksi ilman kuvauspäiviä. Jokainen työntekijä voi ottaa itsestään rennon selfien missä tahansa – tekoälymme muuttaa sen yhtenäiseksi, ammattimaiseksi edustuskuvaksi.
+          </p>
+          
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a href="#contact" class="px-8 py-4 bg-[#234b4d] hover:bg-black text-white rounded-lg font-semibold text-lg transition-all shadow-lg hover:shadow-xl text-center">
+              Pyydä tiimitarjous
+            </a>
+            <a href="/" class="px-8 py-4 bg-white/50 border border-[#234b4d]/20 hover:bg-white text-[#234b4d] rounded-lg font-medium text-lg transition-all text-center backdrop-blur-sm">
+              Tai testaa yhdellä kuvalla
+            </a>
+          </div>
+          <p class="mt-4 text-sm text-[#234b4d]/60">
+            * Räätälöimme kokonaisuuden ja hinnan aina tarpeenne mukaan.
+          </p>
+        </div>
+
+        {/* Hero Visual: Team Grid Abstract */}
+        <div class="md:w-2/5 relative">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-4 translate-y-8">
+                    <div class="aspect-[3/4] bg-white rounded-2xl overflow-hidden border-4 border-white shadow-xl transform hover:-translate-y-2 transition-transform duration-500">
+                        <img src="/refkuva-1.webp" class="w-full h-full object-cover" />
+                    </div>
+                    <div class="aspect-[3/4] bg-white/20 rounded-2xl overflow-hidden border-4 border-white/30 backdrop-blur-sm"></div>
+                </div>
+                <div class="space-y-4">
+                    <div class="aspect-[3/4] bg-white/20 rounded-2xl overflow-hidden border-4 border-white/30 backdrop-blur-sm"></div>
+                    <div class="aspect-[3/4] bg-white rounded-2xl overflow-hidden border-4 border-white shadow-xl transform hover:-translate-y-2 transition-transform duration-500 delay-100">
+                        <img src="/refkuva-4.webp" class="w-full h-full object-cover" />
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    {/* LOGISTICS PAIN POINTS */}
+    <section class="py-20 px-4 bg-white">
+      <div class="max-w-5xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-16 items-center">
+            <div>
+                <h2 class="text-3xl font-bold text-slate-900 mb-6">
+                    Kuvauspäivän järjestäminen on kallista logistiikkaa
+                </h2>
+                <div class="space-y-6">
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 shrink-0 bg-red-50 rounded-full flex items-center justify-center text-red-600 text-xl font-bold">✕</div>
+                        <div>
+                            <h3 class="font-bold text-slate-900">Kallis studiokäynti</h3>
+                            <p class="text-slate-600">Perinteinen kuvaus studiolla (esim. Kalasatamassa tai keskustassa) maksaa satoja euroja ja vie tunteja työaikaa.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 shrink-0 bg-red-50 rounded-full flex items-center justify-center text-red-600 text-xl font-bold">✕</div>
+                        <div>
+                            <h3 class="font-bold text-slate-900">Aikatauluhaasteet</h3>
+                            <p class="text-slate-600">Aina joku on kipeänä, etänä tai asiakastapaamisessa kuvauspäivänä. Rästiin jääneet kuvaukset maksavat lisää.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 shrink-0 bg-red-50 rounded-full flex items-center justify-center text-red-600 text-xl font-bold">✕</div>
+                        <div>
+                            <h3 class="font-bold text-slate-900">Epätasainen laatu</h3>
+                            <p class="text-slate-600">Uusien työntekijöiden kuvat näyttävät erilaisilta, koska valaistusta on vaikea toistaa täysin samanlaisena kuukausien päästä.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white/50 backdrop-blur-sm p-8 rounded-2xl border border-[#234b4d]/10">
+                <h3 class="text-2xl font-bold text-[#234b4d] mb-6">Muotokuvasi.fi ratkaisu:</h3>
+                <ul class="space-y-4">
+                    <li class="flex items-center gap-3">
+                        <span class="flex items-center justify-center w-6 h-6 rounded-full bg-[#234b4d] text-white text-xs">✓</span>
+                        <span class="text-[#234b4d] font-medium">Ei ajanvarausta – toimii 24/7</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <span class="flex items-center justify-center w-6 h-6 rounded-full bg-[#234b4d] text-white text-xs">✓</span>
+                        <span class="text-[#234b4d] font-medium">Lähdekuvaksi riittää tavallinen selfie – ei tarvetta järjestelyille</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <span class="flex items-center justify-center w-6 h-6 rounded-full bg-[#234b4d] text-white text-xs">✓</span>
+                        <span class="text-[#234b4d] font-medium">AI hoitaa valaistuksen ja taustan</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <span class="flex items-center justify-center w-6 h-6 rounded-full bg-[#234b4d] text-white text-xs">✓</span>
+                        <span class="text-[#234b4d] font-medium">Kustannustehokas pakettihinta</span>
+                    </li>
+                </ul>
+                <div class="mt-8 pt-8 border-t border-[#234b4d]/10">
+                    <p class="text-sm text-[#234b4d]/80 italic">"Tiimimme on hajautunut Helsinkiin, Tampereelle ja kotikonttoreille. Tämä oli ainoa järkevä tapa saada yhtenäiset kuvat nettisivuille."</p>
+                </div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    {/* BUSINESS BENEFITS */}
+    <section class="py-20 px-4 bg-slate-50">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-slate-900">Miksi modernit yritykset valitsevat AI-kuvauksen?</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mb-6 text-2xl">📈</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Täydellinen skaalautuvuus</h3>
+                    <p class="text-slate-600">Kun uusi työntekijä aloittaa, saat hänelle tiimin tyylisen kuvan minuutissa. Sinun ei tarvitse odottaa seuraavaa kuvauspäivää tai maksaa studion aloitusmaksua yhden kuvan takia.</p>
+                </div>
+                
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-stone-100">
+                    <div class="w-12 h-12 bg-[#234b4d]/10 rounded-lg flex items-center justify-center text-[#234b4d] mb-6 text-2xl">💶</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Räätälöity kokonaisuus</h3>
+                    <p class="text-slate-600">Jokainen yritys on erilainen. Laskemme teille kilpailukykyisen tarjouksen, joka perustuu tiimin kokoon ja tarpeisiin. Ei piilokuluja.</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mb-6 text-2xl">🎨</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Brändin mukainen ilme</h3>
+                    <p class="text-slate-600">Valitse yrityksenne ilmeeseen sopiva tausta: moderni toimisto, neutraali studioharmaa tai raikas ulkoilma. Varmistamme yhtenäisen linjan.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {/* CONTACT / LEAD GEN SECTION */}
+    <section id="contact" class="py-24 px-4 bg-slate-900 text-white scroll-mt-20">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Pyydä tarjous henkilöstökuvauksesta</h2>
+            <p class="text-slate-300 text-lg mb-12 max-w-2xl mx-auto">
+                Kerro meille tiimisi koko, niin laskemme teille pakettihinnan. Vastaamme 24h kuluessa.
+            </p>
+
+            <div class="bg-white p-8 md:p-12 rounded-2xl shadow-2xl max-w-2xl mx-auto text-slate-900">
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 gap-6">
+                        <div class="text-left">
+                            <p class="text-lg font-medium mb-4">Ota yhteyttä sähköpostilla:</p>
+                            <a href="mailto:info@muotokuvasi.fi?subject=Tarjouspyyntö%20yrityskuvauksesta" class="flex items-center justify-center gap-3 w-full py-4 bg-[#234b4d] hover:bg-black text-white rounded-lg font-bold text-lg transition-colors shadow-lg">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                info@muotokuvasi.fi
+                            </a>
+                            <p class="text-sm text-slate-500 mt-4 text-center">
+                                Mainitse viestissä arvioitu henkilömäärä.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 pt-12 border-t border-slate-800 flex flex-col md:flex-row justify-center items-center gap-8 text-slate-400 text-sm">
+                <div class="flex items-center gap-2">
+                    <span>🔒 Tietoturvallinen käsittely</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span>🇫🇮 Kotimainen palvelu</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span>🧾 Laskutusmahdollisuus</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {/* FAQ */}
+    <section class="py-20 px-4 bg-white">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-12 text-slate-900">Usein kysyttyä yrityksille</h2>
+            <div class="space-y-6">
+                {faqSchema.mainEntity.map((faq) => (
+                    <div class="border border-slate-200 rounded-lg p-6 hover:bg-slate-50 transition-colors">
+                        <h3 class="font-bold text-lg text-slate-900 mb-2">{faq.name}</h3>
+                        <p class="text-slate-600">{faq.acceptedAnswer.text}</p>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </section>
+
+  </main>
+</Layout>
