@@ -36,7 +36,11 @@ const FAQ_DATA: FAQItem[] = [
   },
   {
     question: "Tarvitsemme yrityksellemme koko henkilöstöstä edustavat valokuvat. Voitteko auttaa?",
-    answer: "Kyllä onnistuu. Isommat kuvatilaukset voidaan räätälöidä tarpeisiinne ja toimittaa yhtenä pakettina. Ota yhteyttä info@muotokuvasi.fi ja kerromme lisää."
+    answer: (
+      <>
+        Kyllä onnistuu. Isommat kuvatilaukset voidaan räätälöidä tarpeisiinne ja toimittaa yhtenä pakettina. Lue lisää <a href="/yrityskuvaus" className="font-semibold underline decoration-2 underline-offset-2 hover:text-[#234b4d]/80">yrityskuvauksesta</a> tai ota yhteyttä info@muotokuvasi.fi.
+      </>
+    )
   },
   {
     question: "Onko tämä joku tekoälyhuijaus?",

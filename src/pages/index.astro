@@ -37,6 +37,67 @@ import FAQ from '../components/FAQ';
 				</div>
 			</div>
 
+            {/* USE CASES SECTION */}
+            <section class="py-16 w-full">
+                <h2 class="text-3xl font-semibold text-center text-[#234b4d] mb-16">Mihin voit käyttää AI-kuvia?</h2>
+                <div class="space-y-24 max-w-5xl mx-auto">
+                    
+                    {/* LinkedIn */}
+                    <div class="flex flex-col md:flex-row items-center gap-12 group">
+                        <div class="md:w-1/2 scale-[0.8] origin-center relative">
+                            <div class="absolute inset-0 bg-[#234b4d]/10 rounded-3xl transform rotate-3 transition-transform group-hover:rotate-6"></div>
+                            <img src="/refkuva-1.webp" alt="LinkedIn profiilikuva ja henkilöbrändäys" class="relative rounded-3xl shadow-xl w-full object-cover aspect-[4/5] transform transition-transform group-hover:-translate-y-2" />
+                        </div>
+                        <div class="md:w-1/2 space-y-6">
+                            <h3 class="text-2xl md:text-3xl font-bold text-[#234b4d]">LinkedIn-profiilikuva & Sosiaalinen media</h3>
+                            <p class="text-lg text-[#234b4d]/80 leading-relaxed">
+                                Ensivaikutelma syntyy verkossa sekunneissa. Olitpa sitten työnhaussa Helsingissä tai rakentamassa verkostoja Oulussa, ammattimainen profiilikuva viestii luotettavuutta. Päivitä some-kanavasi (LinkedIn, Twitter, Instagram) tasokkaalla kuvalla, joka erottuu edukseen feedissä.
+                            </p>
+                            <ul class="space-y-2 text-[#234b4d]/80">
+                                <li class="flex items-center gap-2">✓ <span>Lisää profiilin katselukertoja</span></li>
+                                <li class="flex items-center gap-2">✓ <span>Viestii asiantuntijuudesta</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {/* CV */}
+                    <div class="flex flex-col md:flex-row-reverse items-center gap-12 group">
+                        <div class="md:w-1/2 scale-[0.8] origin-center relative">
+                             <div class="absolute inset-0 bg-[#234b4d]/10 rounded-3xl transform -rotate-3 transition-transform group-hover:-rotate-6"></div>
+                            <img src="/refkuva-5.webp" alt="CV valokuva ja työnhaku" class="relative rounded-3xl shadow-xl w-full object-cover aspect-[4/5] transform transition-transform group-hover:-translate-y-2" />
+                        </div>
+                        <div class="md:w-1/2 space-y-6">
+                            <h3 class="text-2xl md:text-3xl font-bold text-[#234b4d]">CV-kuva & Työnhaku</h3>
+                            <p class="text-lg text-[#234b4d]/80 leading-relaxed">
+                                Ansioluettelo on käyntikorttisi työnhaussa. Laadukas kasvokuva CV:ssä tekee hakemuksestasi persoonallisemman ja muistettavamman. Et tarvitse kallista studiokuvausta saadaksesi edustavan kuvan työhakemukseen – tekoälykuvaamo hoitaa sen hetkessä, ja voit keskittyä hakemuksen sisältöön.
+                            </p>
+                             <ul class="space-y-2 text-[#234b4d]/80">
+                                <li class="flex items-center gap-2">✓ <span>Moderni ja raikas ilme</span></li>
+                                <li class="flex items-center gap-2">✓ <span>Sopii eri toimialoille</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {/* Corporate */}
+                    <div class="flex flex-col md:flex-row items-center gap-12 group">
+                        <div class="md:w-1/2 scale-[0.8] origin-center relative">
+                             <div class="absolute inset-0 bg-[#234b4d]/10 rounded-3xl transform rotate-3 transition-transform group-hover:rotate-6"></div>
+                            <img src="/refkuva-4.webp" alt="Henkilöstökuvaus ja yrityskuvat" class="relative rounded-3xl shadow-xl w-full object-cover aspect-[4/5] transform transition-transform group-hover:-translate-y-2" />
+                        </div>
+                        <div class="md:w-1/2 space-y-6">
+                            <h3 class="text-2xl md:text-3xl font-bold text-[#234b4d]">Yrityskuvat & Henkilöstö</h3>
+                            <p class="text-lg text-[#234b4d]/80 leading-relaxed">
+                                Tarvitseeko yrityksenne yhtenäiset henkilöstökuvat nettisivuille? Unohda logistinen painajainen ja kuvauspäivien järjestäminen. Palvelumme avulla saatte yhtenäisen brändi-ilmeen koko tiimille, sijaitsivatpa he missä päin Suomea tahansa.
+                            </p>
+                            <a href="/yrityskuvaus" class="inline-flex items-center gap-2 text-[#234b4d] font-bold border-b-2 border-[#234b4d] hover:text-black transition-colors pb-1">
+                                Tutustu yrityskuvaukseen <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
 			<FAQ client:idle />
 		</div>
 	</main>
