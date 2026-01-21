@@ -52,6 +52,62 @@ async function createWatermarkSvg(width: number, height: number) {
 }
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
+  // --- CLOUDFLARE TURNSTILE VALIDATION (ENSIN!) ---
+  const body = await request.json();
+  const cfTurnstileToken = body.cfTurnstileToken;
+
+  if (!cfTurnstileToken) {
+    return new Response(
+      JSON.stringify({ error: 'Turvallisuustarkistus puuttuu' }), 
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  const TURNSTILE_SECRET = import.meta.env.TURNSTILE_SECRET_KEY ?? process.env.TURNSTILE_SECRET_KEY;
+  
+  if (!TURNSTILE_SECRET) {
+    console.error('TURNSTILE_SECRET_KEY puuttuu ympäristömuuttujista!');
+    return new Response(
+      JSON.stringify({ error: 'Palvelinvirhe' }), 
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    const verifyResponse = await fetch(
+      'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          secret: TURNSTILE_SECRET,
+          response: cfTurnstileToken,
+          remoteip: clientAddress,
+        }),
+      }
+    );
+
+    const verifyResult = await verifyResponse.json();
+    
+    if (!verifyResult.success) {
+      console.log('Turnstile verification failed:', verifyResult['error-codes']);
+      return new Response(
+        JSON.stringify({ error: 'Turvallisuustarkistus epäonnistui. Yritä uudelleen.' }), 
+        { status: 403, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log('✅ Turnstile verification passed');
+    
+  } catch (turnstileError) {
+    console.error('Turnstile validation error:', turnstileError);
+    return new Response(
+      JSON.stringify({ error: 'Turvallisuustarkistusvirhe' }), 
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
+  // --- TURNSTILE VALIDATION END ---
+
   // --- RATE LIMIT START ---
   const MAX_GENERATIONS = Number(import.meta.env.RATE_LIMIT_MAX ?? 5);
   // Oletus 86400s = 24h
@@ -110,7 +166,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   fal.config({ credentials: FAL_KEY });
 
   try {
-    const body = await request.json();
+    // Body on jo luettu Turnstile-validoinnissa, käytetään samaa
     const base64OrDataUri = body.image as string | undefined;
     const mimeType = (body.mimeType as string | undefined) ?? "image/jpeg";
     

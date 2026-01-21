@@ -1,5 +1,19 @@
 import React, { useState, useEffect } from 'react';
 
+// Cloudflare Turnstile type definitions
+declare global {
+  interface Window {
+    turnstile: {
+      render: (container: string, options: {
+        sitekey: string;
+        callback: (token: string) => void;
+        'error-callback': () => void;
+      }) => void;
+      reset: () => void;
+    };
+  }
+}
+
 const BACKGROUND_OPTIONS = [
   { id: 'studio', label: 'Tummanharmaa studio (Oletus)' },
   { id: 'black', label: 'Musta tausta' },
@@ -65,6 +79,27 @@ export default function PortraitGenerator() {
     setError(null);
 
     try {
+      // 1. CLOUDFLARE TURNSTILE: Pyydä bot-suojaus token
+      let turnstileToken: string;
+      try {
+        turnstileToken = await new Promise<string>((resolve, reject) => {
+          // Tarkista että Turnstile on ladattu
+          if (!window.turnstile) {
+            reject(new Error('Turvallisuuspalvelu ei ole vielä ladannut. Yritä hetken kuluttua uudelleen.'));
+            return;
+          }
+          
+          window.turnstile.render('#turnstile-widget', {
+            sitekey: import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA',
+            callback: (token: string) => resolve(token),
+            'error-callback': () => reject(new Error('Turvallisuustarkistus epäonnistui')),
+          });
+        });
+      } catch (turnstileErr: any) {
+        throw new Error(turnstileErr.message || 'Turvallisuustarkistus epäonnistui. Yritä uudelleen.');
+      }
+
+      // 2. Luo base64 kuva (nykyinen koodi)
       const base64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(selectedFile);
@@ -110,6 +145,7 @@ export default function PortraitGenerator() {
         reader.onerror = (error) => reject(error);
       });
 
+      // 3. Lähetä API:lle base64 + Turnstile token
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -117,7 +153,8 @@ export default function PortraitGenerator() {
         body: JSON.stringify({ 
             image: base64,
             background: background,
-            clothing: clothing
+            clothing: clothing,
+            cfTurnstileToken: turnstileToken, // Bot-suojaus token
         }),
       });
 
@@ -419,6 +456,9 @@ export default function PortraitGenerator() {
         </div>
 
       </div>
+
+      {/* Cloudflare Turnstile widget (näkymätön) */}
+      <div id="turnstile-widget" style={{ display: 'none' }}></div>
     </div>
   );
 }
