@@ -30,6 +30,13 @@ const faqSchema = {
       "@type": "Answer",
       "text": "Ei ongelmaa. Toisin kuin perinteisessä valokuvauksessa, teidän ei tarvitse tilata kuvaajaa uudestaan. Uusi työntekijä voi luoda itselleen tiimin tyylin mukaisen kuvan milloin tahansa palvelumme kautta."
     }
+  }, {
+    "@type": "Question",
+    "name": "Miten yrityskuvaus eroaa normaalista palvelusta?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yrityskuvaus on muotokuvasi.fi tarjoama premium-palvelu, joka sisältää henkilökohtaista palvelua: tarkistamme jokaisen lähtökuvan laadun, varmistamme koko tiimin kuvien yhtenäisyyden ja räätälöimme taustan brändillenne sopivaksi. Hinnoittelu on tapauskohtainen ja perustuu tiimin kokoon sekä toiveisiinne."
+    }
   }]
 };
 ---
@@ -47,22 +54,22 @@ const faqSchema = {
             Yrityskuvaus & Henkilöstökuvaus koko Suomessa
           </span>
           <h1 class="text-4xl md:text-6xl font-bold tracking-tight text-[#234b4d] mb-6 leading-tight">
-            Suomen helpoin <br/> <span class="text-[#234b4d]/80">henkilöstökuvaus</span>
+            Yhtenäiset henkilöstökuvat <br/> <span class="text-[#234b4d]/80">koko tiimille – ilman kuvauspäivää</span>
           </h1>
           <p class="text-lg md:text-xl text-[#234b4d]/80 mb-10 max-w-xl leading-relaxed">
-            Päivitä koko tiimin ilme yhtenäiseksi ilman kuvauspäiviä tai logistista päänvaivaa. Jokainen työntekijä ottaa selfien – tekoäly hoitaa loput. Täydellinen hajautetuille tiimeille.
+            Säästä 70% kustannuksista ja viikkoja aikaa. Jokainen ottaa selfien, me hoidamme loput – varmistamme yhtenäisyyden ja brändisi mukaisen ilmeen.
           </p>
           
-          <div class="flex flex-col sm:flex-row gap-4">
-            <a href="#contact" class="px-8 py-4 bg-[#234b4d] hover:bg-black text-white rounded-lg font-semibold text-lg transition-all shadow-lg hover:shadow-xl text-center">
-              Pyydä tiimitarjous
+          <div class="flex flex-col gap-4">
+            <a href="#contact" class="px-8 py-5 bg-[#234b4d] hover:bg-black text-white rounded-lg font-bold text-xl transition-all shadow-lg hover:shadow-xl text-center">
+              Pyydä ilmainen tarjous →
             </a>
-            <a href="/" class="px-8 py-4 bg-white/50 border border-[#234b4d]/20 hover:bg-white text-[#234b4d] rounded-lg font-medium text-lg transition-all text-center backdrop-blur-sm">
-              Tai testaa yhdellä kuvalla
-            </a>
+            <p class="text-center text-sm text-[#234b4d]/70">
+              Tai <a href="/" class="underline font-medium hover:text-[#234b4d]">kokeile peruspalvelua yhdellä kuvalla</a> (ei sisällä premium-palvelua)
+            </p>
           </div>
-          <p class="mt-4 text-sm text-[#234b4d]/60">
-            * Räätälöimme kokonaisuuden ja hinnan aina tarpeenne mukaan.
+          <p class="mt-6 text-sm text-[#234b4d]/60">
+            ✓ Ilmainen konsultaatio · ✓ Vastaamme 24h sisällä · ✓ Ei sitovia sopimuksia
           </p>
         </div>
 
@@ -173,6 +180,155 @@ const faqSchema = {
                     <p class="text-slate-600">Valitse yrityksenne ilmeeseen sopiva tausta: moderni toimisto, neutraali studioharmaa tai raikas ulkoilma.</p>
                 </div>
             </div>
+        </div>
+    </section>
+
+    {/* BEFORE/AFTER EXAMPLES */}
+    <section class="py-20 px-4 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Selfie → Ammattikuva</h2>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                    Varmistamme yhtenäisen ilmeen ja brändiisi sopivan taustan – riippumatta lähtökuvien olosuhteista
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <div class="group">
+                    <div class="relative overflow-hidden rounded-2xl shadow-xl">
+                        <img src="/refkuva-1.webp" alt="Esimerkki henkilöstökuvasta" class="w-full aspect-[3/4] object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                            <p class="text-white text-sm font-medium">Yhtenäinen valaistus</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="group">
+                    <div class="relative overflow-hidden rounded-2xl shadow-xl">
+                        <img src="/refkuva-4.webp" alt="Esimerkki henkilöstökuvasta" class="w-full aspect-[3/4] object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                            <p class="text-white text-sm font-medium">Brändin mukainen tausta</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="group">
+                    <div class="relative overflow-hidden rounded-2xl shadow-xl">
+                        <img src="/refkuva-5.webp" alt="Esimerkki henkilöstökuvasta" class="w-full aspect-[3/4] object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                            <p class="text-white text-sm font-medium">Ammattimainen lopputulos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {/* ROI COMPARISON */}
+    <section class="py-20 px-4 bg-slate-50">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Säästä aikaa ja rahaa</h2>
+                <p class="text-lg text-slate-600">Vertailu: Perinteinen kuvaus vs. AI-yrityskuvaus</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                {/* Perinteinen */}
+                <div class="bg-white p-8 rounded-2xl shadow-sm border-2 border-slate-200">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-600 text-xl">📸</div>
+                        <h3 class="text-2xl font-bold text-slate-900">Perinteinen kuvaus</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+                            <span class="text-slate-600">10 henkilöä</span>
+                            <span class="font-semibold text-slate-900">10 henkilöä</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+                            <span class="text-slate-600">Työaika</span>
+                            <span class="font-semibold text-slate-900">5h + matkat</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+                            <span class="text-slate-600">Hinta</span>
+                            <span class="font-semibold text-red-600">1500-3000€</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+                            <span class="text-slate-600">Uusi työntekijä</span>
+                            <span class="font-semibold text-red-600">+500€</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-600">Joustavuus</span>
+                            <span class="font-semibold text-slate-900">Matala</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* AI-ratkaisu */}
+                <div class="bg-gradient-to-br from-[#234b4d] to-[#1a3738] p-8 rounded-2xl shadow-xl border-2 border-[#234b4d] relative overflow-hidden">
+                    <div class="absolute top-4 right-4 bg-green-400 text-green-900 px-3 py-1 rounded-full text-xs font-bold">
+                        SÄÄSTÄ 70%
+                    </div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white text-xl">✨</div>
+                        <h3 class="text-2xl font-bold text-white">AI-yrityskuvaus</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center pb-3 border-b border-white/20">
+                            <span class="text-white/80">10 henkilöä</span>
+                            <span class="font-semibold text-white">10 henkilöä</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-3 border-b border-white/20">
+                            <span class="text-white/80">Työaika</span>
+                            <span class="font-semibold text-white">30min/hlö</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-3 border-b border-white/20">
+                            <span class="text-white/80">Hinta</span>
+                            <span class="font-semibold text-green-400">150-300€</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-3 border-b border-white/20">
+                            <span class="text-white/80">Uusi työntekijä</span>
+                            <span class="font-semibold text-green-400">+15-30€</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-white/80">Joustavuus</span>
+                            <span class="font-semibold text-white">Korkea</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <p class="text-slate-600 italic">*Hinnat ovat suuntaa-antavia ja riippuvat tiimin koosta ja toiveista</p>
+            </div>
+        </div>
+    </section>
+
+    {/* PRICING INFO */}
+    <section class="py-16 px-4 bg-gradient-to-b from-white to-slate-50">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl font-bold text-slate-900 mb-6">Räätälöity hinnoittelu yrityksille</h2>
+            <p class="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
+                Yrityskuvaus ei ole automatisoitu palvelu. Jokainen projekti sisältää henkilökohtaista työtä:
+            </p>
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <div class="text-3xl mb-3">🔍</div>
+                    <h3 class="font-bold text-slate-900 mb-2">Laaduntarkistus</h3>
+                    <p class="text-sm text-slate-600">Tarkistamme jokaisen lähtökuvan ennen käsittelyä</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <div class="text-3xl mb-3">🎨</div>
+                    <h3 class="font-bold text-slate-900 mb-2">Brändimukaistus</h3>
+                    <p class="text-sm text-slate-600">Räätälöimme taustan ja ilmeen brändillenne</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <div class="text-3xl mb-3">✓</div>
+                    <h3 class="font-bold text-slate-900 mb-2">Yhtenäisyys</h3>
+                    <p class="text-sm text-slate-600">Varmistamme että kaikki kuvat ovat linjassa</p>
+                </div>
+            </div>
+            <p class="text-slate-500 italic">
+                Hinnoittelu: tyypillisesti 15-30€ per kuva tiimin koosta riippuen.<br/>
+                Pyydä tarjous alla olevalla lomakkeella.
+            </p>
         </div>
     </section>
 

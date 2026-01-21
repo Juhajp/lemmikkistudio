@@ -97,7 +97,7 @@ export default function ContactForm() {
             onChange={handleChange}
             required
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#234b4d] focus:border-transparent transition-all"
-            placeholder="Matti Meikäläinen"
+            placeholder="Etunimi Sukunimi"
           />
         </div>
 
@@ -114,7 +114,7 @@ export default function ContactForm() {
             onChange={handleChange}
             required
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#234b4d] focus:border-transparent transition-all"
-            placeholder="matti@yritys.fi"
+            placeholder="Sähköpostiosoitteesi"
           />
         </div>
       </div>
@@ -172,7 +172,7 @@ export default function ContactForm() {
           value={formData.phone}
           onChange={handleChange}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#234b4d] focus:border-transparent transition-all"
-          placeholder="+358 40 123 4567"
+          placeholder="040 123 4567"
         />
       </div>
 
