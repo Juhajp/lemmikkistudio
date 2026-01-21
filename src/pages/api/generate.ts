@@ -7,6 +7,7 @@ import { put, del } from "@vercel/blob";
 import sharp from "sharp";
 import { readFileSync } from 'fs';
 import { join, resolve } from 'path';
+import { randomUUID } from 'crypto';
 
 function toDataUri(image: string, mimeType = "image/jpeg") {
   if (/^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(image)) return image;
@@ -184,12 +185,18 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     const imageArrayBuffer = await imageRes.arrayBuffer();
     const originalBuffer = Buffer.from(imageArrayBuffer);
 
+    // 3.5. Poista EXIF-metadata kaikista kuvista turvallisuussyistä
+    const cleanBuffer = await sharp(originalBuffer)
+        .rotate() // Poistaa EXIF-metadatan automaattisesti
+        .jpeg({ quality: 90 })
+        .toBuffer();
+
     // 4. Tallenna ALKUPERÄINEN (puhdas) kuva Vercel Blobiin
     let cleanImageUrl = "";
     let thumbnailUrl = ""; // UUSI MUUTTUJA
     if (BLOB_READ_WRITE_TOKEN) {
-        // A. Tallenna iso kuva
-        const blob = await put(`portraits/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`, originalBuffer, {
+        // A. Tallenna iso kuva (UUID takaa turvallisuuden)
+        const blob = await put(`portraits/${randomUUID()}.jpg`, cleanBuffer, {
             access: 'public',
             contentType: 'image/jpeg',
         });
@@ -197,12 +204,12 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
         // B. Luo ja tallenna THUMBNAIL (140px)
         try {
-            const thumbBuffer = await sharp(originalBuffer)
+            const thumbBuffer = await sharp(cleanBuffer)
                 .resize(140) // Leveys 140px
                 .jpeg({ quality: 70 })
                 .toBuffer();
 
-            const thumbBlob = await put(`thumbnails/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`, thumbBuffer, {
+            const thumbBlob = await put(`thumbnails/${randomUUID()}.jpg`, thumbBuffer, {
                 access: 'public',
                 contentType: 'image/jpeg',
             });
@@ -221,7 +228,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     }
 
     // 5. Luo vesileima (RASTI + PNG-TEKSTI)
-    const metadata = await sharp(originalBuffer).metadata();
+    const metadata = await sharp(cleanBuffer).metadata();
     const width = metadata.width || 1024;
     
     // A. Luodaan rasti SVG:nä (ohut viiva)
@@ -295,7 +302,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         console.warn("Watermark processing error:", e);
     }
 
-    const watermarkedBuffer = await sharp(originalBuffer)
+    const watermarkedBuffer = await sharp(cleanBuffer)
       .composite(compositeLayers)
       .jpeg({ quality: 80 })
       .toBuffer();
