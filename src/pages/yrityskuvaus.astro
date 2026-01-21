@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/layout.astro';
+import ContactForm from '../components/ContactForm';
 
 const pageTitle = "Yrityskuvaus ja henkilöstökuvaus etänä koko Suomessa | Muotokuvasi.fi";
 const pageDescription = "Ammattimainen yrityskuvaus ja henkilöstökuvaus ilman logistisia haasteita. Tekoäly luo yhtenäiset brändikuvat koko tiimille etänä missä päin Suomea tahansa.";
@@ -177,29 +178,16 @@ const faqSchema = {
 
     {/* CONTACT / LEAD GEN SECTION */}
     <section id="contact" class="py-24 px-4 bg-slate-900 text-white scroll-mt-20">
-        <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-3xl md:text-4xl font-bold mb-6">Pyydä tarjous yrityskuvauksesta</h2>
-            <p class="text-slate-300 text-lg mb-12 max-w-2xl mx-auto">
-                Kerro meille tiimisi koko, niin laskemme teille pakettihinnan. Palvelemme yrityksiä koko Suomen alueella.
-            </p>
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">Pyydä tarjous yrityskuvauksesta</h2>
+                <p class="text-slate-300 text-lg max-w-2xl mx-auto">
+                    Kerro meille tiimisi koko, niin laskemme teille pakettihinnan. Palvelemme yrityksiä koko Suomen alueella.
+                </p>
+            </div>
 
             <div class="bg-white p-8 md:p-12 rounded-2xl shadow-2xl max-w-2xl mx-auto text-slate-900">
-                <div class="space-y-6">
-                    <div class="grid grid-cols-1 gap-6">
-                        <div class="text-left">
-                            <p class="text-lg font-medium mb-4">Ota yhteyttä sähköpostilla:</p>
-                            <a href="mailto:info@muotokuvasi.fi?subject=Tarjouspyyntö%20yrityskuvauksesta" class="flex items-center justify-center gap-3 w-full py-4 bg-[#234b4d] hover:bg-black text-white rounded-lg font-bold text-lg transition-colors shadow-lg">
-                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                                info@muotokuvasi.fi
-                            </a>
-                            <p class="text-sm text-slate-500 mt-4 text-center">
-                                Vastaamme yleensä 24 tunnin kuluessa.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                <ContactForm client:load />
             </div>
             
             <div class="mt-12 pt-12 border-t border-slate-800 flex flex-col md:flex-row justify-center items-center gap-8 text-slate-400 text-sm">
