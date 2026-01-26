@@ -38,6 +38,7 @@ const contactEmail = "[info@muotokuvasi.fi]";
           <ul class="list-disc pl-5 space-y-1">
             <li><strong>Käyttäjän lataama kuva:</strong> Alkuperäinen valokuva, jonka lataat palveluun.</li>
             <li><strong>Generoitu kuva:</strong> Tekoälyn luoma uusi versio kuvastasi.</li>
+            <li><strong>Jaettavat linkit:</strong> Jos luot jaettavan linkin kuvastasi, tallennamme kuvan kopion ja luomme yksilöllisen linkin, jonka voit jakaa muille henkilöille.</li>
             <li><strong>Maksutiedot:</strong> Maksunvälittäjä (Stripe) käsittelee maksutiedot. Me emme tallenna luottokorttitietojasi.</li>
             <li><strong>Verkkokäyttäytymistiedot:</strong> Markkinoinnin optimoimiseksi.</li>  
         </ul>
@@ -69,15 +70,25 @@ const contactEmail = "[info@muotokuvasi.fi]";
         </section>
 
         <section>
-          <h2 class="text-xl font-semibold text-gray-900 mb-3">5. Tietojen säilytysaika (24 tunnin sääntö)</h2>
-          <div class="border-l-4 p-4">
+          <h2 class="text-xl font-semibold text-gray-900 mb-3">5. Tietojen säilytysaika</h2>
+          <div class="border-l-4 border-blue-200 pl-4 space-y-3">
             <p class="font-medium">Noudatamme tiukkaa tietojen minimointia:</p>
-            <p class="mt-1">
-              Ladatut ja generoidut kuvat poistetaan automaattisesti palvelimiltamme ja käsittelijöidemme järjestelmistä <strong>24 tunnin kuluessa</strong> latauksesta/generoinnista.
-            </p>
+            <div>
+              <p class="font-semibold mb-1">Ostetut kuvat:</p>
+              <p class="text-sm">
+                Ladatut ja generoidut kuvat (ostetut kuvat) poistetaan automaattisesti palvelimiltamme ja käsittelijöidemme järjestelmistä <strong>24 tunnin kuluessa</strong> latauksesta/generoinnista.
+              </p>
+            </div>
+            <div>
+              <p class="font-semibold mb-1">Jaettavat linkit:</p>
+              <p class="text-sm">
+                Jos luot jaettavan linkin kuvastasi, kuvan kopio ja linkin metadata tallennetaan erilliseen jaettujen linkkien tallennustilaan. Nämä tiedot poistetaan automaattisesti <strong>7 päivän kuluessa</strong> linkin luomisesta. Tämän jälkeen linkki ei enää toimi, eikä kuvaa ole saatavilla.
+              </p>
+            </div>
           </div>
         </section>
 
+    
 
         <section>
           <h2 class="text-xl font-semibold text-gray-900 mb-3">6. Käyttöehdot ja oikeudet kuviin</h2>
