@@ -11,34 +11,72 @@ export const GET: APIRoute = async ({ request }) => {
     // return new Response('Unauthorized', { status: 401 });
   }
 
-  // 2. Määritetään aikaraja (24h sitten)
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  // 2. Määritetään aikarajat
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24h sitten
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 päivää sitten
   
   try {
-    // 3. Listataan tiedostot
+    // 3. Listataan kaikki tiedostot
     const { blobs } = await list();
 
-    const blobsToDelete = blobs
-        .filter(blob => blob.uploadedAt < oneDayAgo)
-        .map(blob => blob.url);
+    // 4. Erotellaan tiedostot kansioittain ja poistetaan vanhat
+    const blobsToDelete: string[] = [];
 
-    // 4. Poistetaan vanhat tiedostot
-    if (blobsToDelete.length > 0) {
-        // Vercel Blob del hyväksyy arrayn stringejä
-        await del(blobsToDelete);
-        console.log(`Deleted ${blobsToDelete.length} old images.`);
+    for (const blob of blobs) {
+      const path = blob.pathname || blob.url.split('/').pop() || '';
+      
+      // portraits/ ja thumbnails/ kansiot: poista 24h vanhat
+      if (path.startsWith('portraits/') || path.startsWith('thumbnails/')) {
+        if (blob.uploadedAt < oneDayAgo) {
+          blobsToDelete.push(blob.url);
+        }
+      }
+      // shared/ kansio: poista 7 päivän vanhat
+      else if (path.startsWith('shared/')) {
+        if (blob.uploadedAt < sevenDaysAgo) {
+          blobsToDelete.push(blob.url);
+        }
+      }
+      // Muut tiedostot: poista 24h vanhat (fallback)
+      else {
+        if (blob.uploadedAt < oneDayAgo) {
+          blobsToDelete.push(blob.url);
+        }
+      }
     }
 
-    return new Response(JSON.stringify({ 
-        deleted: blobsToDelete.length,
-        message: "Cleanup complete" 
-    }), { 
-        status: 200, 
-        headers: { "Content-Type": "application/json" } 
+    // 5. Poistetaan vanhat tiedostot
+    let deletedCount = 0;
+    if (blobsToDelete.length > 0) {
+      await del(blobsToDelete);
+      deletedCount = blobsToDelete.length;
+      console.log(`Deleted ${deletedCount} old images.`);
+    }
+
+    // 6. Palautetaan raportti
+    const report = {
+      deleted: deletedCount,
+      portraits_thumbnails_24h: blobs.filter(b => {
+        const path = b.pathname || b.url.split('/').pop() || '';
+        return (path.startsWith('portraits/') || path.startsWith('thumbnails/')) && b.uploadedAt < oneDayAgo;
+      }).length,
+      shared_7d: blobs.filter(b => {
+        const path = b.pathname || b.url.split('/').pop() || '';
+        return path.startsWith('shared/') && b.uploadedAt < sevenDaysAgo;
+      }).length,
+      message: "Cleanup complete"
+    };
+
+    return new Response(JSON.stringify(report), { 
+      status: 200, 
+      headers: { "Content-Type": "application/json" } 
     });
 
   } catch (error: any) {
-      console.error("Cleanup failed:", error);
-      return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    console.error("Cleanup failed:", error);
+    return new Response(JSON.stringify({ error: error.message }), { 
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 };
