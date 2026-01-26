@@ -176,14 +176,24 @@ if (!downloadUrl && sessionId) {
                     // 2. Avaa suoraan WhatsApp URL-skeema (kaikissa laitteissa)
                     // iOS:ssa navigator.share avaa aina jakodialogin, joten käytämme suoraan WhatsApp URL:ia
                     const shareText = `Katso AI-muotokuvani! 🎨\n${data.shareUrl}\n\nTein tämän Muotokuvasi.fi -palvelussa`;
+                    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
                     
-                    // Avaa suoraan WhatsApp URL kaikissa laitteissa (ei jakodialogia)
-                    // Käytetään window.open() ilman _blank-parametria, jotta WhatsApp ehtii parsia linkin
-                    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`);
+                    // Tarkista onko mobiili
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
                     
-                    // Palauta nappi
-                    whatsappBtn.innerHTML = originalContent;
-                    whatsappBtn.disabled = false;
+                    if (isMobile) {
+                      // Mobiilissa: käytetään window.location.href pienen viiveen kanssa
+                      // Viive antaa WhatsAppille aikaa parsia linkin ennen navigointia
+                      setTimeout(() => {
+                        window.location.href = whatsappUrl;
+                      }, 100);
+                    } else {
+                      // Desktopissa: käytetään window.open() _blank-parametrilla
+                      window.open(whatsappUrl, '_blank');
+                      // Palauta nappi desktopissa
+                      whatsappBtn.innerHTML = originalContent;
+                      whatsappBtn.disabled = false;
+                    }
                   } else {
                     const errorMsg = data.error || 'Jakolinkin luonti epäonnistui';
                     console.error('Share link error:', data);
