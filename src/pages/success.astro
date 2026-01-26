@@ -178,10 +178,12 @@ if (!downloadUrl && sessionId) {
                     const shareText = `Katso AI-muotokuvani! 🎨\n${data.shareUrl}\n\nTein tämän Muotokuvasi.fi -palvelussa`;
                     
                     // Avaa suoraan WhatsApp URL kaikissa laitteissa (ei jakodialogia)
-                    // iPhone-mobiilissa window.open() ei toimi, joten käytämme window.location.href
-                    window.location.href = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                    // Käytetään window.open() ilman _blank-parametria, jotta WhatsApp ehtii parsia linkin
+                    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`);
                     
-                    // Huom: Nappi ei palaudu, koska navigoidaan pois sivulta
+                    // Palauta nappi
+                    whatsappBtn.innerHTML = originalContent;
+                    whatsappBtn.disabled = false;
                   } else {
                     const errorMsg = data.error || 'Jakolinkin luonti epäonnistui';
                     console.error('Share link error:', data);
