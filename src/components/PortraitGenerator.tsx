@@ -79,24 +79,36 @@ export default function PortraitGenerator() {
     setError(null);
 
     try {
-      // 1. CLOUDFLARE TURNSTILE: Pyydä bot-suojaus token
+      // 1. CLOUDFLARE TURNSTILE: Pyydä bot-suojaus token (ohita preview-ympäristössä)
       let turnstileToken: string;
-      try {
-        turnstileToken = await new Promise<string>((resolve, reject) => {
-          // Tarkista että Turnstile on ladattu
-          if (!window.turnstile) {
-            reject(new Error('Turvallisuuspalvelu ei ole vielä ladannut. Yritä hetken kuluttua uudelleen.'));
-            return;
-          }
-          
-          window.turnstile.render('#turnstile-widget', {
-            sitekey: import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA',
-            callback: (token: string) => resolve(token),
-            'error-callback': () => reject(new Error('Turvallisuustarkistus epäonnistui')),
+      
+      // Tarkista onko preview-ympäristö (Vercel preview-deploy)
+      const isPreview = window.location.hostname.includes('.vercel.app') && 
+                       !window.location.hostname.includes('muotokuvasi.fi');
+      
+      if (isPreview) {
+        // Preview-ympäristössä: ohita Turnstile-tokenin generointi
+        console.log('⚠️ Preview-ympäristö: Turnstile-validointi ohitettu');
+        turnstileToken = 'preview-bypass-token';
+      } else {
+        // Tuotannossa: vaadi Turnstile-token
+        try {
+          turnstileToken = await new Promise<string>((resolve, reject) => {
+            // Tarkista että Turnstile on ladattu
+            if (!window.turnstile) {
+              reject(new Error('Turvallisuuspalvelu ei ole vielä ladannut. Yritä hetken kuluttua uudelleen.'));
+              return;
+            }
+            
+            window.turnstile.render('#turnstile-widget', {
+              sitekey: import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA',
+              callback: (token: string) => resolve(token),
+              'error-callback': () => reject(new Error('Turvallisuustarkistus epäonnistui')),
+            });
           });
-        });
-      } catch (turnstileErr: any) {
-        throw new Error(turnstileErr.message || 'Turvallisuustarkistus epäonnistui. Yritä uudelleen.');
+        } catch (turnstileErr: any) {
+          throw new Error(turnstileErr.message || 'Turvallisuustarkistus epäonnistui. Yritä uudelleen.');
+        }
       }
 
       // 2. Luo base64 kuva (nykyinen koodi)

@@ -56,55 +56,64 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   const body = await request.json();
   const cfTurnstileToken = body.cfTurnstileToken;
 
-  if (!cfTurnstileToken) {
-    return new Response(
-      JSON.stringify({ error: 'Turvallisuustarkistus puuttuu' }), 
-      { status: 400, headers: { "Content-Type": "application/json" } }
-    );
-  }
-
-  const TURNSTILE_SECRET = import.meta.env.TURNSTILE_SECRET_KEY ?? process.env.TURNSTILE_SECRET_KEY;
+  // Tarkista onko preview-ympäristö (ohita Turnstile preview-ympäristössä)
+  const isPreview = import.meta.env.VERCEL_ENV === 'preview' || process.env.VERCEL_ENV === 'preview';
   
-  if (!TURNSTILE_SECRET) {
-    console.error('TURNSTILE_SECRET_KEY puuttuu ympäristömuuttujista!');
-    return new Response(
-      JSON.stringify({ error: 'Palvelinvirhe' }), 
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
-  }
-
-  try {
-    const verifyResponse = await fetch(
-      'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          secret: TURNSTILE_SECRET,
-          response: cfTurnstileToken,
-          remoteip: clientAddress,
-        }),
-      }
-    );
-
-    const verifyResult = await verifyResponse.json();
-    
-    if (!verifyResult.success) {
-      console.log('Turnstile verification failed:', verifyResult['error-codes']);
+  if (!isPreview) {
+    // Tuotannossa: vaadi Turnstile-token
+    if (!cfTurnstileToken) {
       return new Response(
-        JSON.stringify({ error: 'Turvallisuustarkistus epäonnistui. Yritä uudelleen.' }), 
-        { status: 403, headers: { "Content-Type": "application/json" } }
+        JSON.stringify({ error: 'Turvallisuustarkistus puuttuu' }), 
+        { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    console.log('✅ Turnstile verification passed');
+    const TURNSTILE_SECRET = import.meta.env.TURNSTILE_SECRET_KEY ?? process.env.TURNSTILE_SECRET_KEY;
     
-  } catch (turnstileError) {
-    console.error('Turnstile validation error:', turnstileError);
-    return new Response(
-      JSON.stringify({ error: 'Turvallisuustarkistusvirhe' }), 
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    if (!TURNSTILE_SECRET) {
+      console.error('TURNSTILE_SECRET_KEY puuttuu ympäristömuuttujista!');
+      return new Response(
+        JSON.stringify({ error: 'Palvelinvirhe' }), 
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    try {
+      const verifyResponse = await fetch(
+        'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            secret: TURNSTILE_SECRET,
+            response: cfTurnstileToken,
+            remoteip: clientAddress,
+          }),
+        }
+      );
+
+      const verifyResult = await verifyResponse.json();
+      
+      if (!verifyResult.success) {
+        console.log('Turnstile verification failed:', verifyResult['error-codes']);
+        return new Response(
+          JSON.stringify({ error: 'Turvallisuustarkistus epäonnistui. Yritä uudelleen.' }), 
+          { status: 403, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
+      console.log('✅ Turnstile verification passed');
+      
+    } catch (turnstileError) {
+      console.error('Turnstile validation error:', turnstileError);
+      return new Response(
+        JSON.stringify({ error: 'Turvallisuustarkistusvirhe' }), 
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+  } else {
+    // Preview-ympäristössä: ohita Turnstile-validointi
+    console.log('⚠️ Preview-ympäristö: Turnstile-validointi ohitettu');
   }
   // --- TURNSTILE VALIDATION END ---
 
