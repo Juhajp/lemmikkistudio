@@ -230,7 +230,7 @@ export default function PortraitGenerator() {
   return (
     <div className="w-full">
       {/* Example Images Section */}
-      <div className="mb-12 w-full max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 overflow-hidden px-4">
+      <div className="mb-12 w-full max-w-4xl mx-auto hidden md:flex md:flex-row items-center justify-center gap-6 md:gap-8 overflow-hidden px-4">
         {/* Source Image */}
         <div className="relative group shrink-0">
            <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-lg">
