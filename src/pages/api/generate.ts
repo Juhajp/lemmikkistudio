@@ -385,15 +385,9 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
 
-    // Poistetaan input-kuva heti generoinnin jälkeen tilan säästämiseksi
-    if (uploadedUrl) {
-        try {
-            await del(uploadedUrl);
-            console.log("Deleted temporary input image:", uploadedUrl);
-        } catch (delErr) {
-            console.warn("Failed to delete input image:", delErr);
-        }
-    }
+    // Huom: uploadedUrl on Fal.ai:n URL, ei Vercel Blob URL
+    // Fal.ai:n kuvat poistetaan automaattisesti, joten poisto-operaatiota ei tarvita
+    // Vercel Blob:n del() funktio toimii vain Vercel Blob URL:ille
 
     return response;
 

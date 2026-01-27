@@ -101,13 +101,17 @@ if (!downloadUrl && sessionId) {
           <script define:vars={{ downloadUrl }}>
             let shareUrl = null;
 
-            // Latausnappi
+            // Latausnappi - parannettu versio paremmalla virheenkäsittelyllä
             const btn = document.getElementById('download-btn');
             if (btn) {
               btn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 const url = btn.getAttribute('data-download-url');
-                if (!url) return;
+                if (!url) {
+                  console.error('Download URL puuttuu');
+                  alert('Kuvan URL puuttuu. Ota yhteyttä tukeen.');
+                  return;
+                }
 
                 const originalContent = btn.innerHTML;
                 btn.innerHTML = `
@@ -118,20 +122,44 @@ if (!downloadUrl && sessionId) {
                 btn.classList.add('opacity-75');
 
                 try {
-                  const response = await fetch(url);
-                  const blob = await response.blob();
-                  const blobUrl = URL.createObjectURL(blob);
+                  // Yritä ensin fetch:llä blob-download (toimii jos CORS sallii)
+                  const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors',
+                  });
                   
-                  const a = document.createElement('a');
-                  a.href = blobUrl;
-                  a.download = 'muotokuva-pro.jpg';
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(blobUrl);
+                  if (response.ok) {
+                    const blob = await response.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = 'muotokuva-pro.jpg';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(blobUrl);
+                  } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                  }
                 } catch (err) {
-                  console.error('Lataus epäonnistui, avataan uuteen välilehteen', err);
-                  window.open(url, '_blank');
+                  console.error('Fetch-lataus epäonnistui, yritetään suoraa download-attribuuttia:', err);
+                  
+                  // Fallback 1: käytä suoraa download-attribuuttia
+                  try {
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'muotokuva-pro.jpg';
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                  } catch (fallbackErr) {
+                    console.error('Fallback-lataus epäonnistui, avataan uuteen välilehteen:', fallbackErr);
+                    // Fallback 2: avaa uuteen välilehteen
+                    window.open(url, '_blank');
+                  }
                 } finally {
                   btn.innerHTML = originalContent;
                   btn.style.pointerEvents = 'auto';
