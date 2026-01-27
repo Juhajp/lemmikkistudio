@@ -101,7 +101,7 @@ if (!downloadUrl && sessionId) {
           <script define:vars={{ downloadUrl }}>
             let shareUrl = null;
 
-            // Latausnappi - parannettu versio paremmalla virheenkäsittelyllä
+            // Latausnappi - parannettu versio paremmalla virheenkäsittelyllä ja loggingilla
             const btn = document.getElementById('download-btn');
             if (btn) {
               btn.addEventListener('click', async (e) => {
@@ -113,6 +113,8 @@ if (!downloadUrl && sessionId) {
                   return;
                 }
 
+                console.log('🔄 Aloitetaan kuvan lataus, URL:', url);
+
                 const originalContent = btn.innerHTML;
                 btn.innerHTML = `
                   <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
@@ -122,13 +124,13 @@ if (!downloadUrl && sessionId) {
                 btn.classList.add('opacity-75');
 
                 try {
-                  // Yritä ensin fetch:llä blob-download (toimii jos CORS sallii)
-                  const response = await fetch(url, {
-                    method: 'GET',
-                    mode: 'cors',
-                  });
+                  // Yritä ensin fetch:llä blob-download
+                  // Poistetaan mode: 'cors' - selain käyttää oletusarvoa automaattisesti
+                  console.log('📥 Yritetään ladata kuva fetch:llä...');
+                  const response = await fetch(url);
                   
                   if (response.ok) {
+                    console.log('✅ Fetch onnistui, luodaan blob...');
                     const blob = await response.blob();
                     const blobUrl = URL.createObjectURL(blob);
                     
@@ -139,14 +141,17 @@ if (!downloadUrl && sessionId) {
                     a.click();
                     document.body.removeChild(a);
                     URL.revokeObjectURL(blobUrl);
+                    console.log('✅ Kuva ladattu onnistuneesti blob-menetelmällä');
                   } else {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                   }
                 } catch (err) {
-                  console.error('Fetch-lataus epäonnistui, yritetään suoraa download-attribuuttia:', err);
+                  console.error('❌ Fetch-lataus epäonnistui:', err);
+                  console.log('🔄 Yritetään fallback-menetelmää...');
                   
                   // Fallback 1: käytä suoraa download-attribuuttia
                   try {
+                    console.log('📥 Yritetään suoraa download-attribuuttia...');
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = 'muotokuva-pro.jpg';
@@ -155,8 +160,10 @@ if (!downloadUrl && sessionId) {
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
+                    console.log('✅ Fallback-lataus käynnistetty');
                   } catch (fallbackErr) {
-                    console.error('Fallback-lataus epäonnistui, avataan uuteen välilehteen:', fallbackErr);
+                    console.error('❌ Fallback-lataus epäonnistui:', fallbackErr);
+                    console.log('🔄 Avataan kuva uuteen välilehteen...');
                     // Fallback 2: avaa uuteen välilehteen
                     window.open(url, '_blank');
                   }
