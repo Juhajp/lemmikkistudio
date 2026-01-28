@@ -101,7 +101,7 @@ if (!downloadUrl && sessionId) {
           <script define:vars={{ downloadUrl }}>
             let shareUrl = null;
 
-            // Latausnappi - parannettu versio paremmalla virheenkäsittelyllä ja loggingilla
+            // Latausnappi - iOS-spesifinen parannus
             const btn = document.getElementById('download-btn');
             if (btn) {
               btn.addEventListener('click', async (e) => {
@@ -113,7 +113,9 @@ if (!downloadUrl && sessionId) {
                   return;
                 }
 
-                console.log('🔄 Aloitetaan kuvan lataus, URL:', url);
+                // Tarkista onko iOS
+                const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+                console.log('🔄 Aloitetaan kuvan lataus, URL:', url, 'iOS:', isIOS);
 
                 const originalContent = btn.innerHTML;
                 btn.innerHTML = `
@@ -124,49 +126,68 @@ if (!downloadUrl && sessionId) {
                 btn.classList.add('opacity-75');
 
                 try {
-                  // Yritä ensin fetch:llä blob-download
-                  // Poistetaan mode: 'cors' - selain käyttää oletusarvoa automaattisesti
-                  console.log('📥 Yritetään ladata kuva fetch:llä...');
-                  const response = await fetch(url);
-                  
-                  if (response.ok) {
-                    console.log('✅ Fetch onnistui, luodaan blob...');
-                    const blob = await response.blob();
-                    const blobUrl = URL.createObjectURL(blob);
+                  if (isIOS) {
+                    // iOS: Käytä Web Share API:a jos saatavilla, muuten avaa uuteen välilehteen
+                    console.log('📱 iOS havaittu, käytetään iOS-spesifistä menetelmää...');
                     
-                    const a = document.createElement('a');
-                    a.href = blobUrl;
-                    a.download = 'muotokuva-pro.jpg';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(blobUrl);
-                    console.log('✅ Kuva ladattu onnistuneesti blob-menetelmällä');
+                    if (navigator.share && navigator.canShare) {
+                      // Yritä ladata kuva ja jakaa se Web Share API:lla
+                      try {
+                        const response = await fetch(url);
+                        if (response.ok) {
+                          const blob = await response.blob();
+                          const file = new File([blob], 'muotokuva-pro.jpg', { type: 'image/jpeg' });
+                          
+                          if (navigator.canShare({ files: [file] })) {
+                            await navigator.share({
+                              files: [file],
+                              title: 'Muotokuva Pro',
+                            });
+                            console.log('✅ Kuva jaettu iOS Web Share API:lla');
+                          } else {
+                            throw new Error('Web Share API ei tue tiedostojen jakamista');
+                          }
+                        } else {
+                          throw new Error(`HTTP ${response.status}`);
+                        }
+                      } catch (shareErr) {
+                        console.log('Web Share API epäonnistui, avataan kuva uuteen välilehteen:', shareErr);
+                        // iOS: avaa kuva uuteen välilehteen (käyttäjä voi tallentaa pitämällä painallusta)
+                        window.open(url, '_blank');
+                      }
+                    } else {
+                      // iOS ilman Web Share API:a: avaa kuva uuteen välilehteen
+                      console.log('Web Share API ei saatavilla, avataan kuva uuteen välilehteen');
+                      window.open(url, '_blank');
+                    }
                   } else {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    // Desktop/Android: käytä normaalia blob-downloadia
+                    console.log('📥 Desktop/Android: yritetään ladata kuva fetch:llä...');
+                    const response = await fetch(url);
+                    
+                    if (response.ok) {
+                      console.log('✅ Fetch onnistui, luodaan blob...');
+                      const blob = await response.blob();
+                      const blobUrl = URL.createObjectURL(blob);
+                      
+                      const a = document.createElement('a');
+                      a.href = blobUrl;
+                      a.download = 'muotokuva-pro.jpg';
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(blobUrl);
+                      console.log('✅ Kuva ladattu onnistuneesti blob-menetelmällä');
+                    } else {
+                      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
                   }
                 } catch (err) {
-                  console.error('❌ Fetch-lataus epäonnistui:', err);
-                  console.log('🔄 Yritetään fallback-menetelmää...');
+                  console.error('❌ Lataus epäonnistui:', err);
                   
-                  // Fallback 1: käytä suoraa download-attribuuttia
-                  try {
-                    console.log('📥 Yritetään suoraa download-attribuuttia...');
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'muotokuva-pro.jpg';
-                    a.target = '_blank';
-                    a.rel = 'noopener noreferrer';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    console.log('✅ Fallback-lataus käynnistetty');
-                  } catch (fallbackErr) {
-                    console.error('❌ Fallback-lataus epäonnistui:', fallbackErr);
-                    console.log('🔄 Avataan kuva uuteen välilehteen...');
-                    // Fallback 2: avaa uuteen välilehteen
-                    window.open(url, '_blank');
-                  }
+                  // Fallback: avaa uuteen välilehteen
+                  console.log('🔄 Avataan kuva uuteen välilehteen fallback-menetelmällä...');
+                  window.open(url, '_blank');
                 } finally {
                   btn.innerHTML = originalContent;
                   btn.style.pointerEvents = 'auto';
