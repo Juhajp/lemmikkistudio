@@ -9,6 +9,9 @@ interface Props {
 }
 
 const { title, description = "Tee selfiestäsi studiotason valokuva nettisivuille, someen tai työnhakuun." } = Astro.props;
+
+// Estä .vercel.app -osoitteiden indeksointi hakukoneissa
+const isVercelApp = Astro.url.hostname.endsWith('.vercel.app');
 ---
 
 <!doctype html>
@@ -17,6 +20,12 @@ const { title, description = "Tee selfiestäsi studiotason valokuva nettisivuill
 		<meta charset="UTF-8" />
 		<meta name="description" content={description} />
 		<meta name="viewport" content="width=device-width" />
+		
+		{/* Estä .vercel.app -osoitteiden indeksointi (duplicate content -suojaus) */}
+		{isVercelApp && (
+			<meta name="robots" content="noindex, nofollow" />
+		)}
+		
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="google-site-verification" content="Gbkh1wMXAjMWWhD5W2LMCgVcuRzApym6E0KExSOn9gE" />
