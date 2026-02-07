@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import Stripe from "stripe";
 import { Resend } from "resend";
+import { kv } from "@vercel/kv";
 
 const STRIPE_SECRET_KEY = import.meta.env.STRIPE_SECRET_KEY ?? process.env.STRIPE_SECRET_KEY;
 const STRIPE_WEBHOOK_SECRET = import.meta.env.STRIPE_WEBHOOK_SECRET ?? process.env.STRIPE_WEBHOOK_SECRET;
@@ -63,6 +64,35 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response("OK (no email)", { status: 200 });
     }
 
+    // 4.5. Luo yksilöllinen alennuskoodi (-50%)
+    let couponCode: string | null = null;
+    try {
+      // Luo promotion code Stripeen
+      const promotionCode = await stripe.promotionCodes.create({
+        coupon: await stripe.coupons.create({
+          percent_off: 50,
+          duration: 'once',
+          name: 'Kiitos tilauksesta! -50%',
+          max_redemptions: 1, // Vain yksi käyttökerta
+          redeem_by: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60), // 30 päivää
+        }).then(c => c.id),
+        code: `KIITOS${Math.random().toString(36).substring(2, 8).toUpperCase()}`, // Esim. KIITOSAB12CD
+        max_redemptions: 1,
+      });
+      
+      couponCode = promotionCode.code;
+      
+      // Tallenna koodi Redis/KV:hen session ID:n perusteella (30 päivää)
+      await kv.set(`coupon:${session.id}`, couponCode, {
+        ex: 30 * 24 * 60 * 60,
+      });
+      
+      console.log('✅ Alennuskoodi luotu:', couponCode);
+    } catch (couponErr) {
+      console.error('Alennuskoodin luonti epäonnistui:', couponErr);
+      // Jatka ilman koodia
+    }
+
     // 5. Lähetä tilausvahvistusviesti (jos Resend on käytössä)
     if (RESEND_API_KEY) {
       try {
@@ -116,6 +146,25 @@ export const POST: APIRoute = async ({ request }) => {
                   
                   <p><strong>Tilausnumero:</strong> ${session.id}</p>
                   <p><strong>Summa:</strong> ${((session.amount_total || 0) / 100).toFixed(2)} €</p>
+                  
+                  ${couponCode ? `
+                  <!-- Alennuskoodi-osio -->
+                  <div style="background: linear-gradient(to right, #f3e8ff, #fae8ff); padding: 24px; border-radius: 12px; margin: 24px 0; border: 2px solid #c084fc;">
+                    <h2 style="margin: 0 0 12px 0; font-size: 18px; color: #7c3aed;">🎁 Kiitos tilauksestasi!</h2>
+                    <p style="margin: 0 0 16px 0; font-size: 14px; color: #4b5563;">
+                      Tässä alennuskoodi jolla saat seuraavan muotokuvan <strong>-50% alennuksella!</strong> Alennuskoodi syötetään kassasivulla.<br>
+                      Anna kaverille tai käytä itse!
+                    </p>
+                    <div style="background: white; padding: 16px; border-radius: 8px; border: 2px dashed #c084fc; text-align: center; margin: 16px 0;">
+                      <code style="font-size: 24px; font-weight: bold; color: #7c3aed; letter-spacing: 2px;">
+                        ${couponCode}
+                      </code>
+                    </div>
+                    <p style="margin: 12px 0 0 0; font-size: 12px; color: #6b7280; text-align: center;">
+                      Koodi on voimassa 30 päivää ja käytettävissä vain kerran.
+                    </p>
+                  </div>
+                  ` : ''}
                   
                   <p style="font-size: 12px; color: #666;">
                     <strong>Huomio:</strong> Kuva on saatavilla 24 tuntia maksun jälkeen. Lataa se nyt talteen.

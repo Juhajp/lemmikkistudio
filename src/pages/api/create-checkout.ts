@@ -25,6 +25,7 @@ export const POST: APIRoute = async ({ request }) => {
       automatic_tax: {
         enabled: true,
       },
+      allow_promotion_codes: true, // Salli alennuskoodien käyttö kassalla
       line_items: [
         {
           price_data: {
