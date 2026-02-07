@@ -5,10 +5,18 @@ export const GET: APIRoute = async ({ request }) => {
   // 1. Tietoturvatarkistus: Varmistetaan että kutsu tulee Vercelin Cronista
   // Vercel lisää automaattisesti Authorization-headerin
   const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    // Jos ajetaan paikallisesti ilman CRON_SECRET:ia, sallitaan testaus jos niin halutaan,
-    // mutta tuotannossa tämä estää ulkopuoliset kutsut.
-    // return new Response('Unauthorized', { status: 401 });
+  
+  // Tuotannossa ja preview-ympäristössä: vaadi CRON_SECRET
+  const isProduction = process.env.VERCEL_ENV === 'production' || process.env.VERCEL_ENV === 'preview';
+  
+  if (isProduction && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    console.error('Unauthorized cron attempt:', { authHeader: authHeader ? 'present' : 'missing' });
+    return new Response('Unauthorized', { status: 401 });
+  }
+  
+  // Lokaalisti (dev) sallitaan testaus ilman CRON_SECRET:ia
+  if (!isProduction) {
+    console.log('⚠️ Dev environment: Cron running without authentication check');
   }
 
   // 2. Määritetään aikarajat
