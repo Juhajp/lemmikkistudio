@@ -111,13 +111,11 @@ export const POST: APIRoute = async ({ request }) => {
                   </div>
                   
                   <p style="text-align: center;">
-                    <a href="${imageUrl}" class="button" download>Lataa kuva</a>
+                    <a href="${imageUrl}" class="button" download style="color: white !important; text-decoration: none;">Lataa kuva</a>
                   </p>
                   
                   <p><strong>Tilausnumero:</strong> ${session.id}</p>
                   <p><strong>Summa:</strong> ${((session.amount_total || 0) / 100).toFixed(2)} €</p>
-                  
-                  <p>Voit käyttää kuvaa LinkedInissä, CV:ssä, sosiaalisessa mediassa tai nettisivuillasi.</p>
                   
                   <p style="font-size: 12px; color: #666;">
                     <strong>Huomio:</strong> Kuva on saatavilla 24 tuntia maksun jälkeen. Lataa se nyt talteen.

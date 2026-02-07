@@ -54,7 +54,7 @@ const FAQ_DATA: FAQItem[] = [
         <br /><br />
         <strong>Aito teknologia:</strong> Palvelumme pohjautuu uusimpaan kuvagenerointiteknologiaan, joka luo kuvat oikeasti, ei vain filtteröi niitä.
         <br /><br />
-        <strong>Asiakaspalvelu:</strong> Jos et ole tyytyväinen tai teknologia tekee virheen, oikea ihminen asiakaspalvelussamme auttaa sinua.
+        <strong>Asiakaspalvelu:</strong> Jos sinulla on kysyttävää, oikea ihminen asiakaspalvelussamme auttaa sinua.
       </>
     )
   }
