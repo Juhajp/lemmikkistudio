@@ -67,18 +67,21 @@ export const POST: APIRoute = async ({ request }) => {
     // 4.5. Luo yksilöllinen alennuskoodi (-50%)
     let couponCode: string | null = null;
     try {
-      // Luo promotion code Stripeen
+      // Luo ensin coupon
+      const coupon = await stripe.coupons.create({
+        percent_off: 50,
+        duration: 'once',
+        name: 'Kiitos tilauksesta! -50%',
+        max_redemptions: 1, // Vain yksi käyttökerta
+        redeem_by: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60), // 30 päivää
+      });
+      
+      // Luo sitten promotion code couponille
       const promotionCode = await stripe.promotionCodes.create({
-        coupon: await stripe.coupons.create({
-          percent_off: 50,
-          duration: 'once',
-          name: 'Kiitos tilauksesta! -50%',
-          max_redemptions: 1, // Vain yksi käyttökerta
-          redeem_by: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60), // 30 päivää
-        }).then(c => c.id),
+        coupon: coupon.id as string,
         code: `KIITOS${Math.random().toString(36).substring(2, 8).toUpperCase()}`, // Esim. KIITOSAB12CD
         max_redemptions: 1,
-      });
+      } as any);
       
       couponCode = promotionCode.code;
       
