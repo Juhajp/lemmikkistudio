@@ -28,7 +28,7 @@ const FAQ_DATA: FAQItem[] = [
   },
   {
     question: "Miten voin maksaa kuvani?",
-    answer: "Esikatsekuvan alapuolella on maksupainike joka ohjaa kassasivulle. Maksutapoina on käytössä luottokortti, Mobilepay sekä Apple Pay."
+    answer: "Esikatsekuvan alapuolella on maksupainike joka ohjaa kassasivulle. Maksutapoina on käytössä suomalaiset verkkopankit, luottokortti, Mobilepay sekä Apple Pay."
   },
   {
     question: "Säilyvätkö kuvani palvelussa?",
