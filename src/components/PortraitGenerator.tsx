@@ -20,12 +20,12 @@ const BACKGROUND_OPTIONS = [
   { id: 'white', label: 'Valkoinen tausta' },
   { id: 'outdoor', label: 'Ulkoilma' },
   { id: 'office', label: 'Toimisto' },
-  { id: 'color_blue', label: 'Väri: Sininen' },
-  { id: 'color_red', label: 'Väri: Punainen' },
-  { id: 'color_orange', label: 'Väri: Oranssi' },
-  { id: 'color_green', label: 'Väri: Vihreä' },
-  { id: 'color_teal', label: 'Väri: Teal' },
-  { id: 'color_beige', label: 'Väri: Beige' },
+  { id: 'color_blue', label: 'Taustaväri: Sininen' },
+  { id: 'color_red', label: 'Taustaväri: Punainen' },
+  { id: 'color_orange', label: 'Taustaväri: Oranssi' },
+  { id: 'color_green', label: 'Taustaväri: Vihreä' },
+  { id: 'color_teal', label: 'Taustaväri: Teal' },
+  { id: 'color_beige', label: 'Taustaväri: Beige' },
 ];
 
 const CLOTHING_OPTIONS = [
@@ -325,7 +325,7 @@ export default function PortraitGenerator() {
                         </div>
                     )}
                     <p className="text-xs text-gray-400 mt-4 text-center leading-relaxed px-4">
-                        Lataamalla kuvan vahvistat, että sinulla on kuvaan käyttöoikeus ja kuvassa esiintyvän henkilön suostumus. Toisten ihmisten kuvien luvaton käyttö on käyttöehtojemme vastaista.
+                        Lataamalla kuvan vahvistat, että sinulla on kuvaan käyttöoikeus ja kuvassa esiintyvän henkilön suostumus. Palvelu käyttää tekoälyä kuvien muokkaamiseen.
                     </p>
                 </div>
 
