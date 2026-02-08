@@ -19,7 +19,7 @@ let couponCode: string | null = null;
 // TEST MODE: Sallitaan testaus lokaalissa ja preview-ympäristössä admin secretilla
 const isPreview = import.meta.env.VERCEL_ENV === 'preview' || process.env.VERCEL_ENV === 'preview';
 if (testMode === 'true' && testSecret === ADMIN_SECRET && (!import.meta.env.PROD || isPreview)) {
-  downloadUrl = Astro.url.searchParams.get('image') || '/refkuva-1.webp';
+  downloadUrl = Astro.url.searchParams.get('image') || '/refkuva-6.webp';
   console.log('🧪 TEST MODE: Using mock image:', downloadUrl);
 } 
 // NORMAALI MODE: Tarkista Stripe session

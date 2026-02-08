@@ -26,6 +26,25 @@ const isVercelApp = Astro.url.hostname.endsWith('.vercel.app');
 			<meta name="robots" content="noindex, nofollow" />
 		)}
 		
+		{/* Open Graph / Facebook */}
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={Astro.url.href} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content="https://muotokuvasi.fi/refkuva-2.webp" />
+		<meta property="og:locale" content="fi_FI" />
+		<meta property="og:site_name" content="Muotokuvasi.fi" />
+		
+		{/* Twitter Card */}
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:url" content={Astro.url.href} />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content="https://muotokuvasi.fi/refkuva-2.webp" />
+		
+		{/* Canonical URL */}
+		<link rel="canonical" href={Astro.url.href} />
+		
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="google-site-verification" content="Gbkh1wMXAjMWWhD5W2LMCgVcuRzApym6E0KExSOn9gE" />

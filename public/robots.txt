@@ -1,0 +1,9 @@
+# robots.txt for muotokuvasi.fi
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /shared/
+
+# Sitemap
+Sitemap: https://muotokuvasi.fi/sitemap.xml
