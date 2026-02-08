@@ -15,6 +15,18 @@ const FAQ_DATA: FAQItem[] = [
     answer: "Parhaan tuloksen saat, kun lataat hyvälaatuisen lähikuvan, jossa kasvosi näkyvät selkeästi ja valaistus on tasainen. Vältä kuvia, joissa on aurinkolasit, hattu tai voimakkaita varjoja kasvoilla. Selfie toimii hyvin!"
   },
   {
+    question: "Onko palvelu turvallinen? Miten tietoni käsitellään?",
+    answer: "Kyllä, palvelu on täysin turvallinen. Käytämme Stripea maksujen käsittelyyn - emme näe luottokorttitietojasi. Kuvasi poistetaan automaattisesti 24 tunnin kuluttua, emmekä jaa niitä kenellekään. Olemme suomalainen yritys (Y-tunnus: 1870949-9) ja noudatamme EU:n tietosuoja-asetusta (GDPR)."
+  },
+  {
+    question: "En ole teknisesti lahjakas. Onko tämä vaikeaa?",
+    answer: "Ei ole! Palvelu on suunniteltu erittäin helpoksi. Tarvitset vain: 1) Kuvan itsestäsi (voit ottaa puhelimella), 2) Paina 'Kokeile ilmaiseksi' -nappia, 3) Odota hetki, 4) Jos tulos miellyttää, osta kuva. Koko prosessi kestää alle 2 minuuttia."
+  },
+  {
+    question: "Voinko käyttää kuvaa virallisissa asiakirjoissa?",
+    answer: "Kuva sopii erinomaisesti CV:hen, someen, yrityksen nettisivuille ja sosiaaliseen mediaan. Virallisiin henkilöllisyystodistuksiin (passi, ajokortti) tarvitaan viranomaisen hyväksymä kuva, johon tämä ei sovellu."
+  },
+  {
     question: "Miten voin maksaa kuvani?",
     answer: "Esikatsekuvan alapuolella on maksupainike joka ohjaa kassasivulle. Maksutapoina on käytössä luottokortti, Mobilepay sekä Apple Pay."
   },

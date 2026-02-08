@@ -35,7 +35,7 @@ export const POST: APIRoute = async ({ request }) => {
               description: 'Täysikokoinen, vesileimaton studiokuva (1024x1536px)',
               images: [displayImage], // Stripe näyttää tämän pikkukuvan kassalla (jos URL on julkinen)
             },
-            unit_amount: 390, // Hinta sentteinä (3.90€)
+            unit_amount: 490, // Hinta sentteinä (4.90€)
             tax_behavior: 'inclusive',
           },
           quantity: 1,

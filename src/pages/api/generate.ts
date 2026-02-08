@@ -211,15 +211,23 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     
     if (clothingOption === "original") {
         clothingPrompt = "Keep the original clothing.";
+    } else if (clothingOption === "beige_blazer") {
+        clothingPrompt = "Change clothing to a soft beige or camel colored blazer. Warm, approachable professional look, well-tailored.";
+    } else if (clothingOption === "blue_dress_shirt") {
+        clothingPrompt = "Change clothing to a classic light blue dress shirt with collar. Professional business attire, crisp and trustworthy.";
     } else if (clothingOption === "sweater_light") {
         clothingPrompt = "Change clothing to a cozy, high-quality beige or cream colored knitted sweater. Soft texture, casual but elegant.";
+    } else if (clothingOption === "navy_sweater") {
+        clothingPrompt = "Change clothing to a high-quality navy blue knitted sweater. Elegant, professional, sophisticated look.";
     } else if (clothingOption === "turtleneck_black") {
         clothingPrompt = "Change clothing to a stylish black turtleneck. Minimalist, modern, Steve Jobs style.";
     } else if (clothingOption === "tshirt_grey") {
         clothingPrompt = "Change clothing to a high-quality, well-fitted grey t-shirt. Clean, smart casual look, relaxed but professional.";
+    } else if (clothingOption === "tshirt_black") {
+        clothingPrompt = "Change clothing to a premium black t-shirt, well-fitted. Minimalist, modern, tech startup style.";
     }
 
-    const prompt = body.prompt ?? `Keep the person's facial features and identity the same. Create a professional studio headshot. Frame as a medium close-up, ensuring the entire head and shoulders are completely visible. Leave ample empty space (headroom) above the top of the hair ${clothingPrompt} ${backgroundPrompt} Soft cinematic studio lighting with a subtle rim light. Natural skin texture, subtle retouch, realistic photo. `;
+    const prompt = body.prompt ?? `Keep the person's facial features and identity exactly the same. Create a professional studio portrait headshot. Shot with 85mm portrait lens at f/2.8, shallow depth of field. Frame as a medium close-up with the entire head and shoulders completely visible. Leave ample headroom above the hair. ${clothingPrompt} ${backgroundPrompt} Professional three-point studio lighting setup with soft key light, subtle fill light, and rim light for dimension. Catchlight in eyes. Natural skin tones with even complexion, subtle professional retouching while maintaining natural skin texture. Confident posture with relaxed shoulders. Sharp focus on eyes and face. Professional DSLR quality, cinematic color grading, realistic photo.`;
 
     // 2. Generate with Fal
     const result: any = await fal.subscribe("fal-ai/gpt-image-1.5/edit", {

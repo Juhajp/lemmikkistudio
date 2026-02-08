@@ -18,8 +18,8 @@ const BACKGROUND_OPTIONS = [
   { id: 'studio', label: 'Tummanharmaa studio (Oletus)' },
   { id: 'black', label: 'Musta tausta' },
   { id: 'white', label: 'Valkoinen tausta' },
-  { id: 'outdoor', label: 'Ulkoilma (Bokeh)' },
-  { id: 'office', label: 'Toimisto (Bokeh)' },
+  { id: 'outdoor', label: 'Ulkoilma' },
+  { id: 'office', label: 'Toimisto' },
   { id: 'color_blue', label: 'Väri: Sininen' },
   { id: 'color_red', label: 'Väri: Punainen' },
   { id: 'color_orange', label: 'Väri: Oranssi' },
@@ -30,9 +30,13 @@ const BACKGROUND_OPTIONS = [
 
 const CLOTHING_OPTIONS = [
   { id: 'blazer', label: 'Tumma bleiseri (Oletus)' },
+  { id: 'beige_blazer', label: 'Beige bleiseri' },
+  { id: 'blue_dress_shirt', label: 'Sininen kauluspaita' },
   { id: 'sweater_light', label: 'Vaalea neule' },
+  { id: 'navy_sweater', label: 'Tummansininen neule' },
   { id: 'turtleneck_black', label: 'Musta poolopaita' },
   { id: 'tshirt_grey', label: 'Harmaa t-paita (Smart Casual)' },
+  { id: 'tshirt_black', label: 'Musta t-paita' },
   { id: 'original', label: 'Säilytä alkuperäiset vaatteet' },
 ];
 
@@ -229,48 +233,8 @@ export default function PortraitGenerator() {
 
   return (
     <div className="w-full">
-      {/* Example Images Section */}
-      <div className="mb-12 w-full max-w-4xl mx-auto hidden md:flex md:flex-row items-center justify-center gap-6 md:gap-8 overflow-hidden px-4">
-        {/* Source Image */}
-        <div className="relative group shrink-0">
-           <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-lg">
-             <img src="/refkuva-orig.webp" alt="" className="w-full h-full object-cover" />
-           </div>
-        </div>
-
-        {/* Arrow */}
-        <div className="text-gray-700 shrink-0">
-          {/* Right arrow for desktop */}
-          <svg className="w-8 h-8 hidden md:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-          </svg>
-          {/* Down arrow for mobile */}
-          <svg className="w-8 h-8 md:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-        </div>
-
-        {/* Result Images */}
-        <div className="grid grid-cols-2 md:flex md:items-center justify-items-center">
-            {/* Image 1 - Centered on top (mobile) */}
-            <div className="col-span-2 md:col-auto relative z-30 w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-lg shrink-0">
-               <img src="/refkuva-1.webp" alt="" className="w-full h-full object-cover" />
-            </div>
-
-            {/* Image 2 - Left (mobile) */}
-            <div className="col-span-1 md:col-auto relative z-20 w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-lg shrink-0 -mt-4 md:mt-0 -mr-4 md:mr-0 md:-ml-4 justify-self-end md:justify-self-auto">
-               <img src="/refkuva-2.webp" alt="" className="w-full h-full object-cover" />
-            </div>
-
-            {/* Image 3 - Right (mobile) */}
-            <div className="col-span-1 md:col-auto relative z-10 w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-lg shrink-0 -mt-4 md:mt-0 -ml-4 md:ml-0 md:-ml-4 justify-self-start md:justify-self-auto">
-               <img src="/refkuva-3.webp" alt="" className="w-full h-full object-cover" />
-            </div>
-        </div>
-      </div>
-
       {/* Settings Selection */}
-      <div className="mb-8 w-full max-w-4xl mx-auto flex flex-col sm:flex-row gap-4 justify-center">
+      <div className="mt-8 mb-8 w-full max-w-4xl mx-auto flex flex-col sm:flex-row gap-4 justify-center">
         {/* Background Selection */}
         <div className="w-full max-w-xs">
           <label className="block text-sm font-medium text-gray-700 mb-2 pl-1">Valitse tausta</label>
@@ -390,7 +354,7 @@ export default function PortraitGenerator() {
                             </>
                         ) : (
                             <>
-                                <span>Luo luonnos ilmaiseksi</span>
+                                <span>Kokeile ilmaiseksi</span>
                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
