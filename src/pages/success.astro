@@ -346,18 +346,32 @@ if (!downloadUrl && sessionId) {
 
           <!-- Meta Pixel Purchase Conversion Event -->
           <script is:inline>
-            // Fire Meta Pixel Purchase event when user lands on success page with valid payment
-            // This tracks successful conversions for Facebook Ads
-            if (typeof fbq !== 'undefined') {
+            // Odota että Meta Pixel latautuu, sitten laukaise Purchase-tapahtuma
+            function waitForFbq(callback, maxWait = 5000) {
+              const startTime = Date.now();
+              
+              const check = () => {
+                if (typeof fbq !== 'undefined') {
+                  callback();
+                } else if (Date.now() - startTime < maxWait) {
+                  setTimeout(check, 100);
+                } else {
+                  console.warn('⚠️ Meta Pixel ei latautunut 5 sekunnissa - Purchase event not tracked');
+                }
+              };
+              
+              check();
+            }
+
+            // Laukaise Purchase-tapahtuma kun fbq on valmis
+            waitForFbq(() => {
               fbq('track', 'Purchase', {
                 value: 3.90,
                 currency: 'EUR',
                 content_name: 'Muotokuvasi.fi Tilaus'
               });
               console.log('✅ Meta Pixel Purchase event fired: 3.90 EUR');
-            } else {
-              console.warn('⚠️ Meta Pixel not loaded - Purchase event not tracked');
-            }
+            });
           </script>
         </>
       ) : (
