@@ -1,0 +1,403 @@
+---
+import Layout from '../layouts/layout.astro';
+
+const pageTitle = "Valokuvaamo Kuopio – Digitaalinen Valokuvaamo | CV-kuva, Profiilikuva & Henkilöstökuvaus";
+const pageDescription = "Etsitäänkö valokuvaamoa Kuopiosta? Digitaalinen valokuvaamo tarjoaa ammattimaiset CV-kuvat, profiilikuvat ja muotokuvat 4,90€. Henkilöstökuvaus yrityksille. Toimii 24/7 kotoa käsin.";
+
+// LocalBusiness Schema
+const localBusinessSchema = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Muotokuvasi.fi - Digitaalinen Valokuvaamo Kuopio",
+  "image": "https://muotokuvasi.fi/refkuva-2.webp",
+  "description": "Digitaalinen valokuvaamo Kuopiossa - CV-kuvat, profiilikuvat, muotokuvat ja henkilöstökuvaus yrityksille",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Kuopio",
+    "addressRegion": "Pohjois-Savo",
+    "addressCountry": "FI"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 62.8924,
+    "longitude": 27.6782
+  },
+  "priceRange": "4.90€",
+  "url": "https://muotokuvasi.fi/valokuvaamo-kuopio",
+  "areaServed": {
+    "@type": "City",
+    "name": "Kuopio"
+  },
+  "serviceType": ["Valokuvaamo", "CV-kuva", "Profiilikuva", "Muotokuva", "Henkilökuva", "Henkilöstökuvaus"]
+};
+
+// FAQ Schema
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [{
+    "@type": "Question",
+    "name": "Mikä on digitaalinen valokuvaamo?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Digitaalinenvalokuvaamo on valokuvauspalvelu, joka käyttää tekoälyä luodakseen ammattimaiset henkilökuvat tavallisista selfieistä. Saat studiolaatuisia CV-kuvia ja profiilikuvia ilman valokuvaamokäyntiä."
+    }
+  }, {
+    "@type": "Question",
+    "name": "Paljonko perinteinen valokuvaamo Kuopiossa maksaa?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Perinteinen valokuvaamo Kuopiossa veloittaa tyypillisesti 50-150€ CV-kuvasta tai profiilikuvasta. Digitaalinen valokuvaamo tarjoaa vaihtoehdon 4,90€ hintaan - toimii kotoa käsin, valmis minuutissa."
+    }
+  }, {
+    "@type": "Question",
+    "name": "Sopiiko digitaalinen valokuvaamo henkilöstökuvaukseen?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Kyllä! Digitaalinen valokuvaamo on loistava ratkaisu yritysten henkilöstökuvaukseen. Jokainen työntekijä voi ottaa kuvansa kotoa käsin, ja lopputulos on yhtenäisen näköinen. Säästät logistiikassa ja kustannuksissa."
+    }
+  }, {
+    "@type": "Question",
+    "name": "Missä valokuvaamo sijaitsee Kuopiossa?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Digitaalinen valokuvaamo toimii täysin verkossa - ei fyysistä sijaintia. Palvelu on käytettävissä 24/7 mistä tahansa Kuopiosta: Savilahti, Petonen, Neulamäki, Jynkä - lataa selfie ja saat ammattimaisen henkilökuvan minuutissa."
+    }
+  }]
+};
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <script type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
+  <main class="w-full bg-white">
+    
+    {/* HERO */}
+    <section class="relative bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#eeffe0] to-[#a7e6e8] pt-20 pb-32 px-4 md:px-8 overflow-hidden">
+      <div class="max-w-4xl mx-auto text-center relative z-10">
+        <span class="inline-block py-1 px-3 rounded-full bg-white/60 border border-white/50 text-[#234b4d] text-sm font-medium mb-6 backdrop-blur-sm">
+          📍 Digitaalinen Valokuvaamo Kuopio - 24/7
+        </span>
+        <h1 class="text-4xl md:text-6xl font-bold tracking-tight text-[#234b4d] mb-6 leading-tight">
+          Valokuvaamo Kuopio <br class="hidden md:block" />– Uusi tapa ottaa henkilökuvia
+        </h1>
+        <p class="text-lg md:text-xl text-[#234b4d]/80 max-w-2xl mx-auto mb-10">
+          Perinteinen valokuvaamo Kuopiossa maksaa 50-150€ ja vaatii ajanvarauksen. Digitaalinen valokuvaamo toimii 24/7 kotoa käsin - hinta vain 4,90€. Saat ammattimaiset CV-kuvat, profiilikuvat ja muotokuvat minuutissa. Myös henkilöstökuvaus yrityksille - ilman studiokäyntiä tai valokuvaajan ajanvarausta.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <a href="/" class="px-8 py-4 bg-[#234b4d] text-white rounded-full font-semibold text-lg hover:bg-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+            Luo henkilökuva – 0€
+          </a>
+          <p class="text-sm text-[#234b4d]/70 mt-2 sm:mt-0">
+            Ei rekisteröitymistä. Maksa vain jos olet tyytyväinen.
+          </p>
+        </div>
+      </div>
+      
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/20 rounded-full blur-3xl -z-0"></div>
+    </section>
+
+    {/* VISUAL PROOF */}
+    <section class="py-16 bg-white -mt-20 relative z-20">
+      <div class="max-w-5xl mx-auto px-4">
+        <div class="bg-white rounded-[32px] shadow-xl p-6 md:p-12 border border-stone-100 text-center">
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Valokuvaamo-tulos kotoa käsin</h2>
+          <p class="text-gray-600 mb-8">Selfie puhelimella → Studiolaatuinen henkilökuva digitaalisesta valokuvaamosta</p>
+          
+          <div class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12">
+            <div class="space-y-4">
+              <div class="w-60 h-60 mx-auto rounded-2xl overflow-hidden border-4 border-stone-100 shadow-md">
+                <img src="/refkuva-orig.webp" alt="Tavallinen kotona otettu selfie ennen valokuvaamoa" class="w-full h-full object-cover" />
+              </div>
+              <p class="text-sm font-medium text-gray-500">Kotona otettu selfie</p>
+            </div>
+
+            <div class="hidden md:block text-stone-300">
+               <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+               </svg>
+            </div>
+            <div class="md:hidden text-stone-300">
+                <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+             </div>
+
+            <div class="space-y-4">
+              <div class="w-60 h-60 mx-auto rounded-2xl overflow-hidden border-4 border-[#234b4d] shadow-lg">
+                <img src="/refkuva-6.webp" alt="Ammattimainen profiilikuva ja muotokuva digitaalisesta valokuvaamosta Kuopio" class="w-full h-full object-cover" />
+              </div>
+              <p class="text-sm font-medium text-[#234b4d]">Valmis ammattimainen henkilökuva</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* PALVELUT */}
+    <section class="py-16 md:py-24 px-4 bg-stone-50">
+      <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Digitaalisen valokuvaamon palvelut Kuopiossa
+          </h2>
+          <p class="text-lg text-gray-600">
+            Kaikki profiilikuvatarpeet yhdestä paikasta - ilman studiokäyntiä
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="bg-white p-8 rounded-2xl shadow-sm border border-stone-100 hover:shadow-md transition-shadow">
+            <div class="text-4xl mb-4">💼</div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">CV-kuva & Työnhaku</h3>
+            <p class="text-gray-600 mb-4">Ammattimainen CV-kuva ansioluetteloon ja työhakemuksiin. Neutraali tausta, sopiva vaatetuksen ja valaistus - valmis minuutissa.</p>
+            <ul class="space-y-2 text-sm text-gray-600">
+              <li class="flex items-start gap-2">✓ <span>Optimoitu rekrytoijille</span></li>
+              <li class="flex items-start gap-2">✓ <span>Neutraali tausta</span></li>
+              <li class="flex items-start gap-2">✓ <span>Ammattimainen valaistus</span></li>
+            </ul>
+          </div>
+
+          <div class="bg-white p-8 rounded-2xl shadow-sm border border-stone-100 hover:shadow-md transition-shadow">
+            <div class="text-4xl mb-4">👤</div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Profiilikuva & LinkedIn</h3>
+            <p class="text-gray-600 mb-4">LinkedIn-profiilikuva ja muotokuva sosiaaliseen mediaan. Luo luotettava ja ammattimainen henkilöbrändi ilman valokuvaamoa.</p>
+            <ul class="space-y-2 text-sm text-gray-600">
+              <li class="flex items-start gap-2">✓ <span>LinkedIn-optimoitu</span></li>
+              <li class="flex items-start gap-2">✓ <span>Henkilökohtainen tyyli</span></li>
+              <li class="flex items-start gap-2">✓ <span>Lisää uskottavuutta</span></li>
+            </ul>
+          </div>
+
+          <div class="bg-white p-8 rounded-2xl shadow-sm border border-stone-100 hover:shadow-md transition-shadow">
+            <div class="text-4xl mb-4">🏢</div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Henkilöstökuvaus Kuopio</h3>
+            <p class="text-gray-600 mb-4">Yhtenäiset henkilöstökuvat koko tiimille - ilman logistiikkaa. Tekoäly avustaa kuvankäsittelyssä, mutta ammattilaiset tarkastavat jokaisen kuvan laadun ja yhtenäisyyden.</p>
+            <ul class="space-y-2 text-sm text-gray-600">
+              <li class="flex items-start gap-2">✓ <span>Ihmisen tarkastama laatu</span></li>
+              <li class="flex items-start gap-2">✓ <span>Yhtenäinen brändi-ilme</span></li>
+              <li class="flex items-start gap-2">✓ <span>Ei kuvauspäivää tai logistiikkaa</span></li>
+            </ul>
+            <a href="/yrityskuvaus" class="inline-flex items-center gap-2 text-[#234b4d] font-semibold mt-4 hover:underline text-sm">
+              Lue lisää henkilöstökuvauksesta →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* COMPARISON */}
+    <section class="py-16 md:py-24 px-4 bg-white">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Valokuvaamo Kuopio: Vertailu
+          </h2>
+          <p class="text-lg text-gray-600">
+            Perinteinen valokuvaamo vs. Digitaalinen valokuvaamo
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          <div class="bg-white p-8 rounded-2xl border border-red-100 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 right-0 bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-bl-xl">PERINTEINEN</div>
+            <h3 class="text-xl font-bold text-gray-900 mb-6">Valokuvaamo Kuopio keskustassa</h3>
+            <ul class="space-y-4 text-gray-600">
+              <li class="flex items-start gap-3">
+                <span class="text-red-500 text-xl">✕</span>
+                <span>Hinta <strong>50€ - 150€</strong></span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="text-red-500 text-xl">✕</span>
+                <span>Ajanvaraus vaaditaan</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="text-red-500 text-xl">✕</span>
+                <span>Matkustaminen studioon</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="text-red-500 text-xl">✕</span>
+                <span>Aukioloajat rajoittavat</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="text-red-500 text-xl">✕</span>
+                <span>Kuvat valmiina päivissä</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="bg-[#234b4d] p-8 rounded-2xl shadow-xl relative overflow-hidden text-white transform md:-translate-y-4">
+            <div class="absolute top-0 right-0 bg-[#a7e6e8] text-[#234b4d] text-xs font-bold px-3 py-1 rounded-bl-xl">DIGITAALINEN</div>
+            <h3 class="text-xl font-bold mb-6">Muotokuvasi.fi</h3>
+            <ul class="space-y-4 text-gray-100">
+              <li class="flex items-start gap-3">
+                <span class="text-[#a7e6e8] text-xl">✓</span>
+                <span>Hinta vain <strong>4,90€</strong></span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="text-[#a7e6e8] text-xl">✓</span>
+                <span>Ei ajanvarausta - 24/7 käytössä</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="text-[#a7e6e8] text-xl">✓</span>
+                <span>Toimii kotoa käsin</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="text-[#a7e6e8] text-xl">✓</span>
+                <span>Käytettävissä ympäri vuorokauden</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="text-[#a7e6e8] text-xl">✓</span>
+                <span>Valmis alle minuutissa</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* BENEFITS */}
+    <section class="py-16 px-4 bg-stone-50">
+      <div class="max-w-5xl mx-auto">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-900">Miksi valita digitaalinen valokuvaamo Kuopiossa?</h2>
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <div class="text-4xl mb-4">⚡</div>
+                <h3 class="font-bold text-lg mb-2">Nopeus</h3>
+                <p class="text-gray-600 text-sm">Perinteinen valokuvaamo vaatii ajanvarauksen, matkustamisen ja odottelun. Digitaalinen valokuvaamo toimii heti - lataa selfie, saat profiilikuvan alle minuutissa. Täydellinen kiireisille.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <div class="text-4xl mb-4">💰</div>
+                <h3 class="font-bold text-lg mb-2">Edullisuus</h3>
+                <p class="text-gray-600 text-sm">Säästä jopa 90% valokuvauskuluissa. Perinteinen valokuvaamo Kuopiossa veloittaa 50-150€, me 4,90€. Sama ammattimainen lopputulos henkilökuvassa.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <div class="text-4xl mb-4">🏠</div>
+                <h3 class="font-bold text-lg mb-2">Mukavuus</h3>
+                <p class="text-gray-600 text-sm">Ei matkustamista Savilahteen, Petoselle tai keskustaan. Ota CV-kuva tai profiilikuva omasta olohuoneesta. Säästät aikaa, bensakulut ja vaivannäön.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <div class="text-4xl mb-4">🎯</div>
+                <h3 class="font-bold text-lg mb-2">Monipuolisuus</h3>
+                <p class="text-gray-600 text-sm">Sama digitaalinen valokuvaamo palvelee yksityishenkilöitä (CV-kuva, LinkedIn), yrityksiä (henkilöstökuvaus) ja kaikkea siltä väliltä. Yksi palvelu, kaikki profiilikuvatarpeet.</p>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    {/* USE CASES */}
+    <section class="py-16 md:py-24 px-4 bg-white">
+      <div class="max-w-5xl mx-auto">
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">Kenelle digitaalinen valokuvaamo sopii?</h2>
+        
+        <div class="space-y-8">
+          <div class="bg-stone-50 p-8 rounded-2xl">
+            <h3 class="text-xl font-bold mb-3 text-gray-900">Työnhakijat</h3>
+            <p class="text-gray-600">Tarvitset ammattimaisen CV-kuvan ansioluetteloon mutta valokuvaamo Kuopiossa on liian kallis tai hankala varata? Digitaalinen valokuvaamo antaa sinulle studiolaatuisen henkilökuvan hetkessä - valmis lähettämään työnhakemukseen.</p>
+          </div>
+
+          <div class="bg-stone-50 p-8 rounded-2xl">
+            <h3 class="text-xl font-bold mb-3 text-gray-900">Asiantuntijat & Yrittäjät</h3>
+            <p class="text-gray-600">LinkedIn-profiilikuva vanhentunut? Henkilöbrändi kaipaa päivitystä? Digitaalinen valokuvaamo tarjoaa ammattimaisen profiilikuvan ja muotokuvan ilman valokuvaamon ajanvarausta. Päivitä kuva vaikka kotisohvalta.</p>
+          </div>
+
+          <div class="bg-stone-50 p-8 rounded-2xl">
+            <h3 class="text-xl font-bold mb-3 text-gray-900">Yritykset</h3>
+            <p class="text-gray-600">Henkilöstökuvaus Kuopio yrityksille - ilman logistiikkaa. Jokainen työntekijä ottaa profiilikuvan kotoa, ammattilaiset ohjaavat prosessia ja varmistavat yhtenäisen lopputuloksen. Tekoäly nopeuttaa työtä, mutta ihminen varmistaa laadun. Säästät aikaa, rahaa ja vaivaa.</p>
+            <a href="/yrityskuvaus" class="inline-flex items-center gap-2 text-[#234b4d] font-semibold mt-3 hover:underline">
+              Lue lisää yrityskuvauksesta →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* FAQ */}
+    <section class="py-16 px-4 bg-stone-50">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-900">Usein kysyttyä - Valokuvaamo Kuopio</h2>
+        
+        <div class="space-y-4">
+          <details class="group bg-white rounded-xl shadow-sm border border-stone-100 overflow-hidden">
+            <summary class="flex justify-between items-center p-6 cursor-pointer hover:bg-stone-50 transition-colors list-none">
+              <span class="font-medium text-lg text-gray-800">Mikä on digitaalinen valokuvaamo?</span>
+              <span class="transition-transform group-open:rotate-180 text-gray-400">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+              </span>
+            </summary>
+            <div class="px-6 pb-6 text-gray-600 leading-relaxed">
+              <p>Digitaalinen valokuvaamo on verkossa toimiva valokuvauspalvelu, joka käyttää tekoälyä luodakseen ammattimaiset henkilökuvat tavallisista selfieistä. Saat studiolaatuisia CV-kuvia ja profiilikuvia ilman valokuvaamokäyntiä.</p>
+            </div>
+          </details>
+
+          <details class="group bg-white rounded-xl shadow-sm border border-stone-100 overflow-hidden">
+            <summary class="flex justify-between items-center p-6 cursor-pointer hover:bg-stone-50 transition-colors list-none">
+              <span class="font-medium text-lg text-gray-800">Paljonko perinteinen valokuvaamo Kuopiossa maksaa?</span>
+              <span class="transition-transform group-open:rotate-180 text-gray-400">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+              </span>
+            </summary>
+            <div class="px-6 pb-6 text-gray-600 leading-relaxed">
+              <p>Perinteinen valokuvaamo Kuopiossa veloittaa tyypillisesti 50-150€ CV-kuvasta tai profiilikuvasta. Digitaalinen valokuvaamo tarjoaa vaihtoehdon 4,90€ hintaan - toimii kotoa käsin, valmis minuutissa.</p>
+            </div>
+          </details>
+
+          <details class="group bg-white rounded-xl shadow-sm border border-stone-100 overflow-hidden">
+            <summary class="flex justify-between items-center p-6 cursor-pointer hover:bg-stone-50 transition-colors list-none">
+              <span class="font-medium text-lg text-gray-800">Sopiiko digitaalinen valokuvaamo henkilöstökuvaukseen?</span>
+              <span class="transition-transform group-open:rotate-180 text-gray-400">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+              </span>
+            </summary>
+            <div class="px-6 pb-6 text-gray-600 leading-relaxed">
+              <p>Kyllä! Digitaalinen valokuvaamo on loistava ratkaisu yritysten henkilöstökuvaukseen Kuopiossa. Jokainen työntekijä voi ottaa kuvansa kotoa käsin, ja lopputulos on yhtenäisen näköinen. Säästät logistiikassa ja kustannuksissa.</p>
+            </div>
+          </details>
+
+          <details class="group bg-white rounded-xl shadow-sm border border-stone-100 overflow-hidden">
+            <summary class="flex justify-between items-center p-6 cursor-pointer hover:bg-stone-50 transition-colors list-none">
+              <span class="font-medium text-lg text-gray-800">Missä valokuvaamo sijaitsee Kuopiossa?</span>
+              <span class="transition-transform group-open:rotate-180 text-gray-400">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+              </span>
+            </summary>
+            <div class="px-6 pb-6 text-gray-600 leading-relaxed">
+              <p>Digitaalinen valokuvaamo toimii täysin verkossa - ei fyysistä sijaintia. Palvelu on käytettävissä 24/7 mistä tahansa Kuopiosta: Savilahti, Petonen, Neulamäki, Jynkä, Riistavesi - lataa selfie ja saat ammattimaisen henkilökuvan minuutissa.</p>
+            </div>
+          </details>
+
+          <details class="group bg-white rounded-xl shadow-sm border border-stone-100 overflow-hidden">
+            <summary class="flex justify-between items-center p-6 cursor-pointer hover:bg-stone-50 transition-colors list-none">
+              <span class="font-medium text-lg text-gray-800">Miten digitaalinen valokuvaamo toimii?</span>
+              <span class="transition-transform group-open:rotate-180 text-gray-400">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+              </span>
+            </summary>
+            <div class="px-6 pb-6 text-gray-600 leading-relaxed">
+              <p>1) Lataa tavallinen selfie puhelimellasi, 2) Tekoäly muokkaa kuvasta ammattimaisen profiilikuvan tai CV-kuvan, 3) Esikatsele ilmaiseksi ja lataa jos olet tyytyväinen (4,90€). Valmis alle minuutissa - ei valokuvaamoa, ei ajanvarausta.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    {/* FINAL CTA */}
+    <section class="py-20 px-4 bg-[#234b4d] text-center">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+          Kokeile digitaalista valokuvaamoa tänään - ilmaiseksi
+        </h2>
+        <p class="text-xl text-stone-200 mb-10">
+          Lataa selfie ja katso miltä ammattimainen henkilökuva näyttää. Maksa vain jos olet tyytyväinen. Toimii 24/7 - ei ajanvarausta, ei valokuvaamokäyntiä.
+        </p>
+        <a href="/" class="inline-block px-10 py-5 bg-white text-[#234b4d] rounded-full font-bold text-xl hover:bg-stone-100 transition-all shadow-lg hover:shadow-2xl transform hover:-translate-y-1">
+          Luo profiilikuva nyt
+        </a>
+        <p class="text-sm text-stone-300 mt-6">CV-kuva • Profiilikuva • Muotokuva • Henkilöstökuvaus</p>
+      </div>
+    </section>
+
+  </main>
+</Layout>
