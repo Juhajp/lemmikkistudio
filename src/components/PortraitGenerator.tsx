@@ -16,6 +16,7 @@ declare global {
 
 const BACKGROUND_OPTIONS = [
   { id: 'studio', label: 'Tummanharmaa studio (Oletus)' },
+  { id: 'beige_studio', label: 'Beige studio' },
   { id: 'black', label: 'Musta tausta' },
   { id: 'white', label: 'Valkoinen tausta' },
   { id: 'outdoor', label: 'Ulkoilma' },
@@ -25,7 +26,6 @@ const BACKGROUND_OPTIONS = [
   { id: 'color_orange', label: 'Taustaväri: Oranssi' },
   { id: 'color_green', label: 'Taustaväri: Vihreä' },
   { id: 'color_teal', label: 'Taustaväri: Teal' },
-  { id: 'color_beige', label: 'Taustaväri: Beige' },
 ];
 
 const CLOTHING_OPTIONS = [

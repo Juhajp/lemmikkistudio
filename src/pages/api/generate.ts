@@ -200,6 +200,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         backgroundPrompt = "Outdoor background, shallow depth of field (bokeh), blurred, indistinct, light and fresh atmosphere.";
     } else if (bgOption === "office") {
         backgroundPrompt = "Modern office background, shallow depth of field (bokeh), blurred, indistinct.";
+    } else if (bgOption === "beige_studio") {
+        backgroundPrompt = "Soft beige studio background, warm neutral tones, professional portrait setting. Studio lighting.";
     } else if (bgOption.startsWith("color_")) {
         const color = bgOption.replace("color_", "");
         backgroundPrompt = `Solid ${color} background. High key lighting.`;
