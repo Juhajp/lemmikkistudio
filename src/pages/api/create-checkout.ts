@@ -45,9 +45,14 @@ export const POST: APIRoute = async ({ request }) => {
       // Mihin palataan maksun jälkeen?
       success_url: `${new URL(request.url).origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${new URL(request.url).origin}/`,
-      // Tallennetaan kuvan URL metadataan, jotta voimme palauttaa sen maksun jälkeen
+      // Tiliotteella (kortilla) näkyvä nimi – max 22 merkkiä
+      payment_intent_data: {
+        statement_descriptor: 'LEMMIKKISTUDIO',
+      },
+      // Tallennetaan kuvan URL ja projekti metadataan (projekti tunnistaa maksun Dashboardilla)
       metadata: {
-        original_image_url: imageUrl
+        project: 'lemmikkistudio',
+        original_image_url: imageUrl,
       },
     });
 
