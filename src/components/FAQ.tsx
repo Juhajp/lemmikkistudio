@@ -8,65 +8,53 @@ type FAQItem = {
 const FAQ_DATA: FAQItem[] = [
   {
     question: "Miten palvelu toimii?",
-    answer: "Lataa palveluun tavallinen kuva kasvoistasi. Tekoälymme analysoi kuvan ja luo siitä ammattimaisen version valitsemallasi taustalla ja vaatetuksella. Voit esikatsella lopputulosta (vesileimalla) ilmaiseksi. Jos olet tyytyväinen, voit ostaa kuvan ilman vesileimaa."
+    answer: "Lataa palveluun kuva lemmikistäsi (esim. koira tai kissa). Tekoäly analysoi kuvan ja luo siitä ammattimaisen studiomuotokuvan. Voit esikatsella tulosta (vesileimalla) ilmaiseksi. Jos olet tyytyväinen, voit ostaa valmiin kuvan ilman vesileimaa."
   },
   {
     question: "Millaisia kuvia voin käyttää lähdekuvina?",
-    answer: "Parhaan tuloksen saat, kun lataat hyvälaatuisen lähikuvan, jossa kasvosi näkyvät selkeästi ja valaistus on tasainen. Vältä kuvia, joissa on aurinkolasit, hattu tai voimakkaita varjoja kasvoilla. Selfie toimii hyvin!"
+    answer: "Parhaan tuloksen saat, kun lataat selkeän kuvan lemmikistäsi, jossa eläin näkyy hyvin ja valaistus on kohtuullinen. Vältä liian pimeitä tai sumuisia kuvia. Älykännykällä otettu kuva toimii hyvin – tärkeintä on, että lemmikin piirteet erottuvat."
   },
   {
     question: "Onko palvelu turvallinen? Miten tietoni käsitellään?",
-    answer: "Kyllä, palvelu on täysin turvallinen. Käytämme Stripea maksujen käsittelyyn - emme näe luottokorttitietojasi. Kuvasi poistetaan automaattisesti 24 tunnin kuluttua, emmekä jaa niitä kenellekään. Olemme suomalainen yritys (Y-tunnus: 1870949-9) ja noudatamme EU:n tietosuoja-asetusta (GDPR)."
+    answer: "Kyllä, palvelu on turvallinen. Käytämme Stripea maksujen käsittelyyn – emme näe luottokorttitietojasi. Kuvasi poistetaan automaattisesti 24 tunnin kuluttua, emmekä jaa niitä kolmansille. Olemme suomalainen toimija ja noudatamme EU:n tietosuoja-asetusta (GDPR)."
   },
   {
-    question: "En ole teknisesti lahjakas. Onko tämä vaikeaa?",
-    answer: "Ei ole! Palvelu on suunniteltu erittäin helpoksi. Tarvitset vain: 1) Kuvan itsestäsi (voit ottaa puhelimella), 2) Paina 'Kokeile ilmaiseksi' -nappia, 3) Odota hetki, 4) Jos tulos miellyttää, osta kuva. Koko prosessi kestää alle 2 minuuttia."
+    question: "Onko tämä vaikeaa käyttää?",
+    answer: "Ei. Tarvitset vain: 1) Kuvan lemmikistäsi (voit ottaa puhelimella), 2) Lataa se palveluun ja paina 'Kokeile ilmaiseksi', 3) Odota generointi, 4) Jos tulos miellyttää, osta kuva. Koko prosessi kestää vain muutaman minuutin."
   },
   {
-    question: "Voinko käyttää kuvaa virallisissa asiakirjoissa?",
-    answer: "Kuva sopii erinomaisesti CV:hen, someen, yrityksen nettisivuille ja sosiaaliseen mediaan. Virallisiin henkilöllisyystodistuksiin (passi, ajokortti) tarvitaan viranomaisen hyväksymä kuva, johon tämä ei sovellu."
+    question: "Mihin voin käyttää valmista muotokuvaa?",
+    answer: "Voit käyttää kuvaa vapaasti esim. someen, seinäkuvaksi, lahjaksi tai nettisivuillesi. Kuva sopii sekä omaan käyttöön että lahjaksi – ammattimainen muotokuva on erityinen muisto lemmikistäsi."
   },
   {
     question: "Miten voin maksaa kuvani?",
-    answer: "Esikatsekuvan alapuolella on maksupainike joka ohjaa kassasivulle. Maksutapoina on käytössä suomalaiset verkkopankit, luottokortti, Mobilepay sekä Apple Pay."
+    answer: "Esikatsekuvan alapuolella on maksupainike, joka ohjaa kassasivulle. Maksutapoina ovat mm. suomalaiset verkkopankit, luottokortti sekä Apple Pay."
   },
   {
     question: "Säilyvätkö kuvani palvelussa?",
-    answer: "Eivät. Lataamasi alkuperäinen kuva poistetaan heti kun generointi on valmis. Valmis generoitu kuva säilytetään 24 tuntia, jotta ehdit ladata sen itsellesi maksun jälkeen, minkä jälkeen se poistetaan automaattisesti."
+    answer: "Eivät. Lataamasi alkuperäinen kuva poistetaan generoinnin jälkeen. Valmis muotokuva säilytetään 24 tuntia, jotta ehdit ladata sen itsellesi maksun jälkeen – sen jälkeen se poistetaan automaattisesti."
   },
   {
     question: "Saanko kuvaan täydet käyttöoikeudet?",
-    answer: "Kyllä. Kun ostat kuvan, saat siihen täydet käyttöoikeudet. Voit käyttää kuvaa vapaasti esimerkiksi LinkedInissä, CV:ssä, kotisivuilla tai sosiaalisessa mediassa."
+    answer: "Kyllä. Kun ostat kuvan, saat siihen täydet käyttöoikeudet. Voit käyttää muotokuvaa vapaasti esim. someen, tulostukseen, lahjaksi tai omaan muistikokoelmaan."
   },
   {
     question: "Mitä jos en ole tyytyväinen tulokseen?",
-    answer: "Esikatselu on täysin ilmainen, joten et maksa mitään ennen kuin näet lopputuloksen. Jos et ole tyytyväinen ensimmäiseen versioon, voit kokeilla ladata eri kuvan tai vaihtaa asetuksia ja generoida uuden kuvan veloituksetta."
+    answer: "Esikatselu on ilmainen, joten et maksa mitään ennen kuin näet lopputuloksen. Jos tulos ei miellytä, voit kokeilla eri lähdekuvaa tai generoida uuden kuvan veloituksetta."
   },
   {
     question: "Minulla on ongelmia kuvan latauksen kanssa. Mitä tehdä?",
     answer: "Ota yhteyttä info@muotokuvasi.fi niin autamme sinua."
   },
   {
-    question: "Tarvitsemme yrityksellemme koko henkilöstöstä edustavat valokuvat. Voitteko auttaa?",
-    answer: (
-      <>
-        Kyllä onnistuu. Isommat kuvatilaukset voidaan räätälöidä tarpeisiinne ja toimittaa yhtenä pakettina. Lue lisää <a href="/yrityskuvaus" className="font-semibold underline decoration-2 underline-offset-2 hover:text-[#234b4d]/80">yrityskuvauksesta</a> tai ota yhteyttä info@muotokuvasi.fi.
-      </>
-    )
+    question: "Toimivatko muut lemmikit kuin koirat?",
+    answer: "Palvelu on erityisesti koirien muotokuvaukseen suunniteltu, mutta kokeile mielellään myös kissoilla tai muilla lemmikeillä – tulokset vaihtelevat kuvan laadun ja eläimen piirteiden mukaan."
   },
   {
     question: "Onko tämä joku tekoälyhuijaus?",
     answer: (
       <>
-        Uusi teknologia herättää aina epäilyksiä. Lyhyt vastaus on: <strong>Ei ole.</strong> Olemme aito palvelu, joka tarjoaa vastineen rahoillesi. Tässä muutama fakta toiminnastamme:
-        <br /><br />
-        <strong>Turvallinen maksu:</strong> Käytämme maksujen välitykseen maailmanlaajuisesti tunnettua Stripea. Me emme koskaan näe tai tallenna luottokorttitietojasi.
-        <br /><br />
-        <strong>Tietosuoja edellä:</strong> Emme myy kuviasi kolmansille osapuolille. Sekä lataamasi että generoidut kuvat poistetaan palvelimiltamme automaattisesti 24 tunnin kuluessa.
-        <br /><br />
-        <strong>Aito teknologia:</strong> Palvelumme pohjautuu uusimpaan kuvagenerointiteknologiaan, joka luo kuvat oikeasti, ei vain filtteröi niitä.
-        <br /><br />
-        <strong>Asiakaspalvelu:</strong> Jos sinulla on kysyttävää, oikea ihminen asiakaspalvelussamme auttaa sinua.
+        Lyhyt vastaus: <strong>Ei.</strong> Olemme aito palvelu, joka tuottaa ammattimaisia muotokuvia lemmikeistäsi. Turvallinen maksu Stripen kautta (emme näe korttitietojasi), kuvat poistetaan automaattisesti 24 h kuluttua, emmekä jaa niitä eteenpäin. Jos jotakin askarruttaa, ota yhteyttä info@muotokuvasi.fi.
       </>
     )
   }
