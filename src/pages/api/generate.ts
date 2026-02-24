@@ -121,7 +121,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   // --- TURNSTILE VALIDATION END ---
 
   // --- RATE LIMIT START ---
-  const MAX_GENERATIONS = Number(import.meta.env.RATE_LIMIT_MAX ?? 5);
+  const MAX_GENERATIONS = Number(import.meta.env.RATE_LIMIT_MAX ?? 20);
   // Oletus 86400s = 24h
   const WINDOW_SECONDS = Number(import.meta.env.RATE_LIMIT_WINDOW ?? 86400);
 

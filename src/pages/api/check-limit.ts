@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { kv } from "@vercel/kv";
 
 export const GET: APIRoute = async ({ request, clientAddress }) => {
-  const MAX_GENERATIONS = Number(import.meta.env.RATE_LIMIT_MAX ?? 5);
+  const MAX_GENERATIONS = Number(import.meta.env.RATE_LIMIT_MAX ?? 20);
 
   // Admin secret bypass
   const ADMIN_SECRET = import.meta.env.ADMIN_SECRET ?? process.env.ADMIN_SECRET;
