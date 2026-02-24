@@ -191,48 +191,21 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     const imageBlob = dataUriToBlob(dataUri);
     const uploadedUrl = await fal.storage.upload(imageBlob);
 
-    // KÄSITELLÄÄN TAUSTAVÄRIVALINTA
-    const bgOption = body.background ?? "studio";
-    let backgroundPrompt = "Solid dark neutral grey background (#141414).";
-    
-    if (bgOption === "black") {
-        backgroundPrompt = "Solid pitch black background (#000000). High contrast.";
-    } else if (bgOption === "white") {
-        backgroundPrompt = "Solid pure white background (#FFFFFF). High key lighting.";
-    } else if (bgOption === "outdoor") {
-        backgroundPrompt = "Outdoor background, shallow depth of field (bokeh), blurred, indistinct, light and fresh atmosphere.";
-    } else if (bgOption === "office") {
-        backgroundPrompt = "Modern office background, shallow depth of field (bokeh), blurred, indistinct.";
-    } else if (bgOption === "beige_studio") {
-        backgroundPrompt = "Soft beige studio background, warm neutral tones, professional portrait setting. Studio lighting.";
-    } else if (bgOption.startsWith("color_")) {
-        const color = bgOption.replace("color_", "");
-        backgroundPrompt = `Solid ${color} background. High key lighting.`;
-    }
+    // Koiran rotu promptiin (vapaa teksti)
+    const dogBreed = typeof body.dogBreed === 'string' ? body.dogBreed.trim() : '';
+    const breedForPrompt = dogBreed || 'dog';
 
-    // KÄSITELLÄÄN VAATEVALINTA
-    const clothingOption = body.clothing ?? "blazer";
-    let clothingPrompt = "Change clothing to a smart casual dark grey blazer.";
-    
-    if (clothingOption === "original") {
-        clothingPrompt = "Keep the original clothing.";
-    } else if (clothingOption === "beige_blazer") {
-        clothingPrompt = "Change clothing to a soft beige or camel colored blazer. Warm, approachable professional look, well-tailored.";
-    } else if (clothingOption === "blue_dress_shirt") {
-        clothingPrompt = "Change clothing to a classic light blue dress shirt with collar. Professional business attire, crisp and trustworthy.";
-    } else if (clothingOption === "sweater_light") {
-        clothingPrompt = "Change clothing to a cozy, high-quality beige or cream colored knitted sweater. Soft texture, casual but elegant.";
-    } else if (clothingOption === "navy_sweater") {
-        clothingPrompt = "Change clothing to a high-quality navy blue knitted sweater. Elegant, professional, sophisticated look.";
-    } else if (clothingOption === "turtleneck_black") {
-        clothingPrompt = "Change clothing to a stylish black turtleneck. Minimalist, modern, Steve Jobs style.";
-    } else if (clothingOption === "tshirt_grey") {
-        clothingPrompt = "Change clothing to a high-quality, well-fitted grey t-shirt. Clean, smart casual look, relaxed but professional.";
-    } else if (clothingOption === "tshirt_black") {
-        clothingPrompt = "Change clothing to a premium black t-shirt, well-fitted. Minimalist, modern, tech startup style.";
-    }
+    const prompt = body.prompt ?? `A high-end professional studio portrait of the specific dog from the reference image. The dog's unique individual identity, fur color, and markings must be perfectly maintained.
 
-    const prompt = body.prompt ?? `Keep the person's facial features and identity exactly the same. Create a professional studio portrait headshot. Shot with 85mm portrait lens at f/2.8, shallow depth of field. IMPORTANT: Frame as a medium close-up ensuring the ENTIRE head including top of hair is completely visible within the frame - never crop the top of the head. Show full head and shoulders. Leave ample headroom above the hair, minimum 10% of frame height above the top of the head. ${clothingPrompt} ${backgroundPrompt} Professional three-point studio lighting setup with soft key light, subtle fill light, and rim light for dimension. Catchlight in eyes. Natural skin tones with even complexion, subtle professional retouching while maintaining natural skin texture. Confident posture with relaxed shoulders. Sharp focus on eyes and face. Professional DSLR quality, cinematic color grading, realistic photo.`;
+Key requirement: Preserve the exact identity, unique fur markings, specific eye color, and individual facial expression of the dog in the reference photo with 100% fidelity. Do not alter the dog's features or breed characteristics.
+
+Dog breed: ${breedForPrompt}
+
+Lighting and Environment: Replace the original environment with a luxurious, dark charcoal studio background. Introduce dramatic, professional studio lighting (three-point lighting setup). Use strong rim lighting (backlight) to highlight the texture of the fur and separate the dog from the dark background, creating depth and a cinematic feel. The focus is tack sharp on the dog's eyes. 8k resolution, highly detailed, cinematic.
+
+Eye and Facial Details: The expression is natural and characteristic of the breed. Crucially, if the dog naturally has fur falling over or around its eyes, preserve this authentic look. The fur may partially obscure the eyes, as is natural for the breed. Where the eyes are visible through the fur, they must have a soft, lifelike gaze, avoiding any unnatural or human-like staring. The visible parts of the eyes should have realistic depth and a subtle catchlight from the studio lighting.
+
+Pose and Composition: The dog is posed in a classic, dignified studio sit, head slightly turned.`;
 
     // 2. Generate with Fal
     const result: any = await fal.subscribe("fal-ai/gpt-image-1.5/edit", {
