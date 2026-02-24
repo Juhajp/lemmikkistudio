@@ -31,8 +31,8 @@ export const POST: APIRoute = async ({ request }) => {
           price_data: {
             currency: 'eur',
             product_data: {
-              name: 'Ammattimainen Muotokuva',
-              description: 'Täysikokoinen, vesileimaton studiokuva (1024x1536px)',
+              name: 'Ammattimainen muotokuva lemmikistäsi',
+              description: 'Täysikokoinen, vesileimaton studiokuva koirastasi (1024x1536px)',
               images: [displayImage], // Stripe näyttää tämän pikkukuvan kassalla (jos URL on julkinen)
             },
             unit_amount: 490, // Hinta sentteinä (4.90€)
@@ -42,17 +42,17 @@ export const POST: APIRoute = async ({ request }) => {
         },
       ],
       mode: 'payment',
-      // Mihin palataan maksun jälkeen?
       success_url: `${new URL(request.url).origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${new URL(request.url).origin}/`,
-      // Tiliotteella (kortilla) näkyvä nimi – max 22 merkkiä
       payment_intent_data: {
         statement_descriptor: 'LEMMIKKISTUDIO',
       },
-      // Tallennetaan kuvan URL ja projekti metadataan (projekti tunnistaa maksun Dashboardilla)
       metadata: {
         project: 'lemmikkistudio',
         original_image_url: imageUrl,
+      },
+      branding_settings: {
+        display_name: 'Lemmikkistudio',
       },
     });
 
