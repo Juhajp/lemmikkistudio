@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { DOG_BREEDS_FI } from '../data/dogBreeds';
+
+const MAX_SUGGESTIONS = 12;
 
 // Cloudflare Turnstile type definitions
 declare global {
@@ -22,6 +24,70 @@ export default function PortraitGenerator() {
   const [error, setError] = useState<string | null>(null);
   const [dogBreed, setDogBreed] = useState<string>('');
   const [remainingGenerations, setRemainingGenerations] = useState<number | null>(null);
+  const [breedDropdownOpen, setBreedDropdownOpen] = useState(false);
+  const [breedHighlightIndex, setBreedHighlightIndex] = useState(0);
+  const breedContainerRef = useRef<HTMLDivElement>(null);
+  const breedDropdownRef = useRef<HTMLUListElement>(null);
+
+  const breedSuggestions = useMemo(() => {
+    const q = dogBreed.trim().toLowerCase();
+    if (!q) return [];
+    return DOG_BREEDS_FI.filter((name) => name.toLowerCase().includes(q)).slice(0, MAX_SUGGESTIONS);
+  }, [dogBreed]);
+
+  useEffect(() => {
+    setBreedHighlightIndex(0);
+  }, [breedSuggestions]);
+
+  useEffect(() => {
+    if (!breedDropdownOpen || breedSuggestions.length === 0) return;
+    const el = document.getElementById(`dog-breed-option-${breedHighlightIndex}`);
+    el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [breedHighlightIndex, breedDropdownOpen, breedSuggestions.length]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const el = e.target as Node;
+      if (
+        breedContainerRef.current?.contains(el) ||
+        breedDropdownRef.current?.contains(el)
+      ) return;
+      setBreedDropdownOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleBreedSelect = (name: string) => {
+    setDogBreed(name);
+    setBreedDropdownOpen(false);
+    setBreedHighlightIndex(0);
+  };
+
+  const handleBreedKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!breedDropdownOpen || breedSuggestions.length === 0) {
+      if (e.key === 'Escape') setBreedDropdownOpen(false);
+      return;
+    }
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setBreedHighlightIndex((i) => (i + 1) % breedSuggestions.length);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setBreedHighlightIndex((i) => (i - 1 + breedSuggestions.length) % breedSuggestions.length);
+        break;
+      case 'Enter':
+        e.preventDefault();
+        handleBreedSelect(breedSuggestions[breedHighlightIndex]);
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setBreedDropdownOpen(false);
+        break;
+    }
+  };
 
   useEffect(() => {
     fetch('/api/check-limit')
@@ -177,25 +243,58 @@ export default function PortraitGenerator() {
 
   return (
     <div className="w-full">
-      {/* Koiran rotu - datalist suomenkielisistä roduista */}
-      <div className="mt-8 mb-8 w-full max-w-4xl mx-auto">
+      {/* Koiran rotu - oma autocomplete (desktop + mobiili) */}
+      <div className="mt-8 mb-8 w-full max-w-4xl mx-auto relative">
         <label htmlFor="dog-breed" className="block text-sm font-medium text-gray-700 mb-2 pl-1">
           Koiran rotu
         </label>
-        <input
-          id="dog-breed"
-          type="text"
-          list="dog-breeds"
-          value={dogBreed}
-          onChange={(e) => setDogBreed(e.target.value)}
-          placeholder="esim. labradorinnoutaja, saksanpaimenkoira..."
-          className="block w-full max-w-md pl-4 pr-4 py-3 text-base border border-stone-200 rounded-2xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-800 placeholder-gray-400"
-        />
-        <datalist id="dog-breeds">
-          {DOG_BREEDS_FI.map((name) => (
-            <option key={name} value={name} />
-          ))}
-        </datalist>
+        <div className="relative w-full max-w-md" ref={breedContainerRef}>
+          <input
+            id="dog-breed"
+            type="text"
+            value={dogBreed}
+            onChange={(e) => {
+              setDogBreed(e.target.value);
+              setBreedDropdownOpen(true);
+            }}
+            onFocus={() => setBreedDropdownOpen(breedSuggestions.length > 0)}
+            onKeyDown={handleBreedKeyDown}
+            placeholder="esim. labradorinnoutaja, saksanpaimenkoira..."
+            autoComplete="off"
+            aria-autocomplete="list"
+            aria-expanded={breedDropdownOpen && breedSuggestions.length > 0}
+            aria-controls="dog-breed-list"
+            aria-activedescendant={breedSuggestions.length > 0 ? `dog-breed-option-${breedHighlightIndex}` : undefined}
+            className="block w-full pl-4 pr-4 py-3 text-base border border-stone-200 rounded-2xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-800 placeholder-gray-400"
+          />
+          {breedDropdownOpen && breedSuggestions.length > 0 && (
+            <ul
+              id="dog-breed-list"
+              ref={breedDropdownRef}
+              role="listbox"
+              className="absolute z-50 left-0 right-0 mt-1 py-1 bg-white border border-stone-200 rounded-2xl shadow-lg max-h-[min(16rem,50vh)] overflow-auto"
+            >
+              {breedSuggestions.map((name, i) => (
+                <li
+                  key={name}
+                  id={`dog-breed-option-${i}`}
+                  role="option"
+                  aria-selected={i === breedHighlightIndex}
+                  className={`min-h-[44px] flex items-center px-4 py-3 text-base cursor-pointer select-none
+                    ${i === breedHighlightIndex ? 'bg-stone-100 text-gray-900' : 'text-gray-700 hover:bg-stone-50'}
+                  `}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleBreedSelect(name);
+                  }}
+                  onMouseEnter={() => setBreedHighlightIndex(i)}
+                >
+                  {name}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       {/* Error Banner */}
