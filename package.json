@@ -6,7 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "build-breeds": "node scripts/generateDogBreeds.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^4.4.2",

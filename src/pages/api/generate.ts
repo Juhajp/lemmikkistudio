@@ -8,6 +8,7 @@ import sharp from "sharp";
 import { readFileSync } from 'fs';
 import { join, resolve } from 'path';
 import { randomUUID } from 'crypto';
+import { DOG_BREEDS } from '../../data/dogBreeds';
 
 function toDataUri(image: string, mimeType = "image/jpeg") {
   if (/^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(image)) return image;
@@ -191,17 +192,16 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     const imageBlob = dataUriToBlob(dataUri);
     const uploadedUrl = await fal.storage.upload(imageBlob);
 
-    // Koiran rotu promptiin (vapaa teksti)
+    // Koiran rotu: vain sallitulla listalla → engl. nimi promptiin; muuten ei roturiviä
     const dogBreed = typeof body.dogBreed === 'string' ? body.dogBreed.trim() : '';
-    const breedForPrompt = dogBreed || 'dog';
+    const normalized = dogBreed.toLowerCase();
+    const match = DOG_BREEDS.find((b) => b.fi.toLowerCase() === normalized);
+    const breedForPrompt = match ? match.en : null;
+    const breedLine = breedForPrompt ? `\nDog breed: ${breedForPrompt}\n\n` : '\n';
 
     const prompt = body.prompt ?? `A high-end professional studio portrait of the specific dog from the reference image. The dog's unique individual identity, fur color, and markings must be perfectly maintained.
 
-Key requirement: Preserve the exact identity, unique fur markings, specific eye color, and individual facial expression of the dog in the reference photo with 100% fidelity. Do not alter the dog's features or breed characteristics.
-
-Dog breed: ${breedForPrompt}
-
-Lighting and Environment: Replace the original environment with a luxurious, dark charcoal studio background. Introduce dramatic, professional studio lighting (three-point lighting setup). Use strong rim lighting (backlight) to highlight the texture of the fur and separate the dog from the dark background, creating depth and a cinematic feel. The focus is tack sharp on the dog's eyes. 8k resolution, highly detailed, cinematic.
+Key requirement: Preserve the exact identity, unique fur markings, specific eye color, and individual facial expression of the dog in the reference photo with 100% fidelity. Do not alter the dog's features or breed characteristics.${breedLine}Lighting and Environment: Replace the original environment with a luxurious, dark charcoal studio background. Introduce dramatic, professional studio lighting (three-point lighting setup). Use strong rim lighting (backlight) to highlight the texture of the fur and separate the dog from the dark background, creating depth and a cinematic feel. The focus is tack sharp on the dog's eyes. 8k resolution, highly detailed, cinematic.
 
 Eye and Facial Details: The expression is natural and characteristic of the breed. Crucially, if the dog naturally has fur falling over or around its eyes, preserve this authentic look. The fur may partially obscure the eyes, as is natural for the breed. Where the eyes are visible through the fur, they must have a soft, lifelike gaze, avoiding any unnatural or human-like staring. The visible parts of the eyes should have realistic depth and a subtle catchlight from the studio lighting.
 

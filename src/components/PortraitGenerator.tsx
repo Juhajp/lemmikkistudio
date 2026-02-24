@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { DOG_BREEDS_FI } from '../data/dogBreeds';
 
 // Cloudflare Turnstile type definitions
 declare global {
@@ -176,7 +177,7 @@ export default function PortraitGenerator() {
 
   return (
     <div className="w-full">
-      {/* Koiran rotu - vapaa tekstikenttä */}
+      {/* Koiran rotu - datalist suomenkielisistä roduista */}
       <div className="mt-8 mb-8 w-full max-w-4xl mx-auto">
         <label htmlFor="dog-breed" className="block text-sm font-medium text-gray-700 mb-2 pl-1">
           Koiran rotu
@@ -184,11 +185,17 @@ export default function PortraitGenerator() {
         <input
           id="dog-breed"
           type="text"
+          list="dog-breeds"
           value={dogBreed}
           onChange={(e) => setDogBreed(e.target.value)}
           placeholder="esim. labradorinnoutaja, saksanpaimenkoira..."
           className="block w-full max-w-md pl-4 pr-4 py-3 text-base border border-stone-200 rounded-2xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-800 placeholder-gray-400"
         />
+        <datalist id="dog-breeds">
+          {DOG_BREEDS_FI.map((name) => (
+            <option key={name} value={name} />
+          ))}
+        </datalist>
       </div>
 
       {/* Error Banner */}
