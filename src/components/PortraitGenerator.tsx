@@ -43,11 +43,7 @@ const CLOTHING_OPTIONS = [
 export default function PortraitGenerator() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const [purchaseToken, setPurchaseToken] = useState<string | null>(null);
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [buying, setBuying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [background, setBackground] = useState<string>("studio");
   const [clothing, setClothing] = useState<string>("blazer");
@@ -70,9 +66,6 @@ export default function PortraitGenerator() {
       setSelectedFile(file);
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
-      setGeneratedImage(null);
-      setPurchaseToken(null);
-      setThumbnailUrl(null);
       setError(null);
     }
   };
@@ -179,15 +172,28 @@ export default function PortraitGenerator() {
       if (!response.ok) {
         throw new Error(data.error || 'Generointi epäonnistui');
       }
-      
-      setGeneratedImage(data.image);
-      setPurchaseToken(data.purchaseToken);
-      setThumbnailUrl(data.thumbnailUrl);
-      
+
+      // Tallennetaan tuloksen token ja ohjataan tulossivulle
+      const tokenRes = await fetch('/api/result-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          purchaseToken: data.purchaseToken,
+          thumbnailUrl: data.thumbnailUrl ?? null,
+        }),
+      });
+      const tokenData = await tokenRes.json();
+      if (!tokenRes.ok || !tokenData.token) {
+        throw new Error(tokenData.error || 'Tulossivun luonti epäonnistui');
+      }
+
       // Update remaining count
       if (remainingGenerations !== null) {
-          setRemainingGenerations(Math.max(0, remainingGenerations - 1));
+        setRemainingGenerations(Math.max(0, remainingGenerations - 1));
       }
+
+      window.location.href = `/result?t=${tokenData.token}`;
+      return;
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Jotain meni pieleen. Kokeile uudestaan.');
@@ -195,41 +201,6 @@ export default function PortraitGenerator() {
       setLoading(false);
     }
   };
-
-  const handleBuy = async () => {
-    if (!purchaseToken) return;
-    setBuying(true);
-    setError(null);
-    
-    try {
-        const response = await fetch('/api/create-checkout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                imageUrl: purchaseToken,
-                thumbnailUrl: thumbnailUrl // Lähetä pikkukuva kassalle
-            }),
-        });
-
-        const data = await response.json();
-        
-        if (!response.ok) {
-             throw new Error(data.error || 'Maksusivun luonti epäonnistui');
-        }
-
-        if (data.url) {
-            window.location.href = data.url;
-        } else {
-             throw new Error('Ei maksulinkkiä');
-        }
-
-    } catch(err: any) {
-        console.error(err);
-        setError(err.message || "Maksupalveluun siirtyminen epäonnistui");
-    } finally {
-        setBuying(false);
-    }
-  }
 
   return (
     <div className="w-full">
@@ -288,152 +259,108 @@ export default function PortraitGenerator() {
         </div>
       )}
 
-      {/* Main Grid Layout */}
+      {/* Main Grid: vasemmalla ohjeet (desktop), oikealla lataus */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 mx-auto max-w-5xl">
-        
-        {/* INPUT CARD */}
-        <div className="flex flex-col gap-4">
-            <div className="bg-white p-6 rounded-[28px] shadow-sm border border-stone-100 h-full flex flex-col">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-stone-100 text-sm">1</span>
-                        Lähdekuva
-                    </h2>
-                    
-                </div>
-
-                <div className="flex-grow flex flex-col items-center justify-center">
-                    {!preview ? (
-                        <label className="w-full aspect-[3/4] flex flex-col items-center justify-center border-2 border-dashed border-stone-300 rounded-2xl cursor-pointer hover:bg-stone-50 transition-colors bg-stone-50/50">
-                            <div className="flex flex-col items-center text-center p-6 text-gray-500">
-                                <svg className="w-12 h-12 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <span className="font-medium text-lg text-gray-700">Valitse kuva</span>
-                                <span className="text-sm mt-2">tai raahaa tiedosto tähän</span>
-
-                            </div>
-                            <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
-                        </label>
-                    ) : (
-                        <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden bg-stone-100 group">
-                            <img src={preview} alt="Input" className="w-full h-full object-cover" />
-                            <label className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-full text-sm font-medium shadow-sm cursor-pointer hover:bg-white transition-colors">
-                                Vaihda kuva
-                                <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
-                            </label>
-                        </div>
-                    )}
-                    <p className="text-xs text-gray-400 mt-4 text-center leading-relaxed px-4">
-                        Lataamalla kuvan vahvistat, että sinulla on kuvaan käyttöoikeus ja kuvassa esiintyvän henkilön suostumus. Palvelu käyttää tekoälyä kuvien muokkaamiseen.
-                    </p>
-                </div>
-
-                {/* Generate Action Area */}
-                <div className="mt-8 pt-6 border-t border-stone-100">
-                    <div className="mb-2 text-center">
-                       {remainingGenerations !== null && (
-                         <span className={`text-sm font-medium ${remainingGenerations === 0 ? 'text-red-600' : 'text-gray-500'}`}>
-                           Kuvia jäljellä tänään: {remainingGenerations}
-                         </span>
-                       )}
-                    </div>
-                    <button
-                        onClick={handleGenerate}
-                        disabled={!selectedFile || loading || remainingGenerations === 0}
-                        className={`w-full py-4 px-6 rounded-full text-lg font-medium transition-all shadow-md flex items-center justify-center gap-3
-                            ${(!selectedFile || remainingGenerations === 0)
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none' 
-                                : 'bg-gray-900 text-white hover:bg-black hover:shadow-lg active:scale-[0.99]'
-                            }`}
-                    >
-                        {loading ? (
-                            <>
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                Generoidaan...
-                            </>
-                        ) : (
-                            <>
-                                <span>Kokeile ilmaiseksi</span>
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                            </>
-                        )}
-                    </button>
-                    {loading && <p className="text-center text-sm text-gray-500 mt-3 animate-pulse">Tämä kestää noin 20-40 sekuntia...</p>}
-                </div>
-            </div>
+        {/* Ohjeet kuvan ottamiseen (vasemmalla desktopissa) */}
+        <div className="flex flex-col gap-4 order-2 lg:order-1">
+          <div className="bg-white p-6 rounded-[28px] shadow-sm border border-stone-100 h-full flex flex-col">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-stone-100 text-sm">1</span>
+              Ohjeet kuvan ottamiseen
+            </h2>
+            <ul className="text-gray-600 space-y-3 text-left list-disc list-inside">
+              <li>Lemmikki näkyy selkeästi ja kasvot / piirteet erottuvat</li>
+              <li>Hyvä valaistus – vältä voimakkaita varjoja</li>
+              <li>Älypuhelimella otettu kuva toimii hyvin</li>
+              <li>Vältä liian sumuisia tai pimeitä kuvia</li>
+            </ul>
+            <p className="text-xs text-gray-400 mt-4">
+              Tekoäly luo kuvastasi ammattimaisen studiomuotokuvan. Valmis tulos näytetään erillisellä sivulla.
+            </p>
+          </div>
         </div>
 
-        {/* OUTPUT CARD */}
-        <div className="flex flex-col gap-4">
-             <div className={`bg-white p-6 rounded-[28px] shadow-sm border border-stone-100 h-full flex flex-col ${!generatedImage && !loading ? 'opacity-80' : ''}`}>
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-violet-100 text-violet-700 text-sm">2</span>
-                        Esikatselu
-                    </h2>
-                    {generatedImage && (
-                        <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
-                            Vesileimattu
-                        </span>
-                    )}
-                </div>
-
-                <div className="flex-grow flex flex-col items-center justify-center min-h-[400px]">
-                    {loading ? (
-                        <div className="flex flex-col items-center justify-center text-gray-400 space-y-4">
-                             <div className="w-full aspect-[3/4] bg-stone-50 rounded-2xl animate-pulse flex items-center justify-center">
-                                <svg className="w-16 h-16 text-stone-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                             </div>
-                             <p className="text-sm">Tekoäly käsittelee kuvaa...</p>
-                        </div>
-                    ) : generatedImage ? (
-                        <div className="w-full space-y-6">
-                            <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-lg border-4 border-white">
-                                <img src={`data:image/png;base64,${generatedImage}`} alt="Generated" className="w-full h-full object-cover" />
-                            </div>
-                            
-                            <button
-                                onClick={handleBuy}
-                                disabled={buying}
-                                className="w-full py-4 bg-violet-600 text-white text-center rounded-full font-medium hover:bg-violet-700 transition shadow-md hover:shadow-lg flex items-center justify-center gap-2 active:scale-[0.99]"
-                            >
-                                {buying ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        Avataan kassaa...
-                                    </>
-                                ) : (
-                                    <>
-                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                        </svg>
-                                        Osta nyt – 4,90 € 
-                                    </>
-                                )}
-                            </button>
-                            <p className="text-center text-xs text-gray-500 mt-1">
-                                <span className="line-through">Norm. hinta 7,90€</span>
-                            </p>
-                            <div className="text-center space-y-1">
-                                <p className="text-xs text-gray-400">
-                                    Saat täysikokoisen, vesileimattoman kuvan heti maksun jälkeen.
-                                </p>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="text-center text-gray-400 p-8 border-2 border-dashed border-stone-200 rounded-2xl w-full h-full flex flex-col items-center justify-center bg-stone-50/30">
-                            <p>Valmis kuva ilmestyy tähän</p>
-                        </div>
-                    )}
-                </div>
+        {/* Lähdekuva ja generointi (oikealla desktopissa) */}
+        <div className="flex flex-col gap-4 order-1 lg:order-2">
+          <div className="bg-white p-6 rounded-[28px] shadow-sm border border-stone-100 h-full flex flex-col">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-stone-100 text-sm">2</span>
+                Lähdekuva
+              </h2>
             </div>
-        </div>
 
+            <div className="flex-grow flex flex-col items-center justify-center">
+              {loading ? (
+                <div className="flex flex-col items-center justify-center text-gray-400 space-y-4 w-full py-12">
+                  <div className="w-full aspect-[3/4] max-w-sm bg-stone-50 rounded-2xl animate-pulse flex items-center justify-center">
+                    <svg className="w-16 h-16 text-stone-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm font-medium">Tekoäly käsittelee kuvaa...</p>
+                  <p className="text-xs text-gray-400">Tämä kestää noin 20–40 sekuntia. Ohjataan tulossivulle.</p>
+                </div>
+              ) : !preview ? (
+                <label className="w-full aspect-[3/4] flex flex-col items-center justify-center border-2 border-dashed border-stone-300 rounded-2xl cursor-pointer hover:bg-stone-50 transition-colors bg-stone-50/50">
+                  <div className="flex flex-col items-center text-center p-6 text-gray-500">
+                    <svg className="w-12 h-12 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="font-medium text-lg text-gray-700">Valitse kuva</span>
+                    <span className="text-sm mt-2">tai raahaa tiedosto tähän</span>
+                  </div>
+                  <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
+                </label>
+              ) : (
+                <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden bg-stone-100 group">
+                  <img src={preview} alt="Lähdekuva" className="w-full h-full object-cover" />
+                  <label className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-full text-sm font-medium shadow-sm cursor-pointer hover:bg-white transition-colors">
+                    Vaihda kuva
+                    <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
+                  </label>
+                </div>
+              )}
+              <p className="text-xs text-gray-400 mt-4 text-center leading-relaxed px-4">
+                Lataamalla kuvan vahvistat, että sinulla on kuvaan käyttöoikeus. Palvelu käyttää tekoälyä kuvien muokkaamiseen.
+              </p>
+            </div>
+
+            {/* Generointinappi */}
+            <div className="mt-8 pt-6 border-t border-stone-100">
+              <div className="mb-2 text-center">
+                {remainingGenerations !== null && (
+                  <span className={`text-sm font-medium ${remainingGenerations === 0 ? 'text-red-600' : 'text-gray-500'}`}>
+                    Kuvia jäljellä tänään: {remainingGenerations}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={handleGenerate}
+                disabled={!selectedFile || loading || remainingGenerations === 0}
+                className={`w-full py-4 px-6 rounded-full text-lg font-medium transition-all shadow-md flex items-center justify-center gap-3
+                  ${(!selectedFile || remainingGenerations === 0)
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
+                    : 'bg-gray-900 text-white hover:bg-black hover:shadow-lg active:scale-[0.99]'
+                  }`}
+              >
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Generoidaan...
+                  </>
+                ) : (
+                  <>
+                    <span>Kokeile ilmaiseksi</span>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Cloudflare Turnstile widget (näkymätön) */}
