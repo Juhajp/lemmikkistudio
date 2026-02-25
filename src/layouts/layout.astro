@@ -55,18 +55,51 @@ const isVercelApp = Astro.url.hostname.endsWith('.vercel.app');
 		<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 	</head>
 	<body class="flex flex-col min-h-screen font-sans antialiased" style="font-family: 'Urbanist', sans-serif;">
-		<header class="bg-[#001121] px-4 md:px-6 py-4 shrink-0">
+		<header class="bg-[#001121] px-4 md:px-6 py-4 shrink-0 relative">
 			<div class="max-w-6xl mx-auto flex items-center justify-between gap-6">
 				<a href="/" class="shrink-0" aria-label="Lemmikkistudio etusivu">
 					<img src="/lemmikkistudio-logo.svg" alt="Lemmikkistudio" class="h-20 md:h-24 w-auto" />
 				</a>
-				<nav class="flex flex-wrap items-center justify-end gap-6 md:gap-8 text-white">
+				<nav class="hidden md:flex flex-wrap items-center justify-end gap-6 md:gap-8 text-white">
 					<a href="/#luo-kuva" class="text-white text-xl font-medium hover:opacity-80 transition-opacity">Luo kuva</a>
 					<a href="/#esimerkki" class="text-white text-xl font-medium hover:opacity-80 transition-opacity">Katso esimerkki</a>
 					<a href="/#ukk" class="text-white text-xl font-medium hover:opacity-80 transition-opacity">Usein kysyttyä</a>
 				</nav>
+				<button
+					type="button"
+					class="md:hidden p-2 text-white hover:opacity-80 transition-opacity rounded-lg focus:outline-none focus:ring-2 focus:ring-white/50"
+					id="nav-toggle"
+					aria-label="Avaa valikko"
+					aria-expanded="false"
+					aria-controls="nav-menu"
+				>
+					<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+					</svg>
+				</button>
+			</div>
+			<div id="nav-menu" class="hidden md:hidden absolute top-full left-0 right-0 bg-[#001121] border-t border-white/10 py-4 px-4 z-50 flex flex-col gap-3" role="navigation" aria-label="Sivustovalikko">
+				<a href="/#luo-kuva" class="nav-mobile-link text-white text-lg font-medium py-2 hover:opacity-80 transition-opacity">Luo kuva</a>
+				<a href="/#esimerkki" class="nav-mobile-link text-white text-lg font-medium py-2 hover:opacity-80 transition-opacity">Katso esimerkki</a>
+				<a href="/#ukk" class="nav-mobile-link text-white text-lg font-medium py-2 hover:opacity-80 transition-opacity">Usein kysyttyä</a>
 			</div>
 		</header>
+		<script is:inline>
+			(function() {
+				var btn = document.getElementById('nav-toggle');
+				var menu = document.getElementById('nav-menu');
+				if (!btn || !menu) return;
+				btn.addEventListener('click', function() {
+					var wasHidden = menu.classList.contains('hidden');
+					menu.classList.toggle('hidden');
+					btn.setAttribute('aria-expanded', wasHidden ? 'true' : 'false');
+					btn.setAttribute('aria-label', wasHidden ? 'Sulje valikko' : 'Avaa valikko');
+				});
+				document.querySelectorAll('.nav-mobile-link').forEach(function(link) {
+					link.addEventListener('click', function() { menu.classList.add('hidden'); btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-label', 'Avaa valikko'); });
+				});
+			})();
+		</script>
 		<main class="flex-grow">
 			<slot />
 		</main>

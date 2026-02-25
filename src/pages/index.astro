@@ -5,16 +5,18 @@ import FAQ from '../components/FAQ';
 ---
 
 <Layout title="Lemmikkistudio - Uniikit muotokuvat lemmikistäsi">
-	<!-- Hero: taustakuva, n. 60vh, H1 vasemmalla, fontti Prata -->
+	<!-- Hero: taustakuva; mobiilissa jarmo-mob.webp, desktopilla lemmikkistudio-kuvat -->
 	<section
-		class="relative min-h-[90vh] w-full flex items-center bg-cover bg-center bg-no-repeat px-4 md:px-8"
-		style="background-image: url('/lemmikkistudio-kuvat-koirista.webp');"
+		class="relative min-h-[55vh] md:min-h-[90vh] w-full flex items-center px-4 md:px-8 overflow-hidden"
 	>
-		<div class="max-w-6xl mx-auto w-full">
-			<h1 class="text-6xl md:text-6xl lg:text-7xl text-white drop-shadow-lg max-w-2xl" style="font-family: 'Prata', serif;">
+		<div class="absolute inset-0 bg-cover bg-right bg-no-repeat md:hidden" style="background-image: url('/jarmo-mob.webp');" aria-hidden="true"></div>
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat hidden md:block" style="background-image: url('/lemmikkistudio-kuvat-koirista.webp');" aria-hidden="true"></div>
+		<div class="absolute inset-0 bg-black/40" aria-hidden="true"></div>
+		<div class="relative z-10 w-[80%] md:w-full max-w-6xl md:mx-auto">
+			<h1 class="text-4xl sm:text-4xl md:text-6xl lg:text-7xl text-white drop-shadow-lg max-w-2xl" style="font-family: 'Prata', serif;">
 				Tee parhaasta ystävästäsi <span class="text-[#d27ea0]">mestariteos</span>
 			</h1>
-			<p class="text-xl md:text-xl lg:text-2xl text-white drop-shadow-lg max-w-xl mt-4" style="font-family: 'Urbanist', sans-serif;">
+			<p class="text-base sm:text-lg md:text-xl lg:text-2xl text-white drop-shadow-lg max-w-xl mt-4" style="font-family: 'Urbanist', sans-serif;">
 				Näyttävät ja laadukkaat muotokuvat koirastasi. Lataa kuva ja näe tulos heti - ilman rekisteröitymistä.
 			</p>
 		</div>
