@@ -271,7 +271,7 @@ export default function PortraitGenerator() {
             </div>
             <ul className="text-gray-200 space-y-3 text-left list-disc list-inside">
             <li><strong>Asettele koira seisomaan:</strong> Valitse kuvaussuunnaksi etuviisto, jolloin koiran koko profiili kasvoista takapäähän näkyy selvästi.</li>
-            <li><strong>Täytä kuva-ala:</strong> Kuvaa noin metrin korkeudelta. Rajaa kuva niin, että koira on pääosassa ja täyttää ruudun.</li>
+            <li><strong>Täytä kuva-ala:</strong> Kuvaa noin metrin korkeudelta ja metrin etäisyydeltä. Rajaa kuva niin, että koira on pääosassa ja täyttää ruudun.</li>
             <li><strong>Kiinnitä huomiota valoon:</strong> Varmista tasainen ja riittävä valaistus. Vältä tilanteita, joissa kuva jää pimeäksi, sumuiseksi tai siihen muodostuu jyrkkiä varjoja.</li>
             </ul>
             
