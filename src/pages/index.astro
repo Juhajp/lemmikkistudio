@@ -22,11 +22,51 @@ import FAQ from '../components/FAQ';
 
 	<main class="w-full bg-[#001121] flex flex-col items-center py-12 px-4 md:px-8">
 		<div class="max-w-6xl w-full space-y-8">
-			<section id="luo-kuva" class="space-y-8">
+			<section id="luo-kuva" class="scroll-mt-24 sm:scroll-mt-28 space-y-8">
 			<PortraitGenerator client:load />
 			</section>
 
-			<section id="ukk">
+			<section id="esimerkki" class="scroll-mt-24 sm:scroll-mt-28 w-full py-16 sm:py-20">
+				<h2 class="text-2xl sm:text-3xl font-semibold text-white text-center mb-8 sm:mb-10">Katso esimerkki</h2>
+				<div class="flex flex-row items-center justify-center gap-4 sm:gap-6 md:gap-10">
+					<div class="max-w-[160px] sm:max-w-[220px] md:max-w-[280px] flex-shrink min-w-0">
+						<img
+							src="/labradoodle1.webp"
+							alt="Lähdekuva koirasta ennen muokkaus"
+							class="w-full h-auto rounded-2xl border border-white/10 shadow-lg object-cover aspect-[3/4]"
+							width="300"
+							height="400"
+							loading="lazy"
+						/>
+						<p class="text-center text-xs sm:text-sm text-white/70 mt-2">Ennen</p>
+					</div>
+					<div class="flex-shrink-0 text-white/90 px-1" aria-hidden="true">
+						<svg class="w-8 h-8 sm:w-14 sm:h-14 md:w-20 md:h-20" viewBox="0 0 80 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path
+								d="M 8 20 C 25 18, 35 22, 52 20 L 68 20 M 60 14 L 72 20 L 60 26"
+								stroke="currentColor"
+								stroke-width="2.5"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								class="drop-shadow-sm"
+							/>
+						</svg>
+					</div>
+					<div class="max-w-[160px] sm:max-w-[220px] md:max-w-[280px] flex-shrink min-w-0">
+						<img
+							src="/labradoodle2.webp"
+							alt="Valmis studiomuotokuva koirasta"
+							class="w-full h-auto rounded-2xl border border-white/10 shadow-lg object-cover aspect-[3/4]"
+							width="300"
+							height="400"
+							loading="lazy"
+						/>
+						<p class="text-center text-xs sm:text-sm text-white/70 mt-2">Jälkeen</p>
+					</div>
+				</div>
+			</section>
+
+			<section id="ukk" class="scroll-mt-24 sm:scroll-mt-28">
 				<FAQ client:idle />
 			</section>
 		</div>

@@ -259,14 +259,13 @@ export default function PortraitGenerator() {
         <div className="flex flex-col gap-4 order-2 lg:order-1">
           <div className="bg-white/5 backdrop-blur-sm p-6 rounded-[28px] border border-white/10 h-full flex flex-col">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/10 text-sm text-white">1</span>
               Ohjeet kuvan ottamiseen
             </h2>
             <div className="mb-4">
               <img
                 src="/kuvausohje.webp"
                 alt="Esimerkkikuva oikeasta kuvausetäisyydestä ja kuvakulmasta"
-                className="w-full max-w-md rounded-2xl border border-white/10 shadow-sm"
+                className="w-full max-w-md rounded-2xl shadow-sm p-8"
                 loading="lazy"
               />
             </div>
@@ -284,7 +283,6 @@ export default function PortraitGenerator() {
           <div className="bg-white/5 backdrop-blur-sm p-6 rounded-[28px] border border-white/10 h-full flex flex-col">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/10 text-sm text-white">2</span>
                 Lähdekuva
               </h2>
             </div>
@@ -344,7 +342,21 @@ export default function PortraitGenerator() {
             </div>
 
             <div className="flex-grow flex flex-col items-center justify-center">
-              {loading ? (
+              {loading && preview ? (
+                <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden bg-black/80 max-w-sm">
+                  <img
+                    src={preview}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover opacity-40 brightness-75"
+                    aria-hidden
+                  />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-black/50">
+                    <div className="w-14 h-14 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    <p className="text-lg font-medium text-white drop-shadow-md animate-pulse">Tekoäly luo kuvaa</p>
+                    <p className="text-xs text-white/80">Noin 20–40 sekuntia</p>
+                  </div>
+                </div>
+              ) : loading ? (
                 <div className="flex flex-col items-center justify-center text-gray-300 space-y-4 w-full py-12">
                   <div className="w-full aspect-[3/4] max-w-sm bg-white/5 rounded-2xl animate-pulse flex items-center justify-center border border-white/10">
                     <svg className="w-16 h-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">

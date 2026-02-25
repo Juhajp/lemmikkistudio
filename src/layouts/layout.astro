@@ -15,7 +15,7 @@ const isVercelApp = Astro.url.hostname.endsWith('.vercel.app');
 ---
 
 <!doctype html>
-<html lang="fi">
+<html lang="fi" class="scroll-smooth">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content={description} />
@@ -62,9 +62,8 @@ const isVercelApp = Astro.url.hostname.endsWith('.vercel.app');
 				</a>
 				<nav class="flex flex-wrap items-center justify-end gap-6 md:gap-8 text-white">
 					<a href="/#luo-kuva" class="text-white text-xl font-medium hover:opacity-80 transition-opacity">Luo kuva</a>
-					<a href="/#esimerkit" class="text-white text-xl font-medium hover:opacity-80 transition-opacity">Katso esimerkkejä</a>
+					<a href="/#esimerkki" class="text-white text-xl font-medium hover:opacity-80 transition-opacity">Katso esimerkki</a>
 					<a href="/#ukk" class="text-white text-xl font-medium hover:opacity-80 transition-opacity">Usein kysyttyä</a>
-					<a href="/#yhteyttä" class="text-white text-xl font-medium hover:opacity-80 transition-opacity">Ota yhteyttä</a>
 				</nav>
 			</div>
 		</header>
@@ -72,7 +71,7 @@ const isVercelApp = Astro.url.hostname.endsWith('.vercel.app');
 			<slot />
 		</main>
 		
-		<footer id="yhteyttä" class="bg-[#000000] py-12">
+		<footer id="yhteyttä" class="bg-[#d27ea0] py-12">
 			<div class="max-w-7xl mx-auto px-6">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 					{/* Vasen sarake */}
