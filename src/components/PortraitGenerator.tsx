@@ -243,60 +243,6 @@ export default function PortraitGenerator() {
 
   return (
     <div className="w-full">
-      {/* Koiran rotu - oma autocomplete (desktop + mobiili) */}
-      <div className="mt-8 mb-8 w-full max-w-4xl mx-auto relative">
-        <label htmlFor="dog-breed" className="block text-sm font-medium text-gray-700 mb-2 pl-1">
-          Koiran rotu
-        </label>
-        <div className="relative w-full max-w-md" ref={breedContainerRef}>
-          <input
-            id="dog-breed"
-            type="text"
-            value={dogBreed}
-            onChange={(e) => {
-              setDogBreed(e.target.value);
-              setBreedDropdownOpen(true);
-            }}
-            onFocus={() => setBreedDropdownOpen(breedSuggestions.length > 0)}
-            onKeyDown={handleBreedKeyDown}
-            placeholder="esim. labradorinnoutaja, saksanpaimenkoira..."
-            autoComplete="off"
-            aria-autocomplete="list"
-            aria-expanded={breedDropdownOpen && breedSuggestions.length > 0}
-            aria-controls="dog-breed-list"
-            aria-activedescendant={breedSuggestions.length > 0 ? `dog-breed-option-${breedHighlightIndex}` : undefined}
-            className="block w-full pl-4 pr-4 py-3 text-base border border-stone-200 rounded-2xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-800 placeholder-gray-400"
-          />
-          {breedDropdownOpen && breedSuggestions.length > 0 && (
-            <ul
-              id="dog-breed-list"
-              ref={breedDropdownRef}
-              role="listbox"
-              className="absolute z-50 left-0 right-0 mt-1 py-1 bg-white border border-stone-200 rounded-2xl shadow-lg max-h-[min(16rem,50vh)] overflow-auto"
-            >
-              {breedSuggestions.map((name, i) => (
-                <li
-                  key={name}
-                  id={`dog-breed-option-${i}`}
-                  role="option"
-                  aria-selected={i === breedHighlightIndex}
-                  className={`min-h-[44px] flex items-center px-4 py-3 text-base cursor-pointer select-none
-                    ${i === breedHighlightIndex ? 'bg-stone-100 text-gray-900' : 'text-gray-700 hover:bg-stone-50'}
-                  `}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    handleBreedSelect(name);
-                  }}
-                  onMouseEnter={() => setBreedHighlightIndex(i)}
-                >
-                  {name}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
-
       {/* Error Banner */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center gap-3">
@@ -311,65 +257,124 @@ export default function PortraitGenerator() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 mx-auto max-w-5xl">
         {/* Ohjeet kuvan ottamiseen (vasemmalla desktopissa) */}
         <div className="flex flex-col gap-4 order-2 lg:order-1">
-          <div className="bg-white p-6 rounded-[28px] shadow-sm border border-stone-100 h-full flex flex-col">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-stone-100 text-sm">1</span>
+          <div className="bg-white/5 backdrop-blur-sm p-6 rounded-[28px] border border-white/10 h-full flex flex-col">
+            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/10 text-sm text-white">1</span>
               Ohjeet kuvan ottamiseen
             </h2>
-            <ul className="text-gray-600 space-y-3 text-left list-disc list-inside">
-              <li>Lemmikki näkyy selkeästi ja kasvot / piirteet erottuvat</li>
-              <li>Hyvä valaistus – vältä voimakkaita varjoja</li>
-              <li>Älypuhelimella otettu kuva toimii hyvin</li>
-              <li>Vältä liian sumuisia tai pimeitä kuvia</li>
+            <div className="mb-4">
+              <img
+                src="/kuvausohje.webp"
+                alt="Esimerkkikuva oikeasta kuvausetäisyydestä ja kuvakulmasta"
+                className="w-full max-w-md rounded-2xl border border-white/10 shadow-sm"
+                loading="lazy"
+              />
+            </div>
+            <ul className="text-gray-200 space-y-3 text-left list-disc list-inside">
+            <li><strong>Asettele koira seisomaan:</strong> Valitse kuvaussuunnaksi etuviisto, jolloin koiran koko profiili kasvoista takapäähän näkyy selvästi.</li>
+            <li><strong>Täytä kuva-ala:</strong> Kuvaa noin metrin korkeudelta. Rajaa kuva niin, että koira on pääosassa ja täyttää ruudun.</li>
+            <li><strong>Kiinnitä huomiota valoon:</strong> Varmista tasainen ja riittävä valaistus. Vältä tilanteita, joissa kuva jää pimeäksi, sumuiseksi tai siihen muodostuu jyrkkiä varjoja.</li>
             </ul>
-            <p className="text-xs text-gray-400 mt-4">
-              Tekoäly luo kuvastasi ammattimaisen studiomuotokuvan. Valmis tulos näytetään erillisellä sivulla.
-            </p>
+            
           </div>
         </div>
 
         {/* Lähdekuva ja generointi (oikealla desktopissa) */}
         <div className="flex flex-col gap-4 order-1 lg:order-2">
-          <div className="bg-white p-6 rounded-[28px] shadow-sm border border-stone-100 h-full flex flex-col">
+          <div className="bg-white/5 backdrop-blur-sm p-6 rounded-[28px] border border-white/10 h-full flex flex-col">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-stone-100 text-sm">2</span>
+              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/10 text-sm text-white">2</span>
                 Lähdekuva
               </h2>
             </div>
 
+            {/* Koiran rotu - oma autocomplete (siirretty Lähdekuvan alle) */}
+            <div className="mb-6 w-full">
+              <label htmlFor="dog-breed" className="block text-sm font-medium text-white mb-2 pl-1">
+                Koiran rotu (valinnainen)
+              </label>
+              <div className="relative w-full max-w-md" ref={breedContainerRef}>
+                <input
+                  id="dog-breed"
+                  type="text"
+                  value={dogBreed}
+                  onChange={(e) => {
+                    setDogBreed(e.target.value);
+                    setBreedDropdownOpen(true);
+                  }}
+                  onFocus={() => setBreedDropdownOpen(breedSuggestions.length > 0)}
+                  onKeyDown={handleBreedKeyDown}
+                  placeholder="esim. labradorinnoutaja, saksanpaimenkoira..."
+                  autoComplete="off"
+                  aria-autocomplete="list"
+                  aria-expanded={breedDropdownOpen && breedSuggestions.length > 0}
+                  aria-controls="dog-breed-list"
+                  aria-activedescendant={breedSuggestions.length > 0 ? `dog-breed-option-${breedHighlightIndex}` : undefined}
+                  className="block w-full pl-4 pr-4 py-3 text-base border border-stone-200 rounded-2xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-800 placeholder-gray-400"
+                />
+                {breedDropdownOpen && breedSuggestions.length > 0 && (
+                  <ul
+                    id="dog-breed-list"
+                    ref={breedDropdownRef}
+                    role="listbox"
+                    className="absolute z-50 left-0 right-0 mt-1 py-1 bg-white border border-stone-200 rounded-2xl shadow-lg max-h-[min(16rem,50vh)] overflow-auto"
+                  >
+                    {breedSuggestions.map((name, i) => (
+                      <li
+                        key={name}
+                        id={`dog-breed-option-${i}`}
+                        role="option"
+                        aria-selected={i === breedHighlightIndex}
+                        className={`min-h-[44px] flex items-center px-4 py-3 text-base cursor-pointer select-none
+                          ${i === breedHighlightIndex ? 'bg-stone-100 text-gray-900' : 'text-gray-700 hover:bg-stone-50'}
+                        `}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleBreedSelect(name);
+                        }}
+                        onMouseEnter={() => setBreedHighlightIndex(i)}
+                      >
+                        {name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+
             <div className="flex-grow flex flex-col items-center justify-center">
               {loading ? (
-                <div className="flex flex-col items-center justify-center text-gray-400 space-y-4 w-full py-12">
-                  <div className="w-full aspect-[3/4] max-w-sm bg-stone-50 rounded-2xl animate-pulse flex items-center justify-center">
-                    <svg className="w-16 h-16 text-stone-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex flex-col items-center justify-center text-gray-300 space-y-4 w-full py-12">
+                  <div className="w-full aspect-[3/4] max-w-sm bg-white/5 rounded-2xl animate-pulse flex items-center justify-center border border-white/10">
+                    <svg className="w-16 h-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <p className="text-sm font-medium">Tekoäly käsittelee kuvaa...</p>
-                  <p className="text-xs text-gray-400">Tämä kestää noin 20–40 sekuntia. Ohjataan tulossivulle.</p>
+                  <p className="text-xs text-gray-300">Tämä kestää noin 20–40 sekuntia. Ohjataan tulossivulle.</p>
                 </div>
               ) : !preview ? (
-                <label className="w-full aspect-[3/4] flex flex-col items-center justify-center border-2 border-dashed border-stone-300 rounded-2xl cursor-pointer hover:bg-stone-50 transition-colors bg-stone-50/50">
-                  <div className="flex flex-col items-center text-center p-6 text-gray-500">
-                    <svg className="w-12 h-12 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <label className="w-full aspect-[3/4] flex flex-col items-center justify-center border-2 border-dashed border-white/20 rounded-2xl cursor-pointer hover:bg-white/10 transition-colors bg-white/5">
+                  <div className="flex flex-col items-center text-center p-6 text-gray-200">
+                    <svg className="w-12 h-12 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span className="font-medium text-lg text-gray-700">Valitse kuva</span>
-                    <span className="text-sm mt-2">tai raahaa tiedosto tähän</span>
+                    <span className="font-medium text-lg text-white">Valitse kuva</span>
+                    <span className="text-sm mt-2 text-gray-200">tai raahaa tiedosto tähän</span>
                   </div>
                   <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
                 </label>
               ) : (
-                <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden bg-stone-100 group">
+                <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden bg-white/5 group">
                   <img src={preview} alt="Lähdekuva" className="w-full h-full object-cover" />
-                  <label className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-full text-sm font-medium shadow-sm cursor-pointer hover:bg-white transition-colors">
+                  <label className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium shadow-sm cursor-pointer hover:bg-black transition-colors">
                     Vaihda kuva
                     <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
                   </label>
                 </div>
               )}
-              <p className="text-xs text-gray-400 mt-4 text-center leading-relaxed px-4">
+              <p className="text-xs text-gray-300 mt-4 text-center leading-relaxed px-4">
                 Lataamalla kuvan vahvistat, että sinulla on kuvaan käyttöoikeus. Palvelu käyttää tekoälyä kuvien muokkaamiseen.
               </p>
             </div>

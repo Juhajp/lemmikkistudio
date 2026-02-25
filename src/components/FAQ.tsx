@@ -7,56 +7,24 @@ type FAQItem = {
 
 const FAQ_DATA: FAQItem[] = [
   {
-    question: "Miten palvelu toimii?",
-    answer: "Lataa palveluun kuva lemmikistäsi (esim. koira tai kissa). Tekoäly analysoi kuvan ja luo siitä ammattimaisen studiomuotokuvan. Voit esikatsella tulosta (vesileimalla) ilmaiseksi. Jos olet tyytyväinen, voit ostaa valmiin kuvan ilman vesileimaa."
+    question: "Miten Lemmikkistudio toimii?",
+    answer: "Lataa koirasi kuva palveluun, valitse rodun nimi (valinnainen) ja paina ’Kokeile ilmaiseksi’. Tekoäly luo kuvasta ammattimaisen studiomuotokuvan. Tuloksen näet erillisellä sivulla – jos olet tyytyväinen, voit ostaa kuvan ilman vesileimaa."
   },
   {
-    question: "Millaisia kuvia voin käyttää lähdekuvina?",
-    answer: "Parhaan tuloksen saat, kun lataat selkeän kuvan lemmikistäsi, jossa eläin näkyy hyvin ja valaistus on kohtuullinen. Vältä liian pimeitä tai sumuisia kuvia. Älykännykällä otettu kuva toimii hyvin – tärkeintä on, että lemmikin piirteet erottuvat."
+    question: "Millaisesta kuvasta tulee paras studiomuotokuva?",
+    answer: "Paras tulos tulee, kun koira on seisovassa asennossa etuviistosta kuvattuna, kasvot ja takapää näkyvät selkeästi. Kuvaa noin metrin korkeudelta niin, että koira täyttää kuvaruudun. Hyvä valaistus ja terävä kuva ovat tärkeitä – sivun ohjeet auttavat askel askeleelta."
   },
   {
-    question: "Onko palvelu turvallinen? Miten tietoni käsitellään?",
-    answer: "Kyllä, palvelu on turvallinen. Käytämme Stripea maksujen käsittelyyn – emme näe luottokorttitietojasi. Kuvasi poistetaan automaattisesti 24 tunnin kuluttua, emmekä jaa niitä kolmansille. Olemme suomalainen toimija ja noudatamme EU:n tietosuoja-asetusta (GDPR)."
+    question: "Miten maksu ja kuvien säilytys toimii?",
+    answer: "Maksu tapahtuu Stripen kautta (verkkopankki, kortti, Apple Pay). Ostettu muotokuva ladataan tulossivulta itsellesi. Kuvat eivät jää palveluun pysyvästi – ne poistetaan automaattisesti 24 tunnin kuluttua. Emme jaa kuviasi eteenpäin."
   },
   {
-    question: "Onko tämä vaikeaa käyttää?",
-    answer: "Ei. Tarvitset vain: 1) Kuvan lemmikistäsi (voit ottaa puhelimella), 2) Lataa se palveluun ja paina 'Kokeile ilmaiseksi', 3) Odota generointi, 4) Jos tulos miellyttää, osta kuva. Koko prosessi kestää vain muutaman minuutin."
+    question: "Saanko ostamaani muotokuvaan täydet käyttöoikeudet?",
+    answer: "Kyllä. Kun ostat kuvan, saat siihen täydet käyttöoikeudet. Voit käyttää sitä vapaasti esim. someen, tulostukseen, seinäkuvaksi tai lahjaksi."
   },
   {
-    question: "Mihin voin käyttää valmista muotokuvaa?",
-    answer: "Voit käyttää kuvaa vapaasti esim. someen, seinäkuvaksi, lahjaksi tai nettisivuillesi. Kuva sopii sekä omaan käyttöön että lahjaksi – ammattimainen muotokuva on erityinen muisto lemmikistäsi."
-  },
-  {
-    question: "Miten voin maksaa kuvani?",
-    answer: "Esikatsekuvan alapuolella on maksupainike, joka ohjaa kassasivulle. Maksutapoina ovat mm. suomalaiset verkkopankit, luottokortti sekä Apple Pay."
-  },
-  {
-    question: "Säilyvätkö kuvani palvelussa?",
-    answer: "Eivät. Lataamasi alkuperäinen kuva poistetaan generoinnin jälkeen. Valmis muotokuva säilytetään 24 tuntia, jotta ehdit ladata sen itsellesi maksun jälkeen – sen jälkeen se poistetaan automaattisesti."
-  },
-  {
-    question: "Saanko kuvaan täydet käyttöoikeudet?",
-    answer: "Kyllä. Kun ostat kuvan, saat siihen täydet käyttöoikeudet. Voit käyttää muotokuvaa vapaasti esim. someen, tulostukseen, lahjaksi tai omaan muistikokoelmaan."
-  },
-  {
-    question: "Mitä jos en ole tyytyväinen tulokseen?",
-    answer: "Esikatselu on ilmainen, joten et maksa mitään ennen kuin näet lopputuloksen. Jos tulos ei miellytä, voit kokeilla eri lähdekuvaa tai generoida uuden kuvan veloituksetta."
-  },
-  {
-    question: "Minulla on ongelmia kuvan latauksen kanssa. Mitä tehdä?",
-    answer: "Ota yhteyttä info@muotokuvasi.fi niin autamme sinua."
-  },
-  {
-    question: "Toimivatko muut lemmikit kuin koirat?",
-    answer: "Palvelu on erityisesti koirien muotokuvaukseen suunniteltu, mutta kokeile mielellään myös kissoilla tai muilla lemmikeillä – tulokset vaihtelevat kuvan laadun ja eläimen piirteiden mukaan."
-  },
-  {
-    question: "Onko tämä joku tekoälyhuijaus?",
-    answer: (
-      <>
-        Lyhyt vastaus: <strong>Ei.</strong> Olemme aito palvelu, joka tuottaa ammattimaisia muotokuvia lemmikeistäsi. Turvallinen maksu Stripen kautta (emme näe korttitietojasi), kuvat poistetaan automaattisesti 24 h kuluttua, emmekä jaa niitä eteenpäin. Jos jotakin askarruttaa, ota yhteyttä info@muotokuvasi.fi.
-      </>
-    )
+    question: "Onko palvelu turvallinen ja tietosuojattu?",
+    answer: "Kyllä. Olemme suomalainen toimija ja noudatamme GDPR:tä. Emme näe korttitietojasi (Stripe hoitaa maksut). Kuvat käsitellään vain palvelun toimittamiseksi ja poistetaan automaattisesti."
   }
 ];
 
@@ -69,7 +37,7 @@ export default function FAQ() {
 
   return (
     <div className="w-full max-w-3xl mx-auto mt-24 px-4 mb-12">
-      <h2 className="text-4xl font-semibold text-center text-[#234b4d] mb-8">Usein kysyttyä</h2>
+      <h2 className="text-4xl font-semibold text-center text-white mb-8">Usein kysyttyä</h2>
       <div className="flex flex-col gap-4">
         {FAQ_DATA.map((item, index) => (
           <div 

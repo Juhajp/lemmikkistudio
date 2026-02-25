@@ -31,16 +31,16 @@ const isVercelApp = Astro.url.hostname.endsWith('.vercel.app');
 		<meta property="og:url" content={Astro.url.href} />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
-		<meta property="og:image" content="https://muotokuvasi.fi/refkuva-2.webp" />
+		<meta property="og:image" content="" />
 		<meta property="og:locale" content="fi_FI" />
-		<meta property="og:site_name" content="Muotokuvasi.fi" />
+		<meta property="og:site_name" content="lemmikkistudio.fi" />
 		
 		{/* Twitter Card */}
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:url" content={Astro.url.href} />
 		<meta name="twitter:title" content={title} />
 		<meta name="twitter:description" content={description} />
-		<meta name="twitter:image" content="https://muotokuvasi.fi/refkuva-2.webp" />
+		<meta name="twitter:image" content="" />
 		
 		{/* Canonical URL */}
 		<link rel="canonical" href={Astro.url.href} />
@@ -78,7 +78,7 @@ const isVercelApp = Astro.url.hostname.endsWith('.vercel.app');
 					{/* Vasen sarake */}
 					<div>
 						<p class="text-sm text-white mb-3">
-							Olemme suomalainen toimija. Jos sinulla on kysyttävää, vastaamme mielellämme osoitteessa:  <a href="mailto:info@muotokuvasi.fi" class="text-white hover:text-gray-900 transition-colors">info@muotokuvasi.fi</a>
+							Olemme suomalainen toimija. Jos sinulla on kysyttävää, vastaamme mielellämme osoitteessa:  <a href="mailto:asiakaspalvelu@lemmikkistudio.fi" class="text-white hover:text-gray-900 transition-colors">asiakaspalvelu@lemmikkistudio.fi</a>
 						</p>
 					</div>
 
@@ -90,51 +90,12 @@ const isVercelApp = Astro.url.hostname.endsWith('.vercel.app');
 							Tietosuojaseloste ja käyttöehdot
 							
 						</a>
-						<p class="text-sm text-white leading-loose">&copy; {new Date().getFullYear()} Muotokuvasi.fi / Y-tunnus: 1870949-9</p>
+						<p class="text-sm text-white leading-loose">&copy; {new Date().getFullYear()} lemmikkistudio.fi / Y-tunnus: 1870949-9</p>
 						
 					</div>
 				</div>
 				
-				{/* Kaupunkilinkit */}
-				<div class="mt-8 pt-8 border-t border-white/20 text-center">
-					<details class="group">
-						<summary class="text-sm text-white/80 cursor-pointer hover:text-white transition-colors inline-flex items-center gap-2 list-none">
-							<span>Palvelumme muissa kaupungeissa</span>
-							<svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-							</svg>
-						</summary>
-						<div class="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm">
-							<a href="/cv-kuva-helsinki" class="text-white/90 hover:text-white transition-colors">Helsinki</a>
-							<span class="text-white/40">•</span>
-							<a href="/cv-kuva-tampere" class="text-white/90 hover:text-white transition-colors">Tampere</a>
-							<span class="text-white/40">•</span>
-							<a href="/cv-kuva-turku" class="text-white/90 hover:text-white transition-colors">Turku</a>
-							<span class="text-white/40">•</span>
-							<a href="/cv-kuva-oulu" class="text-white/90 hover:text-white transition-colors">Oulu</a>
-							<span class="text-white/40">•</span>
-							<a href="/cv-kuva-jyvaskyla" class="text-white/90 hover:text-white transition-colors">Jyväskylä</a>
-							<span class="text-white/40">•</span>
-							<a href="/valokuvaamo-kuopio" class="text-white/90 hover:text-white transition-colors">Kuopio</a>
-							<span class="text-white/40">•</span>
-							<a href="/cv-kuva-lahti" class="text-white/90 hover:text-white transition-colors">Lahti</a>
-							<span class="text-white/40">•</span>
-							<a href="/cv-kuva-pori" class="text-white/90 hover:text-white transition-colors">Pori</a>
-							<span class="text-white/40">•</span>
-							<a href="/cv-kuva-kouvola" class="text-white/90 hover:text-white transition-colors">Kouvola</a>
-							<span class="text-white/40">•</span>
-							<a href="/cv-kuva-joensuu" class="text-white/90 hover:text-white transition-colors">Joensuu</a>
-							<span class="text-white/40">•</span>
-							<a href="/valokuvaamo-vaasa" class="text-white/90 hover:text-white transition-colors">Vaasa</a>
-							<span class="text-white/40">•</span>
-							<a href="/valokuvaamo-hameenlinna" class="text-white/90 hover:text-white transition-colors">Hämeenlinna</a>
-							<span class="text-white/40">•</span>
-							<a href="/valokuvaamo-seinajoki" class="text-white/90 hover:text-white transition-colors">Seinäjoki</a>
-							<span class="text-white/40">•</span>
-							<a href="/valokuvaamo-rovaniemi" class="text-white/90 hover:text-white transition-colors">Rovaniemi</a>
-						</div>
-					</details>
-				</div>
+				
 			</div>
 		</footer>
 		<CookieConsent />
