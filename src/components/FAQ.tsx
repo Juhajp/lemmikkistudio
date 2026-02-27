@@ -40,8 +40,8 @@ export default function FAQ() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto mt-24 px-4 mb-12">
-      <h2 className="text-4xl font-semibold text-center text-white mb-8" style={{ fontFamily: 'Prata, serif' }}>Usein kysyttyä</h2>
+    <div className="w-full max-w-3xl mx-auto mt-24 px-4 mb-12 text-base md:text-lg" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+      <h2 className="text-5xl font-semibold text-center text-white mb-8" style={{ fontFamily: 'Prata, serif' }}>Usein kysyttyä</h2>
       <div className="flex flex-col gap-4">
         {FAQ_DATA.map((item, index) => (
           <div 
@@ -52,7 +52,7 @@ export default function FAQ() {
               onClick={() => toggleItem(index)}
               className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-stone-50 transition-colors focus:outline-none"
             >
-              <span className="font-medium text-gray-800 text-lg">{item.question}</span>
+              <span className="font-medium text-gray-800 text-xl">{item.question}</span>
               <svg 
                 className={`w-6 h-6 text-gray-400 transform transition-transform duration-200 ${openIndex === index ? 'rotate-180' : ''}`}
                 fill="none" 
@@ -68,7 +68,7 @@ export default function FAQ() {
                 openIndex === index ? 'max-h-120 opacity-100' : 'max-h-0 opacity-0'
               }`}
             >
-              <div className="px-6 pb-6 pt-0 text-gray-600 leading-relaxed border-t border-stone-50">
+              <div className="px-6 pb-6 pt-0 text-gray-600 leading-relaxed border-t border-stone-50 text-base md:text-lg">
                 <div className="pt-4">
                     {item.answer}
                 </div>

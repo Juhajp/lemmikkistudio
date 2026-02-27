@@ -13,16 +13,16 @@ import FAQ from '../components/FAQ';
 		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat hidden md:block" style="background-image: url('/lemmikkistudio-kuvat-koirista.webp');" aria-hidden="true"></div>
 		<div class="absolute inset-0 bg-black/40 md:bg-transparent" aria-hidden="true"></div>
 		<div class="relative z-10 w-[80%] md:w-full max-w-6xl md:mx-auto">
-			<h1 class="text-4xl sm:text-4xl md:text-6xl lg:text-7xl text-white drop-shadow-lg max-w-2xl" style="font-family: 'Prata', serif;">
+			<h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white drop-shadow-lg max-w-2xl" style="font-family: 'Prata', serif;">
 				Tee parhaasta ystävästäsi <span class="text-[#d27ea0]">mestariteos</span>
 			</h1>
-			<p class="text-base sm:text-lg md:text-xl lg:text-2xl text-white drop-shadow-lg max-w-xl mt-4" style="font-family: 'Urbanist', sans-serif;">
+			<p class="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white drop-shadow-lg max-w-xl mt-4" style="font-family: 'Urbanist', sans-serif;">
 				Näyttävät ja laadukkaat muotokuvat koirastasi. Lataa kuva ja näe tulos heti - ilman rekisteröitymistä.
 			</p>
 		</div>
 	</section>
 
-	<main class="w-full bg-[#001121] flex flex-col items-center py-12 px-4 md:px-8">
+	<main class="w-full bg-[#001121] flex flex-col items-center py-12 px-4 md:px-8" style="font-family: 'Urbanist', sans-serif;">
 		<div class="max-w-6xl w-full space-y-8">
 			<section id="luo-kuva" class="scroll-mt-24 sm:scroll-mt-28 space-y-8">
 			<PortraitGenerator client:load />
@@ -30,19 +30,19 @@ import FAQ from '../components/FAQ';
 
 			<section id="esimerkki" class="scroll-mt-24 sm:scroll-mt-28 w-full py-16 sm:py-20">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-					<div class="text-white space-y-4 max-w-md">
-						<p class="text-2xl sm:text-3xl md:text-4xl font-semibold" style="font-family: 'Prata', serif;">
+					<div class="text-white space-y-5 max-w-md">
+						<p class="text-3xl sm:text-4xl md:text-5xl font-semibold" style="font-family: 'Prata', serif;">
 							Katso, miten tavallinen puhelimella otettu kuva muuttuu studiomuotokuvaksi
 						</p>
-						<p class="text-sm sm:text-base text-white/80">
+						<p class="text-base sm:text-lg text-white/80">
 							Lataa tavallinen kuva koirastasi ja Lemmikkistudio muuttaa sen ammattimaiseksi studiomuotokuvaksi –
 							säilyttäen koirasi ilmeen, turkin sävyt ja tunnistettavat piirteet.
 						</p>
-						<p class="text-sm sm:text-base text-white/80">
+						<p class="text-base sm:text-lg text-white/80">
 							Vasemmalla alkuperäinen kuva, oikealla tekoälyn luoma valmis studiomuotokuva.
 						</p>
 					</div>
-					<div class="relative flex flex-row items-center justify-center gap-1 sm:gap-2 md:gap-3">
+					<div class="relative flex flex-row items-center justify-center gap-4 sm:gap-6 md:gap-8">
 						<div class="max-w-[210px] sm:max-w-[260px] md:max-w-[320px] flex-shrink min-w-0 translate-y-3">
 							<img
 								src="/labbis1.webp"
@@ -52,7 +52,7 @@ import FAQ from '../components/FAQ';
 								height="400"
 								loading="lazy"
 							/>
-							<p class="text-center text-xs sm:text-sm text-white/70 mt-2">Ennen</p>
+							<p class="text-center text-sm sm:text-base text-white/70 mt-2">Ennen</p>
 						</div>
 						<div class="max-w-[210px] sm:max-w-[260px] md:max-w-[320px] flex-shrink min-w-0 -translate-y-3">
 							<img
@@ -63,7 +63,7 @@ import FAQ from '../components/FAQ';
 								height="400"
 								loading="lazy"
 							/>
-							<p class="text-center text-xs sm:text-sm text-white/70 mt-2">Jälkeen</p>
+							<p class="text-center text-sm sm:text-base text-white/70 mt-2">Jälkeen</p>
 						</div>
 						<div class="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center text-white" aria-hidden="true">
 							<svg class="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20" viewBox="0 0 80 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -90,8 +90,8 @@ import FAQ from '../components/FAQ';
 			</section>
 
 			<section id="galleria" class="w-full py-12 sm:py-16">
-				<h2 class="text-2xl sm:text-3xl md:text-4xl font-semibold text-white text-center mb-8" style="font-family: 'Prata', serif;">Galleria</h2>
-				<p class="text-sm sm:text-base text-white/70 text-center max-w-3xl mx-auto mb-8">
+				<h2 class="text-3xl sm:text-4xl md:text-5xl font-semibold text-white text-center mb-8" style="font-family: 'Prata', serif;">Galleria</h2>
+				<p class="text-base sm:text-lg text-white/70 text-center max-w-3xl mx-auto mb-8">
 					Muutama esimerkki erilaisista koirista, joille Lemmikkistudio on luonut studiomuotokuvan.
 				</p>
 				<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-4xl mx-auto">
@@ -158,7 +158,7 @@ import FAQ from '../components/FAQ';
 				</div>
 			</section>
 
-			<section id="ukk" class="scroll-mt-24 sm:scroll-mt-28">
+			<section id="ukk" class="scroll-mt-24 sm:scroll-mt-28 mb-16">
 				<FAQ client:idle />
 			</section>
 		</div>
