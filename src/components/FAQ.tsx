@@ -19,6 +19,10 @@ const FAQ_DATA: FAQItem[] = [
     answer: "Maksu tapahtuu Stripen kautta (verkkopankki, kortti, Apple Pay). Ostettu muotokuva ladataan tulossivulta itsellesi. Kuvat eivät jää palveluun pysyvästi – ne poistetaan automaattisesti 24 tunnin kuluttua. Emme jaa kuviasi eteenpäin."
   },
   {
+    question: "Minkä kokoinen lopullinen kuva on?",
+    answer: "Lopullinen ostettava kuva on 3072×4608 pikseliä (noin 4K-tarkkuus). Tiedosto on riittävän iso, jotta siitä voi teettää esimerkiksi laadukkaan taulun tai muun sisustuselementin."
+  },
+  {
     question: "Saanko ostamaani muotokuvaan täydet käyttöoikeudet?",
     answer: "Kyllä. Kun ostat kuvan, saat siihen täydet käyttöoikeudet. Voit käyttää sitä vapaasti esim. someen, tulostukseen, seinäkuvaksi tai lahjaksi."
   },
