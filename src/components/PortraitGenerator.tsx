@@ -20,7 +20,7 @@ export default function PortraitGenerator() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dogBreed, setDogBreed] = useState<string>(''); // Rotu säilytetään taustalla, vaikka UI on piilotettu
-  const [backgroundStyle, setBackgroundStyle] = useState<'dark' | 'white'>('dark');
+  const [backgroundStyle, setBackgroundStyle] = useState<'dark' | 'white' | 'sunset'>('dark');
   const [remainingGenerations, setRemainingGenerations] = useState<number | null>(null);
 
   useEffect(() => {
@@ -251,11 +251,12 @@ export default function PortraitGenerator() {
               <select
                 id="background-style"
                 value={backgroundStyle}
-                onChange={(e) => setBackgroundStyle(e.target.value as 'dark' | 'white')}
+                onChange={(e) => setBackgroundStyle(e.target.value as 'dark' | 'white' | 'sunset')}
                 className="block w-full pl-4 pr-8 py-3 text-base border border-stone-200 rounded-2xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-800"
               >
                 <option value="dark">Tumma studio</option>
                 <option value="white">Valkoinen studio</option>
+                <option value="sunset">Auringonlasku peltomaisemassa</option>
               </select>
             </div>
 
