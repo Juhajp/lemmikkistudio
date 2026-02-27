@@ -3,10 +3,10 @@
 import type { APIRoute } from "astro";
 import { kv } from "@vercel/kv";
 import * as fal from "@fal-ai/serverless-client";
-import { put, del } from "@vercel/blob";
+import { put } from "@vercel/blob";
 import sharp from "sharp";
 import { readFileSync } from 'fs';
-import { join, resolve } from 'path';
+import { join } from 'path';
 import { randomUUID } from 'crypto';
 import { DOG_BREEDS } from '../../data/dogBreeds';
 
@@ -22,32 +22,12 @@ function dataUriToBlob(dataUri: string): Blob {
   return new Blob([buffer], { type: mimeString });
 }
 
-// VESILEIMA: Vain isot ruksit, ei tekstiä.
-async function createWatermarkSvg(width: number, height: number) {
-  // Yksinkertainen, varma vesileima.
-  // Ohuempi viiva: width / 160 (käyttäjän pyynnöstä)
-  const strokeWidth = Math.max(2, Math.floor(width / 240)); 
-  
+// VESILEIMA: Valkoinen X (ruksi) 1px, kattaa koko kuva-alueen.
+function createWatermarkSvg(width: number, height: number) {
   return `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-      <style>
-        .cross { 
-          stroke: rgba(255, 255, 255, 0.5); 
-          stroke-width: ${strokeWidth}; 
-        }
-        .cross-bg { 
-          stroke: rgba(0, 0, 0, 0.3); 
-          stroke-width: ${strokeWidth}; 
-        }
-      </style>
-      
-      <!-- Varjo (hieman siirrettynä) -->
-      <line x1="${strokeWidth}" y1="${strokeWidth}" x2="${width+strokeWidth}" y2="${height+strokeWidth}" class="cross-bg" />
-      <line x1="${width+strokeWidth}" y1="${strokeWidth}" x2="${strokeWidth}" y2="${height+strokeWidth}" class="cross-bg" />
-
-      <!-- Varsinainen viiva -->
-      <line x1="0" y1="0" x2="${width}" y2="${height}" class="cross" />
-      <line x1="${width}" y1="0" x2="0" y2="${height}" class="cross" />
+      <line x1="0" y1="0" x2="${width}" y2="${height}" stroke="white" stroke-width="1" />
+      <line x1="${width}" y1="0" x2="0" y2="${height}" stroke="white" stroke-width="1" />
     </svg>
   `;
 }
@@ -310,79 +290,43 @@ Pose and Composition: The dog is posed in a classic, dignified studio sit, head 
         thumbnailUrl = outUrl; // Fallback: käytetään isoa kuvaa jos blob ei toimi
     }
 
-    // 5. Luo vesileima (RASTI + PNG-TEKSTI)
+    // 5. Luo vesileima: valkoinen X 1px + watermark.png
     const metadata = await sharp(cleanBuffer).metadata();
     const width = metadata.width || 1024;
-    
-    // A. Luodaan rasti SVG:nä (ohut viiva)
-    const watermarkSvg = await createWatermarkSvg(width, metadata.height || 1536);
-    
-    // B. Valmistellaan kerrokset
+    const height = metadata.height || 1536;
+    const watermarkSvg = createWatermarkSvg(width, height);
+
     const compositeLayers: any[] = [
-        { input: Buffer.from(watermarkSvg), gravity: 'center' } // Rasti
+      { input: Buffer.from(watermarkSvg), gravity: 'center' },
     ];
 
-    // C. Yritetään hakea PNG-teksti (fetch ensin, sitten fs fallback)
+    // Lataa watermark.png (fetch tai fs)
+    let pngBuffer: Buffer | null = null;
     try {
-        let pngBuffer: Buffer | null = null;
-        
-        // DEBUG: Logataan origin
-        const origin = new URL(request.url).origin;
-        console.log("Watermark fetch origin:", origin);
-
-        // Yritä hakea URL:n kautta (Vercelissä varmempi tapa saada public assetit)
+      const origin = new URL(request.url).origin;
+      const watermarkUrl = `${origin}/watermark.png`;
+      const pngRes = await fetch(watermarkUrl);
+      if (pngRes.ok) {
+        pngBuffer = Buffer.from(await pngRes.arrayBuffer());
+      }
+    } catch (_) {}
+    if (!pngBuffer) {
+      const pathsToTry = [
+        join(process.cwd(), 'public', 'watermark.png'),
+        join(process.cwd(), 'watermark.png'),
+      ];
+      for (const p of pathsToTry) {
         try {
-            const watermarkUrl = `${origin}/watermark.png`;
-            const pngRes = await fetch(watermarkUrl);
-            if (pngRes.ok) {
-                const arr = await pngRes.arrayBuffer();
-                pngBuffer = Buffer.from(arr);
-                console.log("Watermark fetched successfully from URL");
-            } else {
-                console.warn(`Watermark fetch failed: ${pngRes.status} from ${watermarkUrl}`);
-            }
-        } catch (fetchErr) {
-            console.warn("Fetch watermark failed:", fetchErr);
-        }
-
-        // Jos fetch epäonnistui, yritä lukea levyltä (FS Fallback)
-        if (!pngBuffer) {
-             const pathsToTry = [
-                 join(process.cwd(), 'public', 'watermark.png'),
-                 join(process.cwd(), 'watermark.png'),
-                 resolve('./public/watermark.png'),
-                 // Joskus Vercelissä dist kansio on eri paikassa
-                 join(process.cwd(), 'dist', 'client', 'watermark.png')
-             ];
-             
-             console.log("Trying FS read from:", pathsToTry);
-
-             for (const p of pathsToTry) {
-                 try {
-                    pngBuffer = readFileSync(p);
-                    if (pngBuffer) {
-                        console.log("Watermark found at FS path:", p);
-                        break;
-                    }
-                 } catch (fsErr) {
-                    // ignore
-                 }
-             }
-        }
-
-        if (pngBuffer) {
-             // Skaalataan PNG sopivaksi (esim 80% kuvan leveydestä)
-            const watermarkPngBuffer = await sharp(pngBuffer)
-                .resize({ width: Math.floor(width * 0.8) })
-                .toBuffer();
-                
-            compositeLayers.push({ input: watermarkPngBuffer, gravity: 'center' });
-        } else {
-            console.error("CRITICAL: Watermark PNG could not be loaded via fetch OR fs.");
-        }
-
-    } catch (e) {
-        console.warn("Watermark processing error:", e);
+          pngBuffer = readFileSync(p);
+          break;
+        } catch (_) {}
+      }
+    }
+    if (pngBuffer) {
+      const watermarkPngBuffer = await sharp(pngBuffer)
+        .resize({ width: Math.floor(width * 0.8) })
+        .toBuffer();
+      compositeLayers.push({ input: watermarkPngBuffer, gravity: 'center' });
     }
 
     const watermarkedBuffer = await sharp(cleanBuffer)
@@ -405,7 +349,7 @@ Pose and Composition: The dog is posed in a classic, dignified studio sit, head 
 
     // Huom: uploadedUrl on Fal.ai:n URL, ei Vercel Blob URL
     // Fal.ai:n kuvat poistetaan automaattisesti, joten poisto-operaatiota ei tarvita
-    // Vercel Blob:n del() funktio toimii vain Vercel Blob URL:ille
+    // Vercel Blob: kuvat jäävät tallennettuina
 
     return response;
 

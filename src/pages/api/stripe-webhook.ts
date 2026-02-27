@@ -49,8 +49,8 @@ export const POST: APIRoute = async ({ request }) => {
       amount: session.amount_total,
     });
 
-    // 4. Hae kuvan URL metadatasta
-    const imageUrl = session.metadata?.original_image_url;
+    // 4. Hae kuvan URL metadatasta (käyttäjälle tarjotaan upscalattu)
+    const imageUrl = session.metadata?.upscaled_image_url ?? session.metadata?.original_image_url;
     const customerEmail = session.customer_details?.email;
 
     if (!imageUrl) {
@@ -96,14 +96,14 @@ export const POST: APIRoute = async ({ request }) => {
       try {
         const resend = new Resend(RESEND_API_KEY);
 
-        // Hae kuva Vercel Blobista liitteeksi
+        // Hae kuva Vercel Blobista liitteeksi (upscalattu PNG tai alkuperäinen JPG)
         let attachmentData: { filename: string; path: string } | undefined;
+        const isUpscaled = (session.metadata?.upscaled_image_url?.length ?? 0) > 0 && session.metadata?.upscaled_image_url === imageUrl;
 
         try {
-          // Käytä Resendin "remote file" -tapaa: anna URL, Resend hakee sen
           attachmentData = {
-            filename: "muotokuva-pro.jpg",
-            path: imageUrl, // Vercel Blob URL
+            filename: isUpscaled ? "muotokuva-pro.png" : "muotokuva-pro.jpg",
+            path: imageUrl,
           };
         } catch (fetchErr) {
           console.error("Kuvan haku liitteeksi epäonnistui:", fetchErr);

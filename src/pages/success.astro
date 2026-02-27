@@ -33,8 +33,8 @@ if (!downloadUrl && sessionId) {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     
     if (session.payment_status === 'paid') {
-      // Maksu onnistui! Haetaan kuvan URL metadatasta
-      downloadUrl = session.metadata?.original_image_url;
+      // Maksu onnistui! Tarjotaan upscalattu kuva, vanhojen tilausten fallback alkuperäiseen
+      downloadUrl = session.metadata?.upscaled_image_url ?? session.metadata?.original_image_url;
       
       // Hae alennuskoodi Redis/KV:stä
       try {
@@ -81,7 +81,7 @@ if (!downloadUrl && sessionId) {
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            Lataa alkuperäinen kuva
+            Lataa kuva
           </a>
 
           <!-- JAKO-OSIO -->
@@ -181,7 +181,9 @@ if (!downloadUrl && sessionId) {
                         const response = await fetch(url);
                         if (response.ok) {
                           const blob = await response.blob();
-                          const file = new File([blob], 'muotokuva-pro.jpg', { type: 'image/jpeg' });
+                          const isPng = typeof downloadUrl === 'string' && downloadUrl.includes('upscale');
+                          const fileName = isPng ? 'muotokuva-pro.png' : 'muotokuva-pro.jpg';
+                          const file = new File([blob], fileName, { type: isPng ? 'image/png' : 'image/jpeg' });
                           
                           if (navigator.canShare({ files: [file] })) {
                             await navigator.share({
@@ -214,10 +216,11 @@ if (!downloadUrl && sessionId) {
                       console.log('✅ Fetch onnistui, luodaan blob...');
                       const blob = await response.blob();
                       const blobUrl = URL.createObjectURL(blob);
-                      
+                      const isPng = typeof downloadUrl === 'string' && downloadUrl.includes('upscale');
+                      const fileName = isPng ? 'muotokuva-pro.png' : 'muotokuva-pro.jpg';
                       const a = document.createElement('a');
                       a.href = blobUrl;
-                      a.download = 'muotokuva-pro.jpg';
+                      a.download = fileName;
                       document.body.appendChild(a);
                       a.click();
                       document.body.removeChild(a);
