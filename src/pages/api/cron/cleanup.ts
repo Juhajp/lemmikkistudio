@@ -33,9 +33,9 @@ export const GET: APIRoute = async ({ request }) => {
     for (const blob of blobs) {
       const path = blob.pathname || blob.url.split('/').pop() || '';
       
-      // portraits/ ja thumbnails/ kansiot: poista 24h vanhat
-      if (path.startsWith('portraits/') || path.startsWith('thumbnails/')) {
-        if (blob.uploadedAt < oneDayAgo) {
+      // portraits/, thumbnails/ ja previews/ kansiot: poista 7 päivän vanhat (tämän palvelun varsinaiset kuvat)
+      if (path.startsWith('portraits/') || path.startsWith('thumbnails/') || path.startsWith('previews/')) {
+        if (blob.uploadedAt < sevenDaysAgo) {
           blobsToDelete.push(blob.url);
         }
       }
@@ -45,7 +45,7 @@ export const GET: APIRoute = async ({ request }) => {
           blobsToDelete.push(blob.url);
         }
       }
-      // Muut tiedostot: poista 24h vanhat (fallback)
+      // Muut tiedostot: poista 24h vanhat (fallback, muiden palveluiden oletus)
       else {
         if (blob.uploadedAt < oneDayAgo) {
           blobsToDelete.push(blob.url);

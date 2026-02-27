@@ -30,6 +30,12 @@ export const POST: APIRoute = async ({ request }) => {
     let upscaledImageUrl: string = imageUrl;
     if (FAL_KEY && BLOB_READ_WRITE_TOKEN) {
       try {
+        const now = new Date();
+        const yy = String(now.getFullYear()).slice(-2);
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const datePrefix = `lem-${dd}${mm}${yy}`;
+
         fal.config({ credentials: FAL_KEY });
         const upscaleResult: any = await fal.subscribe("fal-ai/seedvr/upscale/image", {
           input: {
@@ -54,7 +60,7 @@ export const POST: APIRoute = async ({ request }) => {
             const jpegBuffer = await sharp(buffer)
               .jpeg({ quality: 95 })
               .toBuffer();
-            const blob = await put(`portraits/upscale-${randomUUID()}.jpg`, jpegBuffer, {
+            const blob = await put(`portraits/${datePrefix}-upscale-${randomUUID()}.jpg`, jpegBuffer, {
               access: "public",
               contentType: "image/jpeg",
               token: BLOB_READ_WRITE_TOKEN,

@@ -15,8 +15,12 @@ const FAQ_DATA: FAQItem[] = [
     answer: "Paras tulos tulee, kun koira on seisovassa asennossa etuviistosta kuvattuna, kasvot ja takapää näkyvät selkeästi. Kuvaa noin metrin korkeudelta niin, että koira täyttää kuvaruudun. Hyvä valaistus ja terävä kuva ovat tärkeitä – sivun ohjeet auttavat askel askeleelta."
   },
   {
-    question: "Miten maksu ja kuvien säilytys toimii?",
-    answer: "Maksu tapahtuu Stripen kautta (verkkopankki, kortti, Apple Pay). Ostettu muotokuva ladataan tulossivulta itsellesi. Kuvat eivät jää palveluun pysyvästi – ne poistetaan automaattisesti 24 tunnin kuluttua. Emme jaa kuviasi eteenpäin."
+    question: "Miten maksu toimii?",
+    answer: "Maksu tapahtuu turvallisesti Stripen kautta (verkkopankki, kortti, Apple Pay). Näet ensin vesileimatun esikatselukuvan, ja ostat kuvan vasta, jos olet tyytyväinen lopputulokseen. Maksun jälkeen sinut ohjataan sivulle, josta saat täyden resoluution kuvan latauslinkin."
+  },
+  {
+    question: "Miten lataan kuvat?",
+    answer: "Kun olet ostanut kuvan, sinut ohjataan tulossivulle, josta löydät täyden resoluution latauslinkin. Lisäksi lähetämme sinulle sähköpostin, jossa on suora linkki kuvan lataamiseen myöhemmin. Ladatut ja generoidut kuvat säilytetään palvelimilla enintään 7 päivää, jotta ehdit ladata kuvan turvallisesti talteen – tämän jälkeen linkit lakkaavat toimimasta, emmekä enää säilytä kuvaa."
   },
   {
     question: "Minkä kokoinen lopullinen kuva on?",
@@ -24,7 +28,7 @@ const FAQ_DATA: FAQItem[] = [
   },
   {
     question: "Saanko ostamaani muotokuvaan täydet käyttöoikeudet?",
-    answer: "Kyllä. Kun ostat kuvan, saat siihen täydet käyttöoikeudet. Voit käyttää sitä vapaasti esim. someen, tulostukseen, seinäkuvaksi tai lahjaksi."
+    answer: "Kyllä. Kun ostat kuvan, saat siihen täydet käyttöoikeudet. Voit käyttää sitä vapaasti esim. someen, valokuvatulostukseen, seinäkuvaksi tai lahjaksi."
   },
   {
     question: "Onko palvelu turvallinen ja tietosuojattu?",

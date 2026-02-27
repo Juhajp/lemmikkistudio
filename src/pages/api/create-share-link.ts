@@ -53,11 +53,16 @@ export const POST: APIRoute = async ({ request }) => {
 
     // 2. Luo uniikki share-token
     const shareToken = randomUUID();
+    const now = new Date();
+    const yy = String(now.getFullYear()).slice(-2);
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const datePrefix = `lem-${dd}${mm}${yy}`;
 
     // 3. Kopioi kuva shared/-kansioon (7 päivän säilytys)
     let sharedBlob;
     try {
-      sharedBlob = await put(`shared/${shareToken}.jpg`, imageBuffer, {
+      sharedBlob = await put(`shared/${datePrefix}-${shareToken}.jpg`, imageBuffer, {
         access: 'public',
         contentType: 'image/jpeg',
         token: BLOB_READ_WRITE_TOKEN, // Varmista että token välitetään

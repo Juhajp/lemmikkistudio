@@ -163,7 +163,7 @@ export const POST: APIRoute = async ({ request }) => {
                   ` : ''}
                   
                   <p style="font-size: 12px; color: #666;">
-                    <strong>Huomio:</strong> Kuva on saatavilla 24 tuntia maksun jälkeen. Lataa se nyt talteen.
+                    <strong>Huomio:</strong> Kuva on saatavilla 7 päivää maksun jälkeen. Lataa se talteen tämän ajan kuluessa.
                   </p>
                   
                   <div class="footer">

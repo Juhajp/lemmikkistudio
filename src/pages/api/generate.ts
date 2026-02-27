@@ -258,21 +258,28 @@ Pose and Composition: The dog is posed in a classic, dignified studio sit, head 
     let cleanImageUrl = "";
     let thumbnailUrl = ""; // UUSI MUUTTUJA
     if (BLOB_READ_WRITE_TOKEN) {
-        // A. Tallenna iso kuva (UUID takaa turvallisuuden)
-        const blob = await put(`portraits/${randomUUID()}.jpg`, cleanBuffer, {
+        // A. Päivämääräpohjainen prefix (lem-DDMMYY)
+        const now = new Date();
+        const yy = String(now.getFullYear()).slice(-2);
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const datePrefix = `lem-${dd}${mm}${yy}`;
+
+        // B. Tallenna iso kuva (UUID takaa turvallisuuden)
+        const blob = await put(`portraits/${datePrefix}-${randomUUID()}.jpg`, cleanBuffer, {
             access: 'public',
             contentType: 'image/jpeg',
         });
         cleanImageUrl = blob.url;
 
-        // B. Luo ja tallenna THUMBNAIL (140px)
+        // C. Luo ja tallenna THUMBNAIL (140px)
         try {
             const thumbBuffer = await sharp(cleanBuffer)
                 .resize(140) // Leveys 140px
                 .jpeg({ quality: 70 })
                 .toBuffer();
 
-            const thumbBlob = await put(`thumbnails/${randomUUID()}.jpg`, thumbBuffer, {
+            const thumbBlob = await put(`thumbnails/${datePrefix}-${randomUUID()}.jpg`, thumbBuffer, {
                 access: 'public',
                 contentType: 'image/jpeg',
             });
@@ -340,7 +347,13 @@ Pose and Composition: The dog is posed in a classic, dignified studio sit, head 
     let previewImageUrl: string | null = null;
     if (BLOB_READ_WRITE_TOKEN) {
       try {
-        const previewBlob = await put(`previews/watermarked-${randomUUID()}.jpg`, watermarkedBuffer, {
+        const now = new Date();
+        const yy = String(now.getFullYear()).slice(-2);
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const datePrefix = `lem-${dd}${mm}${yy}`;
+
+        const previewBlob = await put(`previews/${datePrefix}-watermarked-${randomUUID()}.jpg`, watermarkedBuffer, {
           access: 'public',
           contentType: 'image/jpeg',
         });

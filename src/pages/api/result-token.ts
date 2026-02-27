@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { kv } from "@vercel/kv";
 import { randomUUID } from "crypto";
 
-const RESULT_TTL_SECONDS = 24 * 60 * 60; // 24 h
+const RESULT_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 päivää
 
 export const POST: APIRoute = async ({ request }) => {
   try {
