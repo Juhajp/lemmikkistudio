@@ -8,13 +8,15 @@ if (!token) {
   return Astro.redirect('/');
 }
 
-const resultData = await kv.get<{ purchaseToken: string; thumbnailUrl: string | null }>(`result:${token}`);
+const resultData = await kv.get<{ purchaseToken: string; thumbnailUrl: string | null; previewImageUrl: string | null }>(`result:${token}`);
 
 if (!resultData || !resultData.purchaseToken) {
   return Astro.redirect('/');
 }
 
-const { purchaseToken, thumbnailUrl } = resultData;
+const { purchaseToken, thumbnailUrl, previewImageUrl } = resultData;
+// Esikatselukuva: vesileimattu (X + watermark.png), jos ei ole tallennettu käytetään ostokuvaa
+const displayImageUrl = previewImageUrl || purchaseToken;
 ---
 
 <Layout title="Muotokuvasi - Lemmikkistudio">
@@ -24,7 +26,7 @@ const { purchaseToken, thumbnailUrl } = resultData;
       <p class="text-gray-600">Osta vesileimaton kuva ja lataa se itsellesi.</p>
 
       <div class="rounded-xl overflow-hidden shadow-lg border-4 border-white my-4">
-        <img src={purchaseToken} alt="Generoitu muotokuva" class="w-full h-auto" />
+        <img src={displayImageUrl} alt="Generoitu muotokuva" class="w-full h-auto" />
       </div>
 
       <button

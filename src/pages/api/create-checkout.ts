@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import Stripe from 'stripe';
 import * as fal from "@fal-ai/serverless-client";
 import { put } from "@vercel/blob";
+import sharp from "sharp";
 import { randomUUID } from "crypto";
 
 export const POST: APIRoute = async ({ request }) => {
@@ -36,7 +37,7 @@ export const POST: APIRoute = async ({ request }) => {
             upscale_mode: "factor",
             upscale_factor: 3,
             noise_scale: 0.1,
-            output_format: "png",
+            output_format: "jpg",
           },
           logs: true,
           onQueueUpdate: (update: any) => {
@@ -50,9 +51,12 @@ export const POST: APIRoute = async ({ request }) => {
           const imageRes = await fetch(outUrl);
           if (imageRes.ok) {
             const buffer = Buffer.from(await imageRes.arrayBuffer());
-            const blob = await put(`portraits/upscale-${randomUUID()}.png`, buffer, {
+            const jpegBuffer = await sharp(buffer)
+              .jpeg({ quality: 95 })
+              .toBuffer();
+            const blob = await put(`portraits/upscale-${randomUUID()}.jpg`, jpegBuffer, {
               access: "public",
-              contentType: "image/png",
+              contentType: "image/jpeg",
               token: BLOB_READ_WRITE_TOKEN,
             });
             upscaledImageUrl = blob.url;

@@ -181,9 +181,8 @@ if (!downloadUrl && sessionId) {
                         const response = await fetch(url);
                         if (response.ok) {
                           const blob = await response.blob();
-                          const isPng = typeof downloadUrl === 'string' && downloadUrl.includes('upscale');
-                          const fileName = isPng ? 'muotokuva-pro.png' : 'muotokuva-pro.jpg';
-                          const file = new File([blob], fileName, { type: isPng ? 'image/png' : 'image/jpeg' });
+                          const fileName = 'muotokuva-pro.jpg';
+                          const file = new File([blob], fileName, { type: 'image/jpeg' });
                           
                           if (navigator.canShare({ files: [file] })) {
                             await navigator.share({
@@ -216,8 +215,7 @@ if (!downloadUrl && sessionId) {
                       console.log('✅ Fetch onnistui, luodaan blob...');
                       const blob = await response.blob();
                       const blobUrl = URL.createObjectURL(blob);
-                      const isPng = typeof downloadUrl === 'string' && downloadUrl.includes('upscale');
-                      const fileName = isPng ? 'muotokuva-pro.png' : 'muotokuva-pro.jpg';
+                      const fileName = 'muotokuva-pro.jpg';
                       const a = document.createElement('a');
                       a.href = blobUrl;
                       a.download = fileName;

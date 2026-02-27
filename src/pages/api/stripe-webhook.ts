@@ -98,11 +98,9 @@ export const POST: APIRoute = async ({ request }) => {
 
         // Hae kuva Vercel Blobista liitteeksi (upscalattu PNG tai alkuperäinen JPG)
         let attachmentData: { filename: string; path: string } | undefined;
-        const isUpscaled = (session.metadata?.upscaled_image_url?.length ?? 0) > 0 && session.metadata?.upscaled_image_url === imageUrl;
-
         try {
           attachmentData = {
-            filename: isUpscaled ? "muotokuva-pro.png" : "muotokuva-pro.jpg",
+            filename: "muotokuva-pro.jpg",
             path: imageUrl,
           };
         } catch (fetchErr) {

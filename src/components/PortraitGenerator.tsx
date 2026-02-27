@@ -154,6 +154,7 @@ export default function PortraitGenerator() {
         body: JSON.stringify({
           purchaseToken: data.purchaseToken,
           thumbnailUrl: data.thumbnailUrl ?? null,
+          previewImageUrl: data.previewImageUrl ?? null,
         }),
       });
       const tokenData = await tokenRes.json();

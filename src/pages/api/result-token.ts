@@ -6,7 +6,7 @@ const RESULT_TTL_SECONDS = 24 * 60 * 60; // 24 h
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { purchaseToken, thumbnailUrl } = await request.json();
+    const { purchaseToken, thumbnailUrl, previewImageUrl } = await request.json();
 
     if (!purchaseToken) {
       return new Response(
@@ -22,6 +22,7 @@ export const POST: APIRoute = async ({ request }) => {
       {
         purchaseToken,
         thumbnailUrl: thumbnailUrl || null,
+        previewImageUrl: previewImageUrl || null,
         createdAt: Date.now(),
       },
       { ex: RESULT_TTL_SECONDS }

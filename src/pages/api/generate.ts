@@ -336,10 +336,25 @@ Pose and Composition: The dog is posed in a classic, dignified studio sit, head 
 
     const watermarkedBase64 = watermarkedBuffer.toString("base64");
 
+    // Vesileimattu esikatselu Blobiin, jotta result-sivu voi näyttää sen
+    let previewImageUrl: string | null = null;
+    if (BLOB_READ_WRITE_TOKEN) {
+      try {
+        const previewBlob = await put(`previews/watermarked-${randomUUID()}.jpg`, watermarkedBuffer, {
+          access: 'public',
+          contentType: 'image/jpeg',
+        });
+        previewImageUrl = previewBlob.url;
+      } catch (e) {
+        console.warn("Preview image upload failed:", e);
+      }
+    }
+
     // 6. Palauta vastaus
     const response = new Response(
       JSON.stringify({
-        image: watermarkedBase64, // Vesileimattu versio
+        image: watermarkedBase64, // Vesileimattu versio (base64)
+        previewImageUrl: previewImageUrl, // Vesileimattu esikatselu URL (result-sivulla)
         purchaseToken: cleanImageUrl, // Alkuperäisen kuvan URL
         thumbnailUrl: thumbnailUrl, // Pikkukuvan URL
         message: "Vesileimallinen esikatselu luotu",
