@@ -25,8 +25,18 @@ const displayImageUrl = previewImageUrl || purchaseToken;
       <h1 class="text-2xl font-bold text-gray-900">Muotokuvasi on valmis</h1>
       <p class="text-gray-600">Osta vesileimaton kuva ja lataa se itsellesi.</p>
 
-      <div class="rounded-xl overflow-hidden shadow-lg border-4 border-white my-4">
-        <img src={displayImageUrl} alt="Generoitu muotokuva" class="w-full h-auto" />
+      <div id="result-image-wrap" class="relative rounded-xl overflow-hidden shadow-lg border-4 border-white my-4">
+        <img id="result-image" src={displayImageUrl} alt="Generoitu muotokuva" class="w-full h-auto transition-all duration-300" />
+        <div id="checkout-overlay" class="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-black/50 px-6 hidden">
+          <div class="w-14 h-14 rounded-full border-2 border-white/30 border-t-white animate-spin" aria-hidden="true"></div>
+          <p id="checkout-status-text" class="text-lg font-medium text-white drop-shadow-md">Luodaan 4K-laatuista korkearesoluutiokuvaa</p>
+          <div class="w-full max-w-xs">
+            <div class="h-1.5 w-full rounded-full bg-white/20 overflow-hidden">
+              <div id="checkout-progress-fill" class="h-full rounded-full bg-white transition-all duration-300 ease-out" style="width: 0%"></div>
+            </div>
+            <p id="checkout-progress-pct" class="text-xs text-white/80 mt-2 text-center">0 %</p>
+          </div>
+        </div>
       </div>
 
       <button
@@ -52,10 +62,53 @@ const displayImageUrl = previewImageUrl || purchaseToken;
   <script define:vars={{ purchaseToken, thumbnailUrl }}>
     const btn = document.getElementById('buy-btn');
     const btnText = document.getElementById('buy-btn-text');
+    const overlay = document.getElementById('checkout-overlay');
+    const resultImage = document.getElementById('result-image');
+    const statusText = document.getElementById('checkout-status-text');
+    const progressFill = document.getElementById('checkout-progress-fill');
+    const progressPct = document.getElementById('checkout-progress-pct');
+
+    const PROGRESS_MAX = 88;
+    const PROGRESS_INTERVAL_MS = 1200;
+    let progressInterval = null;
+
+    function showCheckoutLoading() {
+      resultImage.classList.add('opacity-40', 'brightness-75');
+      overlay.classList.remove('hidden');
+      statusText.textContent = 'Luodaan 4K-laatuista korkearesoluutiokuvaa';
+      progressFill.style.width = '0%';
+      progressPct.textContent = '0 %';
+      let progress = 0;
+      progressInterval = setInterval(() => {
+        progress = Math.min(PROGRESS_MAX, progress + (2.5 + Math.random() * 2));
+        progressFill.style.width = Math.round(progress) + '%';
+        progressPct.textContent = Math.round(progress) + ' %';
+      }, PROGRESS_INTERVAL_MS);
+    }
+
+    function showRedirecting() {
+      if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+      }
+      progressFill.style.width = '100%';
+      progressPct.textContent = '100 %';
+      statusText.textContent = 'Avataan kassasivua';
+    }
+
+    function hideCheckoutLoading() {
+      if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+      }
+      overlay.classList.add('hidden');
+      resultImage.classList.remove('opacity-40', 'brightness-75');
+    }
+
     if (btn && btnText) {
       btn.addEventListener('click', async () => {
         btn.disabled = true;
-        btnText.textContent = 'Avataan kassaa...';
+        showCheckoutLoading();
         try {
           const res = await fetch('/api/create-checkout', {
             method: 'POST',
@@ -67,14 +120,18 @@ const displayImageUrl = previewImageUrl || purchaseToken;
           });
           const data = await res.json();
           if (data.url) {
+            showRedirecting();
+            await new Promise((r) => setTimeout(r, 400));
             window.location.href = data.url;
           } else {
+            hideCheckoutLoading();
             alert(data.error || 'Maksusivun avaus epäonnistui');
             btn.disabled = false;
             btnText.textContent = 'Osta nyt – 4,90 €';
           }
         } catch (err) {
           console.error(err);
+          hideCheckoutLoading();
           alert('Jotain meni pieleen. Yritä uudestaan.');
           btn.disabled = false;
           btnText.textContent = 'Osta nyt – 4,90 €';
