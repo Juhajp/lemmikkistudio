@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 // Cloudflare Turnstile type definitions
 declare global {
@@ -22,6 +22,8 @@ export default function PortraitGenerator() {
   const [dogBreed, setDogBreed] = useState<string>(''); // Rotu säilytetään taustalla, vaikka UI on piilotettu
   const [backgroundStyle, setBackgroundStyle] = useState<'dark' | 'white' | 'sunset'>('dark');
   const [remainingGenerations, setRemainingGenerations] = useState<number | null>(null);
+  const [progress, setProgress] = useState(0);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     fetch('/api/check-limit')
@@ -48,6 +50,13 @@ export default function PortraitGenerator() {
     if (!selectedFile) return;
     setLoading(true);
     setError(null);
+    setProgress(0);
+
+    const PROGRESS_MAX = 88;
+    const PROGRESS_INTERVAL_MS = 400;
+    progressIntervalRef.current = setInterval(() => {
+      setProgress((p) => (p >= PROGRESS_MAX ? p : p + Math.random() * 4 + 2));
+    }, PROGRESS_INTERVAL_MS);
 
     try {
       // 1. CLOUDFLARE TURNSTILE: Pyydä bot-suojaus token (ohita preview-ympäristössä)
@@ -147,6 +156,13 @@ export default function PortraitGenerator() {
         throw new Error(data.error || 'Generointi epäonnistui');
       }
 
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      setProgress(100);
+      await new Promise((r) => setTimeout(r, 400));
+
       // Tallennetaan tuloksen token ja ohjataan tulossivulle
       const tokenRes = await fetch('/api/result-token', {
         method: 'POST',
@@ -173,6 +189,10 @@ export default function PortraitGenerator() {
       console.error(err);
       setError(err.message || 'Jotain meni pieleen. Kokeile uudestaan.');
     } finally {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
       setLoading(false);
     }
   };
@@ -272,20 +292,37 @@ export default function PortraitGenerator() {
                     className="absolute inset-0 w-full h-full object-cover opacity-40 brightness-75"
                     aria-hidden
                   />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-black/50">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-black/50 px-6">
                     <div className="w-14 h-14 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                     <p className="text-lg font-medium text-white drop-shadow-md animate-pulse">Tekoäly luo kuvaa</p>
-                    <p className="text-xs text-white/80">Noin 20–40 sekuntia</p>
+                    <div className="w-full max-w-xs">
+                      <div className="h-1.5 w-full rounded-full bg-white/20 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-white transition-all duration-300 ease-out"
+                          style={{ width: `${Math.min(100, Math.round(progress))}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-white/80 mt-2 text-center">{Math.min(100, Math.round(progress))} %</p>
+                    </div>
                   </div>
                 </div>
               ) : loading ? (
                 <div className="flex flex-col items-center justify-center text-gray-300 space-y-4 w-full py-12">
-                  <div className="w-full aspect-[3/4] max-w-sm bg-white/5 rounded-2xl animate-pulse flex items-center justify-center border border-white/10">
+                  <div className="w-full aspect-[3/4] max-w-sm bg-white/5 rounded-2xl animate-pulse flex flex-col items-center justify-center border border-white/10 p-6 gap-4">
                     <svg className="w-16 h-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
+                    <p className="text-sm font-medium">Tekoäly käsittelee kuvaa...</p>
+                    <div className="w-full max-w-xs">
+                      <div className="h-1.5 w-full rounded-full bg-white/20 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-violet-500 transition-all duration-300 ease-out"
+                          style={{ width: `${Math.min(100, Math.round(progress))}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-300 mt-2 text-center">{Math.min(100, Math.round(progress))} %</p>
+                    </div>
                   </div>
-                  <p className="text-sm font-medium">Tekoäly käsittelee kuvaa...</p>
                   <p className="text-xs text-gray-300">Tämä kestää noin 20–40 sekuntia. Ohjataan tulossivulle.</p>
                 </div>
               ) : !preview ? (
