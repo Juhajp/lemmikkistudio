@@ -29,41 +29,101 @@ import FAQ from '../components/FAQ';
 			</section>
 
 			<section id="esimerkki" class="scroll-mt-24 sm:scroll-mt-28 w-full py-16 sm:py-20">
-				<h2 class="text-2xl sm:text-3xl font-semibold text-white text-center mb-8 sm:mb-10">Katso esimerkki</h2>
-				<div class="flex flex-row items-center justify-center gap-4 sm:gap-6 md:gap-10">
-					<div class="max-w-[160px] sm:max-w-[220px] md:max-w-[280px] flex-shrink min-w-0">
-						<img
-							src="/labradoodle1.webp"
-							alt="Lähdekuva koirasta ennen muokkaus"
-							class="w-full h-auto rounded-2xl border border-white/10 shadow-lg object-cover aspect-[3/4]"
-							width="300"
-							height="400"
-							loading="lazy"
-						/>
-						<p class="text-center text-xs sm:text-sm text-white/70 mt-2">Ennen</p>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+					<div class="text-white space-y-4 max-w-md">
+						<p class="text-2xl sm:text-3xl md:text-4xl font-semibold" style="font-family: 'Prata', serif;">
+							Katso, miten tavallinen puhelimella otettu kuva muuttuu studiomuotokuvaksi
+						</p>
+						<p class="text-sm sm:text-base text-white/80">
+							Lataa tavallinen kuva koirastasi ja Lemmikkistudio muuttaa sen ammattimaiseksi studiomuotokuvaksi –
+							säilyttäen koirasi ilmeen, turkin sävyt ja tunnistettavat piirteet.
+						</p>
+						<p class="text-sm sm:text-base text-white/80">
+							Alla näet, miltä ero voi näyttää: vasemmalla alkuperäinen kuva, oikealla tekoälyn luoma valmis studiomuotokuva.
+						</p>
 					</div>
-					<div class="flex-shrink-0 text-white/90 px-1" aria-hidden="true">
-						<svg class="w-8 h-8 sm:w-14 sm:h-14 md:w-20 md:h-20" viewBox="0 0 80 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path
-								d="M 8 20 C 25 18, 35 22, 52 20 L 68 20 M 60 14 L 72 20 L 60 26"
-								stroke="currentColor"
-								stroke-width="2.5"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								class="drop-shadow-sm"
+					<div class="relative flex flex-row items-center justify-center gap-1 sm:gap-2 md:gap-3">
+						<div class="max-w-[210px] sm:max-w-[260px] md:max-w-[320px] flex-shrink min-w-0 translate-y-3">
+							<img
+								src="/labbis1.webp"
+								alt="Lähdekuva koirasta ennen muokkaus"
+								class="w-full h-auto rounded-2xl border border-white/10 shadow-lg object-cover aspect-[3/4]"
+								width="300"
+								height="400"
+								loading="lazy"
 							/>
-						</svg>
+							<p class="text-center text-xs sm:text-sm text-white/70 mt-2">Ennen</p>
+						</div>
+						<div class="max-w-[210px] sm:max-w-[260px] md:max-w-[320px] flex-shrink min-w-0 -translate-y-3">
+							<img
+								src="/labbis2.webp"
+								alt="Valmis studiomuotokuva koirasta"
+								class="w-full h-auto rounded-2xl border border-white/10 shadow-lg object-cover aspect-[3/4]"
+								width="300"
+								height="400"
+								loading="lazy"
+							/>
+							<p class="text-center text-xs sm:text-sm text-white/70 mt-2">Jälkeen</p>
+						</div>
+						<div class="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center text-white" aria-hidden="true">
+							<svg class="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20" viewBox="0 0 80 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path
+									d="M 5 28 C 30 20, 55 18, 72 14"
+									stroke="#ffffff"
+									stroke-width="7"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="drop-shadow-sm"
+								/>
+								<path
+									d="M 56 4 L 82 14 L 56 28"
+									stroke="#ffffff"
+									stroke-width="7"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="drop-shadow-sm"
+								/>
+							</svg>
+						</div>
 					</div>
-					<div class="max-w-[160px] sm:max-w-[220px] md:max-w-[280px] flex-shrink min-w-0">
-						<img
-							src="/labradoodle2.webp"
-							alt="Valmis studiomuotokuva koirasta"
-							class="w-full h-auto rounded-2xl border border-white/10 shadow-lg object-cover aspect-[3/4]"
-							width="300"
-							height="400"
-							loading="lazy"
-						/>
-						<p class="text-center text-xs sm:text-sm text-white/70 mt-2">Jälkeen</p>
+				</div>
+			</section>
+
+			<section id="galleria" class="w-full py-12 sm:py-16 bg-[#000000]">
+				<h2 class="text-2xl sm:text-3xl md:text-4xl font-semibold text-white text-center mb-8" style="font-family: 'Prata', serif;">Galleria</h2>
+				<p class="text-sm sm:text-base text-white/70 text-center max-w-3xl mx-auto mb-8">
+					Muutama esimerkki erilaisista koirista, joille Lemmikkistudio on luonut studiomuotokuvan.
+				</p>
+				<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-4xl mx-auto">
+					<div class="flex flex-col items-center">
+						<div class="w-full rounded-2xl overflow-hidden border border-white/10 shadow-lg">
+							<img
+								src="/jackrussel2.webp"
+								alt="Jackrussellin studiomuotokuva"
+								class="w-full h-full object-cover aspect-[3/4]"
+								loading="lazy"
+							/>
+						</div>
+					</div>
+					<div class="flex flex-col items-center">
+						<div class="w-full rounded-2xl overflow-hidden border border-white/10 shadow-lg">
+							<img
+								src="/kultainen2.webp"
+								alt="Kultaisen noutajan studiomuotokuva"
+								class="w-full h-full object-cover aspect-[3/4]"
+								loading="lazy"
+							/>
+						</div>
+					</div>
+					<div class="flex flex-col items-center">
+						<div class="w-full rounded-2xl overflow-hidden border border-white/10 shadow-lg">
+							<img
+								src="/labradoodle2.webp"
+								alt="Labradoodlen studiomuotokuva"
+								class="w-full h-full object-cover aspect-[3/4]"
+								loading="lazy"
+							/>
+						</div>
 					</div>
 				</div>
 			</section>
@@ -132,7 +192,7 @@ import FAQ from '../components/FAQ';
 				"name": "Millaisesta kuvasta tulee paras studiomuotokuva?",
 				"acceptedAnswer": {
 					"@type": "Answer",
-					"text": "Paras tulos tulee, kun koira on seisovassa asennossa etuviistosta kuvattuna, kasvot ja takapää näkyvät selkeästi. Kuvaa noin metrin korkeudelta niin, että koira täyttää kuvaruudun. Hyvä valaistus ja terävä kuva ovat tärkeitä – sivun ohjeet auttavat askel askeleelta."
+					"text": "Paras tulos tulee, kun koira on seisovassa asennossa etuviistosta kuvattuna, kasvot ja takapää näkyvät selkeästi. Kuvaa noin metrin korkeudelta ja metrin etäisyydeltä niin että koira on kuvan pääosassa. Hyvä valaistus ja terävä kuva ovat tärkeitä – sivun ohjeet auttavat askel askeleelta."
 				}
 			},
 			{

@@ -197,15 +197,33 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     const normalized = dogBreed.toLowerCase();
     const match = DOG_BREEDS.find((b) => b.fi.toLowerCase() === normalized);
     const breedForPrompt = match ? match.en : null;
-    const breedLine = breedForPrompt ? `\nDog breed: ${breedForPrompt}\n\n` : '\n';
+    // breedForPrompt säilytetään mahdollista tulevaa käyttöä varten, mutta sitä ei tällä hetkellä lisätä promptiin
 
-    const prompt = body.prompt ?? `A high-end professional studio portrait of the specific dog from the reference image. The dog's unique individual identity, fur color, and markings must be perfectly maintained.
+    const backgroundStyle = typeof body.backgroundStyle === 'string' ? body.backgroundStyle : 'dark';
 
-Key requirement: Preserve the exact identity, unique fur markings, specific eye color, and individual facial expression of the dog in the reference photo with 100% fidelity. Do not alter the dog's features or breed characteristics.${breedLine}Lighting and Environment: Replace the original environment with a luxurious, dark charcoal studio background. Introduce dramatic, professional studio lighting (three-point lighting setup). Use strong rim lighting (backlight) to highlight the texture of the fur and separate the dog from the dark background, creating depth and a cinematic feel. The focus is tack sharp on the dog's eyes. 8k resolution, highly detailed, cinematic.
+    const darkPrompt = `A high-end professional studio portrait of the specific dog from the reference image. The dog's unique individual identity, fur color, and markings must be perfectly maintained.
+
+Key requirement: Preserve the exact identity, unique fur markings, specific eye color, and individual facial expression of the dog in the reference photo with 100% fidelity. Do not alter the dog's features or breed characteristics. The dog's mouth must be closed, no tongue visible, and the dog must not appear to be panting.
+
+Lighting and Environment: Replace the original environment with a luxurious, dark charcoal studio background. Introduce dramatic, professional studio lighting (three-point lighting setup). Use strong rim lighting (backlight) to highlight the texture of the fur and separate the dog from the dark background, creating depth and a cinematic feel. The focus is tack sharp on the dog's eyes. 8k resolution, highly detailed, cinematic.
 
 Eye and Facial Details: The expression is natural and characteristic of the breed. Crucially, if the dog naturally has fur falling over or around its eyes, preserve this authentic look. The fur may partially obscure the eyes, as is natural for the breed. Where the eyes are visible through the fur, they must have a soft, lifelike gaze, avoiding any unnatural or human-like staring. The visible parts of the eyes should have realistic depth and a subtle catchlight from the studio lighting.
 
 Pose and Composition: The dog is posed in a classic, dignified studio sit, head slightly turned.`;
+
+    const whitePrompt = `A high-end professional studio portrait of the specific dog from the reference image. The dog's unique individual identity, fur color, and markings must be perfectly maintained.
+
+Key requirement: Preserve the exact identity, unique fur markings, specific eye color, and individual facial expression of the dog in the reference photo with 100% fidelity. Do not alter the dog's features or breed characteristics. The dog's mouth must be closed, no tongue visible, and the dog must not appear to be panting.
+
+Lighting and Environment: A minimalist, ultra-modern bright white studio cyclorama background. Soft, diffused high-key lighting filling the space, creating gentle shadows beneath the dog. Clean, airy, immaculate aesthetic.
+
+Eye and Facial Details: The expression is natural and characteristic of the breed. Crucially, if the dog naturally has fur falling over or around its eyes, preserve this authentic look. The fur may partially obscure the eyes, as is natural for the breed. Where the eyes are visible through the fur, they must have a soft, lifelike gaze, avoiding any unnatural or human-like staring. The visible parts of the eyes should have realistic depth and a subtle catchlight from the studio lighting.
+
+Pose and Composition: The dog is posed in a classic, dignified studio sit, head slightly turned.
+
+The dog is posed in an elegant, relaxed 'down' pose (lying down), resting comfortably on the textured dark surface. The dog is facing towards the camera with a calm, noble expression. The pose is balanced and highly photogenic, keeping the subject's exact likeness. head slightly turned away from camera.`;
+
+    const prompt = body.prompt ?? (backgroundStyle === 'white' ? whitePrompt : darkPrompt);
 
     // 2. Generate with Fal
     const result: any = await fal.subscribe("fal-ai/gpt-image-1.5/edit", {

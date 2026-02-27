@@ -1,7 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { DOG_BREEDS_FI } from '../data/dogBreeds';
-
-const MAX_SUGGESTIONS = 12;
+import React, { useState, useEffect } from 'react';
 
 // Cloudflare Turnstile type definitions
 declare global {
@@ -22,72 +19,9 @@ export default function PortraitGenerator() {
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [dogBreed, setDogBreed] = useState<string>('');
+  const [dogBreed, setDogBreed] = useState<string>(''); // Rotu säilytetään taustalla, vaikka UI on piilotettu
+  const [backgroundStyle, setBackgroundStyle] = useState<'dark' | 'white'>('dark');
   const [remainingGenerations, setRemainingGenerations] = useState<number | null>(null);
-  const [breedDropdownOpen, setBreedDropdownOpen] = useState(false);
-  const [breedHighlightIndex, setBreedHighlightIndex] = useState(0);
-  const breedContainerRef = useRef<HTMLDivElement>(null);
-  const breedDropdownRef = useRef<HTMLUListElement>(null);
-
-  const breedSuggestions = useMemo(() => {
-    const q = dogBreed.trim().toLowerCase();
-    if (!q) return [];
-    return DOG_BREEDS_FI.filter((name) => name.toLowerCase().includes(q)).slice(0, MAX_SUGGESTIONS);
-  }, [dogBreed]);
-
-  useEffect(() => {
-    setBreedHighlightIndex(0);
-  }, [breedSuggestions]);
-
-  useEffect(() => {
-    if (!breedDropdownOpen || breedSuggestions.length === 0) return;
-    const el = document.getElementById(`dog-breed-option-${breedHighlightIndex}`);
-    el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }, [breedHighlightIndex, breedDropdownOpen, breedSuggestions.length]);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const el = e.target as Node;
-      if (
-        breedContainerRef.current?.contains(el) ||
-        breedDropdownRef.current?.contains(el)
-      ) return;
-      setBreedDropdownOpen(false);
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleBreedSelect = (name: string) => {
-    setDogBreed(name);
-    setBreedDropdownOpen(false);
-    setBreedHighlightIndex(0);
-  };
-
-  const handleBreedKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!breedDropdownOpen || breedSuggestions.length === 0) {
-      if (e.key === 'Escape') setBreedDropdownOpen(false);
-      return;
-    }
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setBreedHighlightIndex((i) => (i + 1) % breedSuggestions.length);
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setBreedHighlightIndex((i) => (i - 1 + breedSuggestions.length) % breedSuggestions.length);
-        break;
-      case 'Enter':
-        e.preventDefault();
-        handleBreedSelect(breedSuggestions[breedHighlightIndex]);
-        break;
-      case 'Escape':
-        e.preventDefault();
-        setBreedDropdownOpen(false);
-        break;
-    }
-  };
 
   useEffect(() => {
     fetch('/api/check-limit')
@@ -202,6 +136,7 @@ export default function PortraitGenerator() {
         body: JSON.stringify({ 
             image: base64,
             dogBreed: dogBreed,
+            backgroundStyle: backgroundStyle,
             cfTurnstileToken: turnstileToken, // Bot-suojaus token
         }),
       });
@@ -269,10 +204,31 @@ export default function PortraitGenerator() {
                 loading="lazy"
               />
             </div>
-            <ul className="text-gray-200 space-y-3 text-left list-disc list-inside">
-            <li><strong>Asettele koira seisomaan:</strong> Valitse kuvaussuunnaksi etuviisto, jolloin koiran koko profiili kasvoista takapäähän näkyy selvästi.</li>
-            <li><strong>Täytä kuva-ala:</strong> Kuvaa noin metrin korkeudelta ja metrin etäisyydeltä (pienet koirat voi kuvata vielä alempaa) Rajaa kuva niin, että koira on pääosassa ja täyttää ruudun.</li>
-            <li><strong>Kiinnitä huomiota valoon:</strong> Varmista tasainen ja riittävä valaistus. Vältä tilanteita, joissa kuva jää pimeäksi, sumuiseksi tai siihen muodostuu jyrkkiä varjoja.</li>
+            <ul className="text-gray-200 space-y-4 text-left">
+              <li className="flex items-start gap-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#d27ea0] text-white text-sm font-bold flex-shrink-0 mt-0.5">
+                  1
+                </span>
+                <p>
+                  <strong>Asettele koira seisomaan:</strong> Valitse kuvaussuunnaksi etuviisto, jolloin koiran koko profiili kasvoista takapäähän näkyy selvästi.
+                </p>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#d27ea0] text-white text-sm font-bold flex-shrink-0 mt-0.5">
+                  2
+                </span>
+                <p>
+                  <strong>Täytä kuva-ala:</strong> Kuvaa noin metrin korkeudelta (pienet koirat voi kuvata vielä alempaa). Rajaa kuva niin, että koira on pääosassa ja täyttää ruudun.
+                </p>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#d27ea0] text-white text-sm font-bold flex-shrink-0 mt-0.5">
+                  3
+                </span>
+                <p>
+                  <strong>Kiinnitä huomiota valoon:</strong> Varmista tasainen ja riittävä valaistus. Vältä tilanteita, joissa kuva jää pimeäksi, sumuiseksi tai siihen muodostuu jyrkkiä varjoja.
+                </p>
+              </li>
             </ul>
             
           </div>
@@ -287,59 +243,23 @@ export default function PortraitGenerator() {
               </h2>
             </div>
 
-            {/* Koiran rotu - oma autocomplete (siirretty Lähdekuvan alle) */}
-            <div className="mb-6 w-full">
-              <label htmlFor="dog-breed" className="block text-sm font-medium text-white mb-2 pl-1">
-                Koiran rotu (valinnainen)
+            {/* Taustan valinta - vaikuttaa generoinnin promptiin */}
+            <div className="mb-6 w-full max-w-md">
+              <label htmlFor="background-style" className="block text-sm font-medium text-white mb-2 pl-1">
+                Taustan valinta
               </label>
-              <div className="relative w-full max-w-md" ref={breedContainerRef}>
-                <input
-                  id="dog-breed"
-                  type="text"
-                  value={dogBreed}
-                  onChange={(e) => {
-                    setDogBreed(e.target.value);
-                    setBreedDropdownOpen(true);
-                  }}
-                  onFocus={() => setBreedDropdownOpen(breedSuggestions.length > 0)}
-                  onKeyDown={handleBreedKeyDown}
-                  placeholder="esim. labradorinnoutaja, saksanpaimenkoira..."
-                  autoComplete="off"
-                  aria-autocomplete="list"
-                  aria-expanded={breedDropdownOpen && breedSuggestions.length > 0}
-                  aria-controls="dog-breed-list"
-                  aria-activedescendant={breedSuggestions.length > 0 ? `dog-breed-option-${breedHighlightIndex}` : undefined}
-                  className="block w-full pl-4 pr-4 py-3 text-base border border-stone-200 rounded-2xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-800 placeholder-gray-400"
-                />
-                {breedDropdownOpen && breedSuggestions.length > 0 && (
-                  <ul
-                    id="dog-breed-list"
-                    ref={breedDropdownRef}
-                    role="listbox"
-                    className="absolute z-50 left-0 right-0 mt-1 py-1 bg-white border border-stone-200 rounded-2xl shadow-lg max-h-[min(16rem,50vh)] overflow-auto"
-                  >
-                    {breedSuggestions.map((name, i) => (
-                      <li
-                        key={name}
-                        id={`dog-breed-option-${i}`}
-                        role="option"
-                        aria-selected={i === breedHighlightIndex}
-                        className={`min-h-[44px] flex items-center px-4 py-3 text-base cursor-pointer select-none
-                          ${i === breedHighlightIndex ? 'bg-stone-100 text-gray-900' : 'text-gray-700 hover:bg-stone-50'}
-                        `}
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          handleBreedSelect(name);
-                        }}
-                        onMouseEnter={() => setBreedHighlightIndex(i)}
-                      >
-                        {name}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+              <select
+                id="background-style"
+                value={backgroundStyle}
+                onChange={(e) => setBackgroundStyle(e.target.value as 'dark' | 'white')}
+                className="block w-full pl-4 pr-8 py-3 text-base border border-stone-200 rounded-2xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-800"
+              >
+                <option value="dark">Tumma studio</option>
+                <option value="white">Valkoinen studio</option>
+              </select>
             </div>
+
+            {/* Koiran rotu - UI piilotettu, mutta taustalla oleva logiikka (dogBreed state + API-parametri) säilytetään mahdollista palautusta varten */}
 
             <div className="flex-grow flex flex-col items-center justify-center">
               {loading && preview ? (
