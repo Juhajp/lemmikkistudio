@@ -53,7 +53,7 @@ export default function PortraitGenerator() {
     setProgress(0);
 
     const PROGRESS_MAX = 88;
-    const PROGRESS_INTERVAL_MS = 400;
+    const PROGRESS_INTERVAL_MS = 800;
     progressIntervalRef.current = setInterval(() => {
       setProgress((p) => (p >= PROGRESS_MAX ? p : p + Math.random() * 4 + 2));
     }, PROGRESS_INTERVAL_MS);
