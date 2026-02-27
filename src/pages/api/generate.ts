@@ -324,9 +324,9 @@ Pose and Composition: The dog is posed in a classic, dignified studio sit, head 
     }
     if (pngBuffer) {
       const watermarkPngBuffer = await sharp(pngBuffer)
-        .resize({ width: Math.floor(width * 0.8) })
+        .resize({ width }) // 100 % kuvan leveys
         .toBuffer();
-      compositeLayers.push({ input: watermarkPngBuffer, gravity: 'center' });
+      compositeLayers.push({ input: watermarkPngBuffer, gravity: 'south' }); // alareunaan
     }
 
     const watermarkedBuffer = await sharp(cleanBuffer)
