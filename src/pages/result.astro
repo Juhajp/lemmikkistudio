@@ -42,18 +42,18 @@ const displayImageUrl = previewImageUrl || purchaseToken;
       <button
         id="buy-btn"
         type="button"
-        class="w-full py-4 bg-violet-600 text-white text-center rounded-full font-medium hover:bg-violet-700 transition shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+        class="w-full py-4 bg-violet-600 text-white text-center rounded-full font-bold text-xl hover:bg-violet-700 transition shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
       >
-        <span id="buy-btn-text">Osta nyt – 4,90 €</span>
+        <span id="buy-btn-text">Osta nyt – 7,90 €</span>
       </button>
-      <p class="text-xs text-gray-500">
-        <span class="line-through">Norm. hinta 7,90€</span>
+      <p class="text-s text-gray-500">
+        <span class="line-through">Norm. hinta 14,90€</span>
       </p>
-      <p class="text-xs text-gray-400">
+      <p class="text-s text-gray-400">
         Saat täysikokoisen, vesileimattoman kuvan heti maksun jälkeen.
       </p>
 
-      <a href="/" class="block text-sm text-gray-500 hover:text-gray-700 mt-4">
+      <a href="/" class="inline-block py-2.5 px-5 rounded-full text-sm font-medium text-white bg-[#001121] hover:bg-[#001a2e] transition mt-4">
         ← Luo uusi kuva
       </a>
     </div>
@@ -69,7 +69,7 @@ const displayImageUrl = previewImageUrl || purchaseToken;
     const progressPct = document.getElementById('checkout-progress-pct');
 
     const PROGRESS_MAX = 88;
-    const PROGRESS_INTERVAL_MS = 1200;
+    const PROGRESS_INTERVAL_MS = 800;
     let progressInterval = null;
 
     function showCheckoutLoading() {
@@ -127,14 +127,14 @@ const displayImageUrl = previewImageUrl || purchaseToken;
             hideCheckoutLoading();
             alert(data.error || 'Maksusivun avaus epäonnistui');
             btn.disabled = false;
-            btnText.textContent = 'Osta nyt – 4,90 €';
+            btnText.textContent = 'Osta nyt – 7,90 €';
           }
         } catch (err) {
           console.error(err);
           hideCheckoutLoading();
           alert('Jotain meni pieleen. Yritä uudestaan.');
           btn.disabled = false;
-          btnText.textContent = 'Osta nyt – 4,90 €';
+          btnText.textContent = 'Osta nyt – 7,90 €';
         }
       });
     }

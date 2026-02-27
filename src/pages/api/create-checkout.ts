@@ -86,7 +86,7 @@ export const POST: APIRoute = async ({ request }) => {
               description: 'Täysikokoinen, vesileimaton studiokuva koirastasi (1024x1536px)',
               images: [displayImage],
             },
-            unit_amount: 490,
+            unit_amount: 790,
             tax_behavior: 'inclusive',
           },
           quantity: 1,
