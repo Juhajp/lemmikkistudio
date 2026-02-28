@@ -4,7 +4,7 @@ import Layout from '../layouts/layout.astro';
 // Voit vaihtaa nämä tiedot helposti tästä tai suoraan HTML:stä
 const lastUpdated = new Date().toLocaleDateString('fi-FI');
 const companyName = "[Mainospalvelu Unik Design]";
-const contactEmail = "[info@lemmikkistudio.fi]";
+const contactEmail = "asiakaspalvelu@lemmikkistudio.fi";
 ---
 
 <Layout title={`Tietosuojaseloste ja käyttöehdot | ${companyName}`}>
@@ -88,10 +88,27 @@ const contactEmail = "[info@lemmikkistudio.fi]";
           </div>
         </section>
 
-    
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 mb-3">6. Rekisteröidyn oikeudet</h2>
+          <p class="mb-3">
+            EU:n yleisen tietosuoja-asetuksen mukaisesti sinulla on seuraavat oikeudet henkilötietojesi käsittelyyn liittyen:
+          </p>
+          <ul class="list-disc pl-5 space-y-2">
+            <li><strong>Oikeus tarkastaa tietoja</strong> – Voit pyytää kopion käsittelemistämme henkilötiedoistasi.</li>
+            <li><strong>Oikeus tietojen oikaisemiseen</strong> – Voit pyytää virheellisten tai puutteellisten tietojesi korjaamista.</li>
+            <li><strong>Oikeus tietojen poistamiseen</strong> – Voit pyytää henkilötietojesi poistamista ("oikeus tulla unohdetuksi"), mikäli käsittelyyn ei ole enää oikeusperustetta.</li>
+            <li><strong>Oikeus käsittelyn rajoittamiseen</strong> – Tietyissä tilanteissa voit pyytää henkilötietojesi käsittelyn rajoittamista.</li>
+  
+            <li><strong>Oikeus vastustaa käsittelyä</strong> – Voit vastustaa henkilötietojesi käsittelyä erityisesti suoramarkkinointia varten.</li>
+            
+          </ul>
+          <p class="mt-3">
+            Oikeuksiesi käyttämiseksi ota yhteyttä: <a href={`mailto:${contactEmail}`} class="text-blue-600 hover:underline">{contactEmail}</a>. Vastaamme pyyntöösi asianmukaisessa ajassa (yleensä kuukauden kuluessa).
+          </p>
+        </section>
 
         <section>
-          <h2 class="text-xl font-semibold text-gray-900 mb-3">6. Käyttöehdot ja oikeudet kuviin</h2>
+          <h2 class="text-xl font-semibold text-gray-900 mb-3">7. Käyttöehdot ja oikeudet kuviin</h2>
           <p class="mb-2">
             Käyttämällä palvelua vakuutat, että sinulla on täysi käyttöoikeus lataamaasi kuvaan ja kuvassa esiintyvän henkilön suostumus kuvan käsittelyyn. Toisten ihmisten kuvien luvaton käyttö tai "deepfake"-materiaalin luominen ilman lupaa on kiellettyä.
           </p>
@@ -107,7 +124,7 @@ const contactEmail = "[info@lemmikkistudio.fi]";
         </section>
 
         <section>
-            <h2 class="text-xl font-semibold text-gray-900 mb-3">7. Evästeet ja seuranta</h2>
+            <h2 class="text-xl font-semibold text-gray-900 mb-3">8. Evästeet ja seuranta</h2>
             <p class="mb-2">
               Käytämme sivustolla evästeitä kahteen tarkoitukseen:
             </p>
@@ -118,7 +135,7 @@ const contactEmail = "[info@lemmikkistudio.fi]";
           </section>
 
         <section>
-          <h2 class="text-xl font-semibold text-gray-900 mb-3">8. Yhteydenotot</h2>
+          <h2 class="text-xl font-semibold text-gray-900 mb-3">9. Yhteydenotot</h2>
           <p>
             Tietosuojaan liittyvissä asioissa voit ottaa yhteyttä: <a href={`mailto:${contactEmail}`} class="text-blue-600 hover:underline">{contactEmail}</a>
           </p>

@@ -19,6 +19,10 @@ const FAQ_DATA: FAQItem[] = [
     answer: "Maksu tapahtuu turvallisesti Stripen kautta (verkkopankki, kortti, Apple Pay). Näet ensin vesileimatun esikatselukuvan, ja ostat kuvan vasta, jos olet tyytyväinen lopputulokseen. Maksun jälkeen sinut ohjataan sivulle, josta saat täyden resoluution kuvan latauslinkin."
   },
   {
+    question: "Mitä jos en ole tyytyväinen tekoälyn luomaan kuvaan?",
+    answer: "Tekoälyllä on luontaisia rajoituksia, eikä täydellistä lopputulosta voi taata – tulokset vaihtelevat lähdekuvasta ja asetuksista riippuen. Jos tulos ei miellytä, voit yksinkertaisesti luoda uuden kuvan ja kokeilla eri lähdekuvaa tai asetuksia. Juuri tästä syystä annamme mahdollisuuden luoda kuvan ensin ilmaiseksi - Ostat vain, kun olet tyytyväinen esikatselukuvaan."
+  },
+  {
     question: "Miten lataan kuvat?",
     answer: "Kun olet ostanut kuvan, sinut ohjataan tulossivulle, josta löydät täyden resoluution latauslinkin. Lisäksi lähetämme sinulle sähköpostin, jossa on suora linkki kuvan lataamiseen myöhemmin. Ladatut ja generoidut kuvat säilytetään palvelimilla enintään 7 päivää, jotta ehdit ladata kuvan turvallisesti talteen – tämän jälkeen linkit lakkaavat toimimasta, emmekä enää säilytä kuvaa."
   },

@@ -237,6 +237,11 @@ Pose and Composition: The dog is posed in a classic, dignified studio sit, head 
           (update.logs ?? []).map((l: any) => l.message).forEach(console.log);
         }
       },
+      requestOptions: {
+        headers: {
+          "X-Fal-Store-IO": "0",
+        },
+      },
     });
 
     const outUrl: string | undefined = result?.images?.[0]?.url;

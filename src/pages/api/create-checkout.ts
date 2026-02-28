@@ -51,6 +51,11 @@ export const POST: APIRoute = async ({ request }) => {
               (update.logs ?? []).map((l: any) => l.message).forEach(console.log);
             }
           },
+          requestOptions: {
+            headers: {
+              "X-Fal-Store-IO": "0",
+            },
+          },
         });
         const outUrl = upscaleResult?.data?.image?.url ?? upscaleResult?.image?.url;
         if (outUrl) {
@@ -89,7 +94,7 @@ export const POST: APIRoute = async ({ request }) => {
             currency: 'eur',
             product_data: {
               name: 'Ammattimainen muotokuva lemmikistäsi',
-              description: 'Täysikokoinen, vesileimaton studiokuva koirastasi (1024x1536px)',
+              description: 'Täysikokoinen, vesileimaton studiokuva koirastasi (3072 x 4608 px)',
               images: [displayImage],
             },
             unit_amount: 790,
