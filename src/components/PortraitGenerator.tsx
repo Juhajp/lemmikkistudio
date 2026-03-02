@@ -365,7 +365,7 @@ export default function PortraitGenerator() {
                 className={`w-full py-4 px-6 rounded-full text-lg font-medium transition-all shadow-md flex items-center justify-center gap-3
                   ${(!selectedFile || remainingGenerations === 0)
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
-                    : 'bg-gray-900 text-white hover:bg-black hover:shadow-lg active:scale-[0.99]'
+                    : 'bg-[#d27ea0] text-white hover:bg-[#c06d8f] hover:shadow-lg active:scale-[0.99]'
                   }`}
               >
                 {loading ? (
