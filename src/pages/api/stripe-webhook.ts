@@ -41,7 +41,11 @@ export const POST: APIRoute = async ({ request }) => {
 
   // 3. Käsittele vain checkout.session.completed -tapahtuma
   if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
+    // Hae sessio uudelleen expand:lla jotta saadaan tieto käytetyistä alennuksista
+    const session = await stripe.checkout.sessions.retrieve(
+      (event.data.object as Stripe.Checkout.Session).id,
+      { expand: ["total_details.breakdown.discounts"] }
+    );
 
     console.log("✅ Payment successful:", {
       sessionId: session.id,
@@ -64,31 +68,36 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response("OK (no email)", { status: 200 });
     }
 
-    // 4.5. Luo yksilöllinen alennuskoodi (-50%)
+    // 4.5. Luo yksilöllinen alennuskoodi (-50%) — ei luoda jos ostossa käytettiin alennuskoodia
+    const hasUsedDiscount = ((session.total_details as any)?.breakdown?.discounts?.length ?? 0) > 0;
     let couponCode: string | null = null;
-    try {
-      // Luo coupon jossa ID on itse alennuskoodi
-      // Tämä on yksinkertaisempi tapa kuin promotion code
-      const coupon = await stripe.coupons.create({
-        id: `KIITOS${Math.random().toString(36).substring(2, 8).toUpperCase()}`, // Esim. KIITOSAB12CD
-        percent_off: 50,
-        duration: 'once',
-        name: 'Kiitos tilauksesta! -50%',
-        max_redemptions: 1, // Vain yksi käyttökerta
-        redeem_by: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60), // 30 päivää
-      });
-      
-      couponCode = coupon.id;
-      
-      // Tallenna koodi Redis/KV:hen session ID:n perusteella (30 päivää)
-      await kv.set(`coupon:${session.id}`, couponCode, {
-        ex: 30 * 24 * 60 * 60,
-      });
-      
-      console.log('✅ Alennuskoodi luotu:', couponCode);
-    } catch (couponErr) {
-      console.error('Alennuskoodin luonti epäonnistui:', couponErr);
-      // Jatka ilman koodia
+    if (hasUsedDiscount) {
+      console.log('ℹ️ Ostolle käytetty alennuskoodi — uutta koodia ei luoda.');
+    } else {
+      try {
+        // Luo coupon jossa ID on itse alennuskoodi
+        // Tämä on yksinkertaisempi tapa kuin promotion code
+        const coupon = await stripe.coupons.create({
+          id: `KIITOS${Math.random().toString(36).substring(2, 8).toUpperCase()}`, // Esim. KIITOSAB12CD
+          percent_off: 50,
+          duration: 'once',
+          name: 'Kiitos tilauksesta! -50%',
+          max_redemptions: 1, // Vain yksi käyttökerta
+          redeem_by: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60), // 30 päivää
+        });
+
+        couponCode = coupon.id;
+
+        // Tallenna koodi Redis/KV:hen session ID:n perusteella (30 päivää)
+        await kv.set(`coupon:${session.id}`, couponCode, {
+          ex: 30 * 24 * 60 * 60,
+        });
+
+        console.log('✅ Alennuskoodi luotu:', couponCode);
+      } catch (couponErr) {
+        console.error('Alennuskoodin luonti epäonnistui:', couponErr);
+        // Jatka ilman koodia
+      }
     }
 
     // 5. Lähetä tilausvahvistusviesti (jos Resend on käytössä)

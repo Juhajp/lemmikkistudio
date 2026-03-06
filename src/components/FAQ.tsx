@@ -8,7 +8,7 @@ type FAQItem = {
 const FAQ_DATA: FAQItem[] = [
   {
     question: "Miten Lemmikkistudio toimii?",
-    answer: "Lataa koirasi kuva palveluun, valitse rodun nimi (valinnainen) ja paina ’Kokeile ilmaiseksi’. Tekoäly luo kuvasta ammattimaisen studiomuotokuvan. Tuloksen näet erillisellä sivulla – jos olet tyytyväinen, voit ostaa kuvan ilman vesileimaa."
+    answer: "Lataa koirasi kuva palveluun ja paina ’Luo esikatselukuva ilmaiseksi’. Tekoäly luo kuvasta ammattimaisen studiomuotokuvan. Tuloksen näet erillisellä sivulla – jos olet tyytyväinen, voit ostaa kuvan ilman vesileimaa."
   },
   {
     question: "Millaisesta kuvasta tulee paras studiomuotokuva?",
@@ -16,7 +16,7 @@ const FAQ_DATA: FAQItem[] = [
   },
   {
     question: "Miten maksu toimii?",
-    answer: "Maksu tapahtuu turvallisesti Stripen kautta (verkkopankki, kortti, Apple Pay). Näet ensin vesileimatun esikatselukuvan, ja ostat kuvan vasta, jos olet tyytyväinen lopputulokseen. Maksun jälkeen sinut ohjataan sivulle, josta saat täyden resoluution kuvan latauslinkin."
+    answer: "Maksu tapahtuu turvallisesti Stripen kautta (verkkopankki, kortti, Mobilepay, Apple Pay). Näet ensin vesileimatun esikatselukuvan, ja ostat kuvan vasta, jos olet tyytyväinen lopputulokseen. Maksun jälkeen sinut ohjataan sivulle, josta saat täyden resoluution kuvan latauslinkin."
   },
   {
     question: "Mitä jos en ole tyytyväinen tekoälyn luomaan kuvaan?",
