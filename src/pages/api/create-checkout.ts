@@ -82,6 +82,11 @@ export const POST: APIRoute = async ({ request }) => {
       console.warn("FAL_KEY or BLOB_READ_WRITE_TOKEN missing, skipping upscale");
     }
 
+    // Määritetään paluu-URL:t (ensisijaisesti PUBLIC_SITE_URL muuttujasta)
+    const siteUrl = import.meta.env.PUBLIC_SITE_URL || new URL(request.url).origin;
+    const success_url = `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancel_url = `${siteUrl}/`;
+
     // Luodaan Stripe Checkout -sessio (metadata: molemmat kuvat; käyttäjälle tarjotaan vain upscalattu)
     const session = await stripe.checkout.sessions.create({
       automatic_tax: {
@@ -104,8 +109,8 @@ export const POST: APIRoute = async ({ request }) => {
         },
       ],
       mode: 'payment',
-      success_url: `${new URL(request.url).origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${new URL(request.url).origin}/`,
+      success_url,
+      cancel_url,
       payment_intent_data: {
         statement_descriptor: 'LEMMIKKISTUDIO',
       },

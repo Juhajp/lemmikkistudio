@@ -16,15 +16,15 @@ export const POST: APIRoute = async ({ request }) => {
 
     const BLOB_READ_WRITE_TOKEN = import.meta.env.BLOB_READ_WRITE_TOKEN ?? process.env.BLOB_READ_WRITE_TOKEN;
     
-    // Muunna suhteellinen polku täydeksi URL:ksi
-    const origin = new URL(request.url).origin;
+    // Muunna suhteellinen polku täydeksi URL:ksi (ensisijaisesti PUBLIC_SITE_URL muuttujasta)
+    const siteUrl = import.meta.env.PUBLIC_SITE_URL || new URL(request.url).origin;
     let fullImageUrl = imageUrl;
     if (imageUrl.startsWith('/')) {
       // Suhteellinen polku -> täysi URL
-      fullImageUrl = `${origin}${imageUrl}`;
+      fullImageUrl = `${siteUrl}${imageUrl}`;
     } else if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
-      // Ei ole täysi URL -> lisää origin
-      fullImageUrl = `${origin}/${imageUrl}`;
+      // Ei ole täysi URL -> lisää siteUrl
+      fullImageUrl = `${siteUrl}/${imageUrl}`;
     }
     
     // Jos Blob token puuttuu lokaalisti, käytä alkuperäistä URL:ia suoraan
@@ -99,8 +99,8 @@ export const POST: APIRoute = async ({ request }) => {
       console.warn("Redis tallennus epäonnistui, mutta kuva on Blobissa");
     }
 
-    // Käytetään jo määriteltyä origin-muuttujaa
-    const shareUrl = `${origin}/shared/${shareToken}`;
+    // Käytetään määriteltyä siteUrl-muuttujaa
+    const shareUrl = `${siteUrl}/shared/${shareToken}`;
 
     return new Response(
       JSON.stringify({
