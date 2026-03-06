@@ -53,7 +53,7 @@ if (!downloadUrl && sessionId) {
 }
 ---
 
-<Layout title="Kiitos tilauksesta! - Muotokuvat.fi">
+<Layout title="Kiitos tilauksesta! - Lemmikkistudio.fi">
   <main class="min-h-screen flex flex-col items-center justify-center p-4 bg-[#F2F0ED]">
     <div class="bg-white p-8 rounded-[28px] shadow-sm max-w-lg w-full text-center space-y-6 mb-12">
       
@@ -277,7 +277,7 @@ if (!downloadUrl && sessionId) {
                   if (response.ok && data.shareUrl) {
                     // 2. Avaa suoraan WhatsApp URL-skeema (kaikissa laitteissa)
                     // iOS:ssa navigator.share avaa aina jakodialogin, joten käytämme suoraan WhatsApp URL:ia
-                    const shareText = `Katso AI-muotokuvani! 🎨\n${data.shareUrl}\n\nTein tämän Muotokuvasi.fi -palvelussa`;
+                    const shareText = `Katso lemmikkimuotokuvani! 🎨\n${data.shareUrl}\n\nTein tämän lemmikkistudio.fi -palvelussa`;
                     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
                     
                     // Tarkista onko mobiili
@@ -369,7 +369,7 @@ if (!downloadUrl && sessionId) {
               fbq('track', 'Purchase', {
                 value: 7.90,
                 currency: 'EUR',
-                content_name: 'Muotokuvasi.fi Tilaus'
+                content_name: 'lemmikkistudio.fi Tilaus'
               });
               console.log('✅ Meta Pixel Purchase event fired: 7.90 EUR');
             });
