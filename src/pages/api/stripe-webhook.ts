@@ -24,6 +24,8 @@ export const POST: APIRoute = async ({ request }) => {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
 
+  console.log("🔔 Webhook received. Signature present:", !!signature);
+
   if (!signature) {
     console.error("Stripe-Signature header puuttuu");
     return new Response("No signature", { status: 400 });
@@ -34,6 +36,7 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     // 2. Validoi Stripe-signatuuri (KRIITTINEN TIETOTURVATARKISTUS)
     event = stripe.webhooks.constructEvent(body, signature, STRIPE_WEBHOOK_SECRET);
+    console.log("✅ Webhook event validated:", event.type);
   } catch (err: any) {
     console.error("Webhook signature verification failed:", err.message);
     return new Response(`Webhook Error: ${err.message}`, { status: 400 });
@@ -47,24 +50,21 @@ export const POST: APIRoute = async ({ request }) => {
       { expand: ["total_details.breakdown.discounts"] }
     );
 
-    console.log("✅ Payment successful:", {
-      sessionId: session.id,
-      customerEmail: session.customer_details?.email,
-      amount: session.amount_total,
-    });
+    console.log("📦 Stripe Session Metadata:", JSON.stringify(session.metadata, null, 2));
+    console.log("📧 Customer Email:", session.customer_details?.email);
 
     // 4. Hae kuvan URL metadatasta (käyttäjälle tarjotaan upscalattu)
     const imageUrl = session.metadata?.upscaled_image_url ?? session.metadata?.original_image_url;
     const customerEmail = session.customer_details?.email;
 
     if (!imageUrl) {
-      console.error("Image URL puuttuu session metadatasta:", session.id);
+      console.error("❌ Image URL puuttuu session metadatasta. Metadata keys:", Object.keys(session.metadata || {}));
       // Ei palauteta virhettä Stripelle, jotta webhook ei yritä uudelleen
       return new Response("OK (no image)", { status: 200 });
     }
 
     if (!customerEmail) {
-      console.error("Customer email puuttuu:", session.id);
+      console.error("❌ Customer email puuttuu sessiosta.");
       return new Response("OK (no email)", { status: 200 });
     }
 
@@ -75,52 +75,48 @@ export const POST: APIRoute = async ({ request }) => {
       console.log('ℹ️ Ostolle käytetty alennuskoodi — uutta koodia ei luoda.');
     } else {
       try {
+        console.log('✨ Creating custom discount coupon...');
         // Luo coupon jossa ID on itse alennuskoodi
-        // Tämä on yksinkertaisempi tapa kuin promotion code
         const coupon = await stripe.coupons.create({
-          id: `KIITOS${Math.random().toString(36).substring(2, 8).toUpperCase()}`, // Esim. KIITOSAB12CD
+          id: `KIITOS${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
           percent_off: 50,
           duration: 'once',
           name: 'Kiitos tilauksesta! -50%',
-          max_redemptions: 1, // Vain yksi käyttökerta
-          redeem_by: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60), // 30 päivää
+          max_redemptions: 1,
+          redeem_by: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60),
         });
 
         couponCode = coupon.id;
-
-        // Tallenna koodi Redis/KV:hen session ID:n perusteella (30 päivää)
-        await kv.set(`coupon:${session.id}`, couponCode, {
-          ex: 30 * 24 * 60 * 60,
-        });
-
-        console.log('✅ Alennuskoodi luotu:', couponCode);
+        await kv.set(`coupon:${session.id}`, couponCode, { ex: 30 * 24 * 60 * 60 });
+        console.log('✅ Alennuskoodi luotu ja tallennettu KV:hen:', couponCode);
       } catch (couponErr) {
-        console.error('Alennuskoodin luonti epäonnistui:', couponErr);
-        // Jatka ilman koodia
+        console.error('❌ Alennuskoodin luonti epäonnistui:', couponErr);
       }
     }
 
     // 5. Lähetä tilausvahvistusviesti (jos Resend on käytössä)
+    console.log("📧 Resend API Key present:", !!RESEND_API_KEY);
     if (RESEND_API_KEY) {
       try {
         const resend = new Resend(RESEND_API_KEY);
+        console.log("🚀 Sending email via Resend to:", customerEmail);
 
-        // Hae kuva Vercel Blobista liitteeksi (upscalattu PNG tai alkuperäinen JPG)
+        // Hae kuva Vercel Blobista liitteeksi
         let attachmentData: { filename: string; path: string } | undefined;
         try {
+          console.log("📎 Preparing attachment from URL:", imageUrl);
           attachmentData = {
             filename: "muotokuva-pro.jpg",
             path: imageUrl,
           };
         } catch (fetchErr) {
-          console.error("Kuvan haku liitteeksi epäonnistui:", fetchErr);
-          // Jatka ilman liitettä (kuva on silti viestissä inline-kuvana)
+          console.error("❌ Kuvan haku liitteeksi epäonnistui:", fetchErr);
         }
 
-        const { data, error } = await resend.emails.send({
-          from: "noreply@muotokuvasi.fi",
+        const resendResponse = await resend.emails.send({
+          from: "noreply@lemmikkistudio.fi",
           to: customerEmail,
-          subject: "Tilausvahvistus – Muotokuvasi.fi",
+          subject: "Tilausvahvistus – lemmikkistudio.fi",
           html: `
             <!DOCTYPE html>
             <html>
@@ -176,28 +172,26 @@ export const POST: APIRoute = async ({ request }) => {
                   </p>
                   
                   <div class="footer">
-                    <p>Ystävällisin terveisin,<br>Muotokuvasi.fi -tiimi</p>
-                    <p><a href="https://muotokuvasi.fi">muotokuvasi.fi</a> | <a href="mailto:info@muotokuvasi.fi">info@muotokuvasi.fi</a></p>
+                    <p>Ystävällisin terveisin,<br>lemmikkistudio.fi -tiimi</p>
+                    <p><a href="https://lemmikkistudio.fi">lemmikkistudio.fi</a> | <a href="mailto:asiakaspalvelu@lemmikkistudio.fi">asiakaspalvelu@lemmikkistudio.fi</a></p>
                   </div>
                 </div>
               </body>
             </html>
           `,
-          // Liite (jos onnistui)
           ...(attachmentData ? { attachments: [attachmentData] } : {}),
         });
 
-        if (error) {
-          console.error("Resend error:", error);
+        if (resendResponse.error) {
+          console.error("❌ Resend API Error:", JSON.stringify(resendResponse.error, null, 2));
         } else {
-          console.log("✅ Tilausvahvistusviesti lähetetty:", customerEmail, data);
+          console.log("✅ Resend success! ID:", resendResponse.data?.id);
         }
       } catch (emailErr: any) {
-        console.error("Email sending failed:", emailErr);
-        // Ei palauteta virhettä Stripelle, jotta webhook ei yritä uudelleen
+        console.error("❌ Email sending failed (exception):", emailErr.message);
       }
     } else {
-      console.warn("RESEND_API_KEY puuttuu, sähköpostia ei lähetetä");
+      console.warn("⚠️ RESEND_API_KEY puuttuu, sähköpostia ei lähetetä");
     }
   }
 
