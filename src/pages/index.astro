@@ -24,6 +24,32 @@ import FAQ from '../components/FAQ';
 
 	<main class="w-full bg-[#001121] flex flex-col items-center py-12 px-4 md:px-8" style="font-family: 'Urbanist', sans-serif;">
 		<div class="max-w-6xl w-full space-y-8">
+			<section class="w-full py-4 sm:py-6">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 text-white">
+					<div class="flex items-start gap-3">
+						<div class="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#d27ea0] text-sm font-semibold aspect-square">1</div>
+						<div>
+							<p class="font-semibold text-base sm:text-lg">Lataa kuva koirastasi</p>
+							<p class="text-sm sm:text-base text-white/80">Valitse selkeä kuva, jossa koira näkyy hyvin. Voit käyttää tavallista puhelimella otettua kuvaa.</p>
+						</div>
+					</div>
+					<div class="flex items-start gap-3">
+						<div class="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#d27ea0] text-sm font-semibold aspect-square">2</div>
+						<div>
+							<p class="font-semibold text-base sm:text-lg">Katso esikatselukuva ilmaiseksi</p>
+							<p class="text-sm sm:text-base text-white/80">Tekoäly luo studiotasoiset muotokuvat muutamassa kymmenessä sekunnissa – näet tuloksen ennen ostopäätöstä.</p>
+						</div>
+					</div>
+					<div class="flex items-start gap-3">
+						<div class="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#d27ea0] text-sm font-semibold aspect-square">3</div>
+						<div>
+							<p class="font-semibold text-base sm:text-lg">Osta vain jos pidät tuloksesta</p>
+							<p class="text-sm sm:text-base text-white/80">Jos olet tyytyväinen, ostat vesileimattoman täyden resoluution kuvan ja voit käyttää sitä vapaasti.</p>
+						</div>
+					</div>
+				</div>
+			</section>
+
 			<section id="luo-kuva" class="scroll-mt-24 sm:scroll-mt-28 space-y-8">
 			<PortraitGenerator client:load />
 			</section>

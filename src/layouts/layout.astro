@@ -106,30 +106,32 @@ const isVercelApp = Astro.url.hostname.endsWith('.vercel.app');
 			<slot />
 		</main>
 		
-		<footer id="yhteyttä" class="bg-[#d27ea0] py-12">
-			<div class="max-w-7xl mx-auto px-6">
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-					{/* Vasen sarake */}
-					<div>
-						<p class="text-sm text-white mb-3">
-							Olemme suomalainen toimija. Jos sinulla on kysyttävää, vastaamme mielellämme osoitteessa:  <a href="mailto:asiakaspalvelu@lemmikkistudio.fi" class="text-white hover:text-gray-900 transition-colors">asiakaspalvelu@lemmikkistudio.fi</a>
+		<footer id="yhteyttä" class="bg-[#d27ea0] py-20">
+			<div class="max-w-6xl mx-auto px-6">
+				<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
+					<div class="text-white text-base md:text-lg space-y-1">
+						<p class="font-semibold text-lg md:text-xl">Lemmikkistudio.fi on suomalainen palvelu 🇫🇮</p>
+						<p>Mainospalvelu Unik Design</p>
+						<p>Y-tunnus: 1870949-9</p>
+						<p>
+							Asiakaspalvelu:{' '}
+							<a
+								href="mailto:asiakaspalvelu@lemmikkistudio.fi"
+								class="underline hover:text-gray-800 transition-colors"
+							>
+								asiakaspalvelu@lemmikkistudio.fi
+							</a>
 						</p>
 					</div>
-
-					
-					
-					{/* Oikea sarake */}
-					<div class="flex flex-col md:items-end">
-						<a href="/tietosuoja" class="text-sm text-white hover:text-gray-900 transition-colors leading-loose">
+					<div class="text-white text-base md:text-lg space-y-1 md:text-right">
+						<a href="/tietosuoja" class="block hover:text-gray-800 transition-colors">
 							Tietosuojaseloste ja käyttöehdot
-							
 						</a>
-						<p class="text-sm text-white leading-loose">&copy; {new Date().getFullYear()} lemmikkistudio.fi / Y-tunnus: 1870949-9</p>
-						
+						<p class="opacity-90">
+							&copy; {new Date().getFullYear()} Lemmikkistudio.fi
+						</p>
 					</div>
 				</div>
-				
-				
 			</div>
 		</footer>
 		<CookieConsent />

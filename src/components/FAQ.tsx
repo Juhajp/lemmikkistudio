@@ -49,7 +49,7 @@ export default function FAQ() {
 
   return (
     <div className="w-full max-w-3xl mx-auto mt-24 px-4 mb-12 text-base md:text-lg" style={{ fontFamily: 'Urbanist, sans-serif' }}>
-      <h2 className="text-5xl font-semibold text-center text-white mb-8" style={{ fontFamily: 'Prata, serif' }}>Usein kysyttyä</h2>
+      <h2 className="text-3xl sm:text-4xl md:text-5xl  font-semibold text-center text-white mb-8" style={{ fontFamily: 'Prata, serif' }}>Usein kysyttyä</h2>
       <div className="flex flex-col gap-4">
         {FAQ_DATA.map((item, index) => (
           <div 
