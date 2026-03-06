@@ -56,7 +56,7 @@ export const POST: APIRoute = async ({ request }) => {
               "X-Fal-Store-IO": "0",
             },
           },
-        });
+        } as any);
         const outUrl = upscaleResult?.data?.image?.url ?? upscaleResult?.image?.url;
         if (outUrl) {
           const imageRes = await fetch(outUrl);
@@ -97,7 +97,7 @@ export const POST: APIRoute = async ({ request }) => {
               description: 'Täysikokoinen, vesileimaton studiokuva koirastasi (3072 x 4608 px)',
               images: [displayImage],
             },
-            unit_amount: 50,
+            unit_amount: 100,
             tax_behavior: 'inclusive',
           },
           quantity: 1,

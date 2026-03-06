@@ -242,7 +242,7 @@ Pose and Composition: The dog is posed in a classic, dignified studio sit, head 
           "X-Fal-Store-IO": "0",
         },
       },
-    });
+    } as any);
 
     const outUrl: string | undefined = result?.images?.[0]?.url;
     if (!outUrl) throw new Error("Fal.ai ei palauttanut kuvan URL:ia.");
