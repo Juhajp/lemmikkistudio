@@ -16,7 +16,7 @@ const FAQ_DATA: FAQItem[] = [
   },
   {
     question: "Miten maksu toimii?",
-    answer: "Maksu tapahtuu turvallisesti Stripen kautta (verkkopankki, kortti, Mobilepay, Apple Pay). Näet ensin vesileimatun esikatselukuvan, ja ostat kuvan vasta, jos olet tyytyväinen lopputulokseen. Maksun jälkeen sinut ohjataan sivulle, josta saat täyden resoluution kuvan latauslinkin."
+    answer: "Maksu tapahtuu turvallisesti Stripen kautta (kortti, Mobilepay, Apple Pay). Näet ensin vesileimatun esikatselukuvan, ja ostat kuvan vasta, jos olet tyytyväinen lopputulokseen. Maksun jälkeen sinut ohjataan sivulle, josta saat täyden resoluution kuvan latauslinkin."
   },
   {
     question: "Mitä jos en ole tyytyväinen tekoälyn luomaan kuvaan?",
