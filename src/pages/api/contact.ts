@@ -19,7 +19,7 @@ export const POST: APIRoute = async ({ request }) => {
     // Validoi pakolliset kentät
     if (!name || !email || !company || !teamSize) {
       return new Response(
-        JSON.stringify({ error: "Nimi, sähköposti, yritys ja henkilömäärä ovat pakollisia." }),
+        JSON.stringify({ error: "Nimi, sähköposti, yritys ovat pakollisia." }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -37,8 +37,8 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Lähetä sähköposti
     const emailData = await resend.emails.send({
-      from: "Muotokuvasi.fi <noreply@muotokuvasi.fi>", 
-      to: "info@muotokuvasi.fi",
+      from: "lemmikkistudio.fi <noreply@lemmikkistudio.fi>", 
+      to: "asiakaspalvelu@lemmikkistudio.fi",
       replyTo: email,
       subject: `Uusi tarjouspyyntö: ${company}`,
       html: `
@@ -49,7 +49,6 @@ export const POST: APIRoute = async ({ request }) => {
             <p><strong>Nimi:</strong> ${name}</p>
             <p><strong>Sähköposti:</strong> ${email}</p>
             <p><strong>Yritys:</strong> ${company}</p>
-            <p><strong>Arvioitu henkilömäärä:</strong> ${teamSize}</p>
             ${phone ? `<p><strong>Puhelinnumero:</strong> ${phone}</p>` : ""}
           </div>
 
@@ -63,7 +62,7 @@ export const POST: APIRoute = async ({ request }) => {
           <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
           
           <p style="color: #666; font-size: 12px;">
-            Lähetetty muotokuvasi.fi -lomakkeelta ${new Date().toLocaleString("fi-FI")}
+            Lähetetty lemmikkistudio.fi -lomakkeelta ${new Date().toLocaleString("fi-FI")}
           </p>
         </div>
       `,
