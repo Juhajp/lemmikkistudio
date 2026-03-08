@@ -2,8 +2,11 @@ import type { APIRoute } from "astro";
 import Stripe from 'stripe';
 import * as fal from "@fal-ai/serverless-client";
 import { put } from "@vercel/blob";
+import { kv } from "@vercel/kv";
 import sharp from "sharp";
 import { randomUUID } from "crypto";
+
+const PURCHASE_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60;
 
 export const POST: APIRoute = async ({ request }) => {
   const STRIPE_SECRET_KEY = import.meta.env.STRIPE_SECRET_KEY ?? process.env.STRIPE_SECRET_KEY;
@@ -23,12 +26,28 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ error: "Image URL missing" }), { status: 400 });
     }
 
+    // Taaksepäin yhteensopivuus: vanhat result-linkit voivat lähettää URL:n suoraan.
+    const looksLikeUrl = typeof imageUrl === "string" && /^https?:\/\//.test(imageUrl);
+    let originalImageUrl = looksLikeUrl ? imageUrl : "";
+    let purchaseData: { imageUrl?: string; upscaledImageUrl?: string; createdAt?: number } | null = null;
+
+    if (!originalImageUrl) {
+      purchaseData = await kv.get<{ imageUrl?: string; upscaledImageUrl?: string; createdAt?: number }>(`purchase:${imageUrl}`);
+      originalImageUrl = purchaseData?.imageUrl ?? "";
+    }
+
+    if (!originalImageUrl) {
+      return new Response(JSON.stringify({ error: "Image not found or purchase token expired" }), { status: 404 });
+    }
+
     // Kassalla näytetään edelleen thumbnail (sama resoluutio kuin nyt)
-    const displayImage = thumbnailUrl || imageUrl;
+    const displayImage = thumbnailUrl || originalImageUrl;
 
     // Upscale 3x ennen ostoa: Fal SeedVR → Blob (tiedostonimi alkuun "upscale")
-    let upscaledImageUrl: string = imageUrl;
-    if (FAL_KEY && BLOB_READ_WRITE_TOKEN) {
+    let upscaledImageUrl: string = purchaseData?.upscaledImageUrl || originalImageUrl;
+    if (!looksLikeUrl && purchaseData?.upscaledImageUrl) {
+      console.log("Using cached upscale from KV:", purchaseData.upscaledImageUrl);
+    } else if (FAL_KEY && BLOB_READ_WRITE_TOKEN) {
       try {
         const now = new Date();
         const yy = String(now.getFullYear()).slice(-2);
@@ -39,7 +58,7 @@ export const POST: APIRoute = async ({ request }) => {
         fal.config({ credentials: FAL_KEY });
         const upscaleResult: any = await fal.subscribe("fal-ai/seedvr/upscale/image", {
           input: {
-            image_url: imageUrl,
+            image_url: originalImageUrl,
             upscale_mode: "factor",
             upscale_factor: 3,
             noise_scale: 0.1,
@@ -72,6 +91,18 @@ export const POST: APIRoute = async ({ request }) => {
             });
             upscaledImageUrl = blob.url;
             console.log("Upscale saved to Blob:", upscaledImageUrl);
+
+            if (!looksLikeUrl) {
+              await kv.set(
+                `purchase:${imageUrl}`,
+                {
+                  imageUrl: originalImageUrl,
+                  upscaledImageUrl,
+                  createdAt: purchaseData?.createdAt ?? Date.now(),
+                },
+                { ex: PURCHASE_TOKEN_TTL_SECONDS }
+              );
+            }
           }
         }
       } catch (upscaleErr: any) {
@@ -102,7 +133,7 @@ export const POST: APIRoute = async ({ request }) => {
               description: 'Täysikokoinen, vesileimaton studiokuva koirastasi (3072 x 4608 px)',
               images: [displayImage],
             },
-            unit_amount: 100,
+            unit_amount: 790,
             tax_behavior: 'inclusive',
           },
           quantity: 1,
@@ -116,7 +147,7 @@ export const POST: APIRoute = async ({ request }) => {
       },
       metadata: {
         project: 'lemmikkistudio',
-        original_image_url: imageUrl,
+        original_image_url: originalImageUrl,
         upscaled_image_url: upscaledImageUrl,
       },
       branding_settings: {

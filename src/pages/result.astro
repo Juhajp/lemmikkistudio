@@ -15,8 +15,15 @@ if (!resultData || !resultData.purchaseToken) {
 }
 
 const { purchaseToken, thumbnailUrl, previewImageUrl } = resultData;
-// Esikatselukuva: vesileimattu (X + watermark.png), jos ei ole tallennettu käytetään ostokuvaa
-const displayImageUrl = previewImageUrl || purchaseToken;
+// Esikatselukuva: käytä aina turvallista preview/thumbnail-kuvaa.
+// Taaksepäin yhteensopivuus: vanhoissa tokeneissa purchaseToken voi vielä olla URL.
+const legacyImageUrl =
+  typeof purchaseToken === 'string' && /^https?:\/\//.test(purchaseToken) ? purchaseToken : null;
+const displayImageUrl = previewImageUrl || thumbnailUrl || legacyImageUrl;
+
+if (!displayImageUrl) {
+  return Astro.redirect('/');
+}
 ---
 
 <Layout title="Lemmikkistudio.fi - Muotokuvasi on valmis">
