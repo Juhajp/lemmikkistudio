@@ -10,6 +10,8 @@ import { join } from 'path';
 import { randomUUID } from 'crypto';
 import { DOG_BREEDS } from '../../data/dogBreeds';
 
+const PURCHASE_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60;
+
 function toDataUri(image: string, mimeType = "image/jpeg") {
   if (/^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(image)) return image;
   return "data:" + mimeType + ";base64," + image;
@@ -37,13 +39,14 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   const body = await request.json();
   const cfTurnstileToken = body.cfTurnstileToken;
 
-  // Tarkista onko preview-ympäristö (ohita Turnstile preview-ympäristössä)
-  const isPreview =
+  // Ohita Turnstile vain aidossa preview/dev-ympäristössä.
+  // Pelkkä asiakkaan lähettämä testitoken ei saa koskaan avata bypassia tuotannossa.
+  const allowTurnstileBypass =
+    import.meta.env.DEV ||
     import.meta.env.VERCEL_ENV === 'preview' ||
-    process.env.VERCEL_ENV === 'preview' ||
-    cfTurnstileToken === 'preview-bypass-token';
+    process.env.VERCEL_ENV === 'preview';
 
-  if (!isPreview) {
+  if (!allowTurnstileBypass) {
     // Tuotannossa: vaadi Turnstile-token
     if (!cfTurnstileToken) {
       return new Response(
@@ -96,8 +99,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       );
     }
   } else {
-    // Preview-ympäristössä: ohita Turnstile-validointi
-    console.log('⚠️ Preview-ympäristö: Turnstile-validointi ohitettu');
+    // Preview/dev-ympäristössä: ohita Turnstile-validointi
+    console.log('⚠️ Preview/dev-ympäristö: Turnstile-validointi ohitettu');
   }
   // --- TURNSTILE VALIDATION END ---
 
@@ -368,12 +371,19 @@ Pose and Composition: The dog is posed in a classic, dignified studio sit, head 
       }
     }
 
+    const purchaseToken = randomUUID();
+    await kv.set(
+      `purchase:${purchaseToken}`,
+      { imageUrl: cleanImageUrl, createdAt: Date.now() },
+      { ex: PURCHASE_TOKEN_TTL_SECONDS }
+    );
+
     // 6. Palauta vastaus
     const response = new Response(
       JSON.stringify({
         image: watermarkedBase64, // Vesileimattu versio (base64)
         previewImageUrl: previewImageUrl, // Vesileimattu esikatselu URL (result-sivulla)
-        purchaseToken: cleanImageUrl, // Alkuperäisen kuvan URL
+        purchaseToken, // Server-side token, ei koskaan originaalikuvan URL
         thumbnailUrl: thumbnailUrl, // Pikkukuvan URL
         message: "Vesileimallinen esikatselu luotu",
       }),
