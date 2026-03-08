@@ -1,6 +1,17 @@
 import type { APIRoute } from "astro";
 import { list, del } from "@vercel/blob";
 
+/** Palauttaa blobin polun (esim. portraits/lem-060326-abc.jpg). Vercel Blob URL:sta pathname kun pathname-kenttä puuttuu. */
+function getBlobPath(blob: { pathname?: string | null; url: string }): string {
+  if (blob.pathname) return blob.pathname;
+  try {
+    const pathname = new URL(blob.url).pathname;
+    return pathname.startsWith("/") ? pathname.slice(1) : pathname;
+  } catch {
+    return blob.url.split("/").pop() || "";
+  }
+}
+
 export const GET: APIRoute = async ({ request }) => {
   // 1. Tietoturvatarkistus: Varmistetaan että kutsu tulee Vercelin Cronista
   // Vercel lisää automaattisesti Authorization-headerin
@@ -31,8 +42,8 @@ export const GET: APIRoute = async ({ request }) => {
     const blobsToDelete: string[] = [];
 
     for (const blob of blobs) {
-      const path = blob.pathname || blob.url.split('/').pop() || '';
-      
+      const path = getBlobPath(blob);
+
       // portraits/, thumbnails/ ja previews/ kansiot: poista 7 päivän vanhat (tämän palvelun varsinaiset kuvat)
       if (path.startsWith('portraits/') || path.startsWith('thumbnails/') || path.startsWith('previews/')) {
         if (blob.uploadedAt < sevenDaysAgo) {
@@ -64,13 +75,15 @@ export const GET: APIRoute = async ({ request }) => {
     // 6. Palautetaan raportti
     const report = {
       deleted: deletedCount,
-      portraits_thumbnails_24h: blobs.filter(b => {
-        const path = b.pathname || b.url.split('/').pop() || '';
-        return (path.startsWith('portraits/') || path.startsWith('thumbnails/')) && b.uploadedAt < oneDayAgo;
+      portraits_thumbnails_previews_7d: blobs.filter(b => {
+        const path = getBlobPath(b);
+        return (path.startsWith('portraits/') || path.startsWith('thumbnails/') || path.startsWith('previews/')) && b.uploadedAt < sevenDaysAgo;
       }).length,
-      shared_7d: blobs.filter(b => {
-        const path = b.pathname || b.url.split('/').pop() || '';
-        return path.startsWith('shared/') && b.uploadedAt < sevenDaysAgo;
+      shared_7d: blobs.filter(b => getBlobPath(b).startsWith('shared/') && b.uploadedAt < sevenDaysAgo).length,
+      other_24h: blobs.filter(b => {
+        const path = getBlobPath(b);
+        const isOurs = path.startsWith('portraits/') || path.startsWith('thumbnails/') || path.startsWith('previews/') || path.startsWith('shared/');
+        return !isOurs && b.uploadedAt < oneDayAgo;
       }).length,
       message: "Cleanup complete"
     };
