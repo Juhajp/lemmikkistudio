@@ -86,9 +86,15 @@ export const POST: APIRoute = async ({ request }) => {
           redeem_by: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60),
         });
 
+        // Luo promotion code (tarjouskoodi) jotta asiakas voi syöttää koodin kassalla (Anna tarjouskoodi)
+        await stripe.promotionCodes.create({
+          promotion: { type: "coupon", coupon: coupon.id },
+          code: coupon.id,
+        });
+
         couponCode = coupon.id;
         await kv.set(`coupon:${session.id}`, couponCode, { ex: 30 * 24 * 60 * 60 });
-        console.log('✅ Alennuskoodi luotu ja tallennettu KV:hen:', couponCode);
+        console.log('✅ Alennuskoodi ja tarjouskoodi luotu, tallennettu KV:hen:', couponCode);
       } catch (couponErr) {
         console.error('❌ Alennuskoodin luonti epäonnistui:', couponErr);
       }
