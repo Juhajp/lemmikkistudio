@@ -66,7 +66,7 @@ if (!downloadUrl && sessionId) {
           </div>
           
           <h1 class="text-2xl font-bold text-gray-900">Kiitos tilauksesta!</h1>
-          <p class="text-gray-600">Maksusi on vastaanotettu onnistuneesti. Tässä on valmis muotokuvasi.</p>
+          <p class="text-gray-800">Maksusi on vastaanotettu onnistuneesti. Tässä on valmis muotokuvasi.</p>
           
           <div class="rounded-xl overflow-hidden shadow-lg border-4 border-white my-6">
             <img src={downloadUrl} alt="Ostettu kuva" class="w-full h-auto" />
@@ -86,7 +86,7 @@ if (!downloadUrl && sessionId) {
 
           <!-- JAKO-OSIO -->
           <div class="border-t border-gray-200 pt-6 mt-6 space-y-4">
-            <h3 class="text-lg font-semibold text-gray-900">Jaa kaverille 🎉</h3>
+            <h3 class="text-lg font-bold text-gray-900">Jaa kaverille 🎉</h3>
             <p class="text-xs text-gray-500">Linkki toimii 7 päivää. (kuva säilytetään 7 päivää palvelimella)</p>
             
             <!-- Jaa kuva WhatsAppissa -nappi -->
@@ -105,7 +105,7 @@ if (!downloadUrl && sessionId) {
           {couponCode && (
             <div class="border-t border-gray-200 pt-6 mt-6">
               <div class="bg-gradient-to-r from-violet-50 to-purple-50 p-6 rounded-2xl border-2 border-violet-200">
-                <h3 class="text-lg font-semibold text-violet-900 mb-2 flex items-center gap-2">
+                <h3 class="text-lg font-bold text-violet-900 mb-2 flex items-center gap-2">
                   <span>🎁</span>
                   <span>Kiitos tilauksestasi!</span>
                 </h3>
@@ -383,7 +383,7 @@ if (!downloadUrl && sessionId) {
             </svg>
           </div>
           <h1 class="text-xl font-bold text-gray-900">Jotain meni pieleen</h1>
-          <p class="text-gray-600">{error || "Emme voineet vahvistaa maksua."}</p>
+          <p class="text-gray-800">{error || "Emme voineet vahvistaa maksua."}</p>
           <a href="/" class="block mt-6 text-violet-600 font-medium hover:underline">
             Palaa etusivulle
           </a>

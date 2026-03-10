@@ -64,7 +64,7 @@ export default function PortraitGenerator() {
       
       // Tarkista onko preview-ympäristö (Vercel preview-deploy)
       const isPreview = window.location.hostname.includes('.vercel.app') && 
-                       !window.location.hostname.includes('muotokuvasi.fi');
+                       !window.location.hostname.includes('lemmikkistudio.fi');
       
       if (isPreview) {
         // Preview-ympäristössä: ohita Turnstile-tokenin generointi
@@ -214,8 +214,8 @@ export default function PortraitGenerator() {
         {/* Ohjeet kuvan ottamiseen (vasemmalla desktopissa) */}
         <div className="flex flex-col gap-4 order-2 lg:order-1">
           <div className="bg-white/5 backdrop-blur-sm p-6 rounded-[28px] border border-white/10 h-full flex flex-col">
-            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-              Ohjeet kuvan ottamiseen
+            <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+              Ohjeet hyvän kuvan ottamiseen
             </h2>
             <div className="mb-4">
               <img
@@ -227,7 +227,7 @@ export default function PortraitGenerator() {
             </div>
             <ul className="text-gray-200 space-y-4 text-left">
               <li className="flex items-start gap-3">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#d27ea0] text-white text-sm font-bold flex-shrink-0 mt-0.5">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#d27ea0] text-white text-base font-bold flex-shrink-0 mt-0.5">
                   1
                 </span>
                 <p>
@@ -235,7 +235,7 @@ export default function PortraitGenerator() {
                 </p>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#d27ea0] text-white text-sm font-bold flex-shrink-0 mt-0.5">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#d27ea0] text-white text-base font-bold flex-shrink-0 mt-0.5">
                   2
                 </span>
                 <p>
@@ -243,7 +243,7 @@ export default function PortraitGenerator() {
                 </p>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#d27ea0] text-white text-sm font-bold flex-shrink-0 mt-0.5">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#d27ea0] text-white text-base font-bold flex-shrink-0 mt-0.5">
                   3
                 </span>
                 <p>
@@ -259,7 +259,7 @@ export default function PortraitGenerator() {
         <div className="flex flex-col gap-4 order-1 lg:order-2">
           <div className="bg-white/5 backdrop-blur-sm p-6 rounded-[28px] border border-white/10 h-full flex flex-col">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                 Lähdekuva
               </h2>
             </div>
@@ -302,7 +302,7 @@ export default function PortraitGenerator() {
                           style={{ width: `${Math.min(100, Math.round(progress))}%` }}
                         />
                       </div>
-                      <p className="text-xs text-white/80 mt-2 text-center">{Math.min(100, Math.round(progress))} %</p>
+                      <p className="text-xs text-white mt-2 text-center">{Math.min(100, Math.round(progress))} %</p>
                     </div>
                   </div>
                 </div>

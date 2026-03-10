@@ -235,7 +235,7 @@ Pose and Composition: The dog is posed in a classic, dignified studio sit, head 
         sync_mode: true,
       },
       logs: true,
-      onQueueUpdate: (update) => {
+      onQueueUpdate: (update: { status?: string; logs?: { message?: string }[] | null }) => {
         if (update.status === "IN_PROGRESS") {
           (update.logs ?? []).map((l: any) => l.message).forEach(console.log);
         }

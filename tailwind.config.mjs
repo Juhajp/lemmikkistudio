@@ -6,7 +6,9 @@ export default {
 			fontFamily: {
 				sans: ['Urbanist', 'sans-serif'],
 			},
+			
 		},
 	},
 	plugins: [],
 }
+
