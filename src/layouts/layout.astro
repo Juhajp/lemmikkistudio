@@ -6,12 +6,14 @@ import CookieConsent from '../components/CookieConsent.astro';
 interface Props {
 	title: string;
     description?: string;
+    noindex?: boolean;
 }
 
-const { title, description = "Ammattimainen valokuva ilman studiokäyntiä nettisivuille, someen tai työnhakuun." } = Astro.props;
+const { title, description = "Ammattimainen valokuva ilman studiokäyntiä nettisivuille, someen tai työnhakuun.", noindex = false } = Astro.props;
 
 // Estä .vercel.app -osoitteiden indeksointi hakukoneissa
 const isVercelApp = Astro.url.hostname.endsWith('.vercel.app');
+const shouldNoindex = noindex || isVercelApp;
 ---
 
 <!doctype html>
@@ -21,8 +23,8 @@ const isVercelApp = Astro.url.hostname.endsWith('.vercel.app');
 		<meta name="description" content={description} />
 		<meta name="viewport" content="width=device-width" />
 		
-		{/* Estä .vercel.app -osoitteiden indeksointi (duplicate content -suojaus) */}
-		{isVercelApp && (
+		{/* Estä piilotettujen sivujen ja .vercel.app -osoitteiden indeksointi */}
+		{shouldNoindex && (
 			<meta name="robots" content="noindex, nofollow" />
 		)}
 		

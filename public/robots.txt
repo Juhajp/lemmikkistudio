@@ -4,6 +4,7 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /shared/
+Disallow: /palaute
 
 # Sitemap
 Sitemap: https://muotokuvasi.fi/sitemap.xml
