@@ -4,7 +4,6 @@ interface FormData {
   rating: number;
   message: string;
   email: string;
-  orderReference: string;
 }
 
 export default function FeedbackForm() {
@@ -12,7 +11,6 @@ export default function FeedbackForm() {
     rating: 0,
     message: '',
     email: '',
-    orderReference: '',
   });
 
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -52,7 +50,6 @@ export default function FeedbackForm() {
           rating: 0,
           message: '',
           email: '',
-          orderReference: '',
         });
       } else {
         setStatus('error');
@@ -133,21 +130,6 @@ export default function FeedbackForm() {
           onChange={handleChange}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#234b4d] focus:border-transparent transition-all"
           placeholder="sähköposti@example.com"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="orderReference" className="block text-sm font-medium text-gray-700 mb-2">
-          Tilausviite <span className="text-gray-400 text-xs">(valinnainen)</span>
-        </label>
-        <input
-          type="text"
-          id="orderReference"
-          name="orderReference"
-          value={formData.orderReference}
-          onChange={handleChange}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#234b4d] focus:border-transparent transition-all"
-          placeholder="Stripe-tilausnumero tai muu viite"
         />
       </div>
 

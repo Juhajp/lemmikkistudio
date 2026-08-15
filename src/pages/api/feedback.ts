@@ -14,7 +14,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     const body = await request.json();
-    const { rating, message, email, orderReference } = body;
+    const { rating, message, email } = body;
 
     const ratingNum = Number(rating);
     if (!ratingNum || ratingNum < 1 || ratingNum > 5) {
@@ -53,7 +53,6 @@ export const POST: APIRoute = async ({ request }) => {
           <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <p><strong>Arvosana:</strong> ${ratingNum}/5 ${"★".repeat(ratingNum)}${"☆".repeat(5 - ratingNum)}</p>
             ${email ? `<p><strong>Sähköposti:</strong> ${email}</p>` : ""}
-            ${orderReference ? `<p><strong>Tilausviite:</strong> ${orderReference}</p>` : ""}
           </div>
 
           <div style="margin: 20px 0;">
